@@ -1,0 +1,6028 @@
+{
+  "pages": [
+    {
+      "number": 1,
+      "slug": "primitives",
+      "title": "Primitives",
+      "summary": "The smallest parts. Most are gpui itself; Ely adds the rest.",
+      "stories": [
+        {
+          "title": "Box / View",
+          "slug": "box-view",
+          "components": [
+            "Box",
+            "View"
+          ],
+          "name": "Box"
+        },
+        {
+          "title": "Text",
+          "slug": "text",
+          "components": [
+            "Text"
+          ],
+          "name": "Text"
+        },
+        {
+          "title": "Icon",
+          "slug": "icon",
+          "components": [
+            "Icon"
+          ],
+          "name": "Icon"
+        },
+        {
+          "title": "IconSet / IconRegistry",
+          "slug": "iconset-iconregistry",
+          "components": [
+            "IconSet",
+            "IconRegistry"
+          ],
+          "name": "IconSet"
+        },
+        {
+          "title": "Svg",
+          "slug": "svg",
+          "components": [
+            "Svg"
+          ],
+          "name": "Svg"
+        },
+        {
+          "title": "Image",
+          "slug": "image",
+          "components": [
+            "Image"
+          ],
+          "name": "Image"
+        },
+        {
+          "title": "Canvas",
+          "slug": "canvas",
+          "components": [
+            "Canvas"
+          ],
+          "name": "Canvas"
+        },
+        {
+          "title": "Divider / Separator",
+          "slug": "divider-separator",
+          "components": [
+            "Divider",
+            "Separator"
+          ],
+          "name": "Divider"
+        },
+        {
+          "title": "Spacer",
+          "slug": "spacer",
+          "components": [
+            "Spacer"
+          ],
+          "name": "Spacer"
+        },
+        {
+          "title": "Portal",
+          "slug": "portal",
+          "components": [
+            "Portal"
+          ],
+          "name": "Portal"
+        },
+        {
+          "title": "Overlay / Backdrop",
+          "slug": "overlay-backdrop",
+          "components": [
+            "Overlay",
+            "Backdrop"
+          ],
+          "name": "Overlay"
+        },
+        {
+          "title": "Slot",
+          "slug": "slot",
+          "components": [
+            "Slot"
+          ],
+          "name": "Slot"
+        },
+        {
+          "title": "Show / When",
+          "slug": "show-when",
+          "components": [
+            "Show",
+            "When"
+          ],
+          "name": "Show"
+        },
+        {
+          "title": "For / Each",
+          "slug": "for-each",
+          "components": [
+            "For",
+            "Each"
+          ],
+          "name": "For"
+        },
+        {
+          "title": "Fragment",
+          "slug": "fragment",
+          "components": [
+            "Fragment"
+          ],
+          "name": "Fragment"
+        },
+        {
+          "title": "VisuallyHidden",
+          "slug": "visuallyhidden",
+          "components": [
+            "VisuallyHidden"
+          ],
+          "name": "VisuallyHidden"
+        },
+        {
+          "title": "FocusRing",
+          "slug": "focusring",
+          "components": [
+            "FocusRing"
+          ],
+          "name": "FocusRing"
+        },
+        {
+          "title": "FocusScope / FocusTrap",
+          "slug": "focusscope-focustrap",
+          "components": [
+            "FocusScope",
+            "FocusTrap"
+          ],
+          "name": "FocusScope"
+        },
+        {
+          "title": "ClickOutside",
+          "slug": "clickoutside",
+          "components": [
+            "ClickOutside"
+          ],
+          "name": "ClickOutside"
+        },
+        {
+          "title": "HoverArea",
+          "slug": "hoverarea",
+          "components": [
+            "HoverArea"
+          ],
+          "name": "HoverArea"
+        },
+        {
+          "title": "Pressable",
+          "slug": "pressable",
+          "components": [
+            "Pressable"
+          ],
+          "name": "Pressable"
+        },
+        {
+          "title": "KeyboardHandler",
+          "slug": "keyboardhandler",
+          "components": [
+            "KeyboardHandler"
+          ],
+          "name": "KeyboardHandler"
+        },
+        {
+          "title": "Measure",
+          "slug": "measure",
+          "components": [
+            "Measure"
+          ],
+          "name": "Measure"
+        },
+        {
+          "title": "IntersectionObserver",
+          "slug": "intersectionobserver",
+          "components": [
+            "IntersectionObserver"
+          ],
+          "name": "IntersectionObserver"
+        },
+        {
+          "title": "Clipboard",
+          "slug": "clipboard",
+          "components": [
+            "Clipboard"
+          ],
+          "name": "Clipboard"
+        },
+        {
+          "title": "Tooltip Trigger",
+          "slug": "tooltip-trigger",
+          "components": [
+            "Tooltip Trigger"
+          ],
+          "name": "Tooltip Trigger"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "slug": "typography",
+      "title": "Typography",
+      "summary": "Inter for words, tabular figures for numbers, one ink for everything.",
+      "stories": [
+        {
+          "title": "Heading (H1–H6)",
+          "slug": "heading-h1-h6",
+          "components": [
+            "Heading"
+          ],
+          "name": "Heading"
+        },
+        {
+          "title": "Title / Subtitle",
+          "slug": "title-subtitle",
+          "components": [
+            "Title",
+            "Subtitle"
+          ],
+          "name": "Title"
+        },
+        {
+          "title": "Paragraph",
+          "slug": "paragraph",
+          "components": [
+            "Paragraph"
+          ],
+          "name": "Paragraph"
+        },
+        {
+          "title": "Label",
+          "slug": "label",
+          "components": [
+            "Label"
+          ],
+          "name": "Label"
+        },
+        {
+          "title": "Caption",
+          "slug": "caption",
+          "components": [
+            "Caption"
+          ],
+          "name": "Caption"
+        },
+        {
+          "title": "Overline",
+          "slug": "overline",
+          "components": [
+            "Overline"
+          ],
+          "name": "Overline"
+        },
+        {
+          "title": "Code",
+          "slug": "code",
+          "components": [
+            "Code"
+          ],
+          "name": "Code"
+        },
+        {
+          "title": "Kbd",
+          "slug": "kbd",
+          "components": [
+            "Kbd"
+          ],
+          "name": "Kbd"
+        },
+        {
+          "title": "KbdCombo",
+          "slug": "kbdcombo",
+          "components": [
+            "KbdCombo"
+          ],
+          "name": "KbdCombo"
+        },
+        {
+          "title": "Blockquote",
+          "slug": "blockquote",
+          "components": [
+            "Blockquote"
+          ],
+          "name": "Blockquote"
+        },
+        {
+          "title": "Highlight / Mark",
+          "slug": "highlight-mark",
+          "components": [
+            "Highlight",
+            "Mark"
+          ],
+          "name": "Highlight"
+        },
+        {
+          "title": "Truncate / Ellipsis",
+          "slug": "truncate-ellipsis",
+          "components": [
+            "Truncate"
+          ],
+          "name": "Truncate"
+        },
+        {
+          "title": "LineClamp",
+          "slug": "lineclamp",
+          "components": [
+            "LineClamp"
+          ],
+          "name": "LineClamp"
+        },
+        {
+          "title": "MiddleEllipsis",
+          "slug": "middleellipsis",
+          "components": [
+            "MiddleEllipsis"
+          ],
+          "name": "MiddleEllipsis"
+        },
+        {
+          "title": "EllipsisTooltip",
+          "slug": "ellipsistooltip",
+          "components": [
+            "EllipsisTooltip"
+          ],
+          "name": "EllipsisTooltip"
+        },
+        {
+          "title": "Link",
+          "slug": "link",
+          "components": [
+            "Link"
+          ],
+          "name": "Link"
+        },
+        {
+          "title": "ExternalLink",
+          "slug": "externallink",
+          "components": [
+            "ExternalLink"
+          ],
+          "name": "ExternalLink"
+        },
+        {
+          "title": "RelativeTime",
+          "slug": "relativetime",
+          "components": [
+            "RelativeTime"
+          ],
+          "name": "RelativeTime"
+        },
+        {
+          "title": "DateTimeText",
+          "slug": "datetimetext",
+          "components": [
+            "DateTimeText"
+          ],
+          "name": "DateTimeText"
+        },
+        {
+          "title": "NumberText",
+          "slug": "numbertext",
+          "components": [
+            "NumberText"
+          ],
+          "name": "NumberText"
+        },
+        {
+          "title": "CurrencyText",
+          "slug": "currencytext",
+          "components": [
+            "CurrencyText"
+          ],
+          "name": "CurrencyText"
+        },
+        {
+          "title": "PercentText",
+          "slug": "percenttext",
+          "components": [
+            "PercentText"
+          ],
+          "name": "PercentText"
+        },
+        {
+          "title": "FileSizeText",
+          "slug": "filesizetext",
+          "components": [
+            "FileSizeText"
+          ],
+          "name": "FileSizeText"
+        },
+        {
+          "title": "DurationText",
+          "slug": "durationtext",
+          "components": [
+            "DurationText"
+          ],
+          "name": "DurationText"
+        },
+        {
+          "title": "PluralText",
+          "slug": "pluraltext",
+          "components": [
+            "PluralText"
+          ],
+          "name": "PluralText"
+        },
+        {
+          "title": "CopyableText",
+          "slug": "copyabletext",
+          "components": [
+            "CopyableText"
+          ],
+          "name": "CopyableText"
+        },
+        {
+          "title": "SelectableText",
+          "slug": "selectabletext",
+          "components": [
+            "SelectableText"
+          ],
+          "name": "SelectableText"
+        },
+        {
+          "title": "Emoji",
+          "slug": "emoji",
+          "components": [
+            "Emoji"
+          ],
+          "name": "Emoji"
+        },
+        {
+          "title": "Latex / MathInline",
+          "slug": "latex-mathinline",
+          "components": [
+            "Latex",
+            "MathInline"
+          ],
+          "name": "Latex"
+        },
+        {
+          "title": "AnimatedNumber",
+          "slug": "animatednumber",
+          "components": [
+            "AnimatedNumber"
+          ],
+          "name": "AnimatedNumber"
+        },
+        {
+          "title": "Typewriter",
+          "slug": "typewriter",
+          "components": [
+            "Typewriter"
+          ],
+          "name": "Typewriter"
+        },
+        {
+          "title": "GradientText",
+          "slug": "gradienttext",
+          "components": [
+            "GradientText"
+          ],
+          "name": "GradientText"
+        },
+        {
+          "title": "ShimmerText",
+          "slug": "shimmertext",
+          "components": [
+            "ShimmerText"
+          ],
+          "name": "ShimmerText"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "slug": "layout",
+      "title": "Layout",
+      "summary": "Stacks, grids, splits, docks. Structure that stays out of the way.",
+      "stories": [
+        {
+          "title": "Stack / HStack / VStack",
+          "slug": "stack-hstack-vstack",
+          "components": [
+            "Stack",
+            "HStack",
+            "VStack"
+          ],
+          "name": "Stack"
+        },
+        {
+          "title": "Flex",
+          "slug": "flex",
+          "components": [
+            "Flex"
+          ],
+          "name": "Flex"
+        },
+        {
+          "title": "Grid / GridItem",
+          "slug": "grid-griditem",
+          "components": [
+            "Grid",
+            "GridItem"
+          ],
+          "name": "Grid"
+        },
+        {
+          "title": "SimpleGrid",
+          "slug": "simplegrid",
+          "components": [
+            "SimpleGrid"
+          ],
+          "name": "SimpleGrid"
+        },
+        {
+          "title": "Masonry",
+          "slug": "masonry",
+          "components": [
+            "Masonry"
+          ],
+          "name": "Masonry"
+        },
+        {
+          "title": "Center",
+          "slug": "center",
+          "components": [
+            "Center"
+          ],
+          "name": "Center"
+        },
+        {
+          "title": "Container",
+          "slug": "container",
+          "components": [
+            "Container"
+          ],
+          "name": "Container"
+        },
+        {
+          "title": "AspectRatio",
+          "slug": "aspectratio",
+          "components": [
+            "AspectRatio"
+          ],
+          "name": "AspectRatio"
+        },
+        {
+          "title": "Inset / Padding",
+          "slug": "inset-padding",
+          "components": [
+            "Inset",
+            "Padding"
+          ],
+          "name": "Inset"
+        },
+        {
+          "title": "Wrap",
+          "slug": "wrap",
+          "components": [
+            "Wrap"
+          ],
+          "name": "Wrap"
+        },
+        {
+          "title": "Absolute / Positioned",
+          "slug": "absolute-positioned",
+          "components": [
+            "Absolute",
+            "Positioned"
+          ],
+          "name": "Absolute"
+        },
+        {
+          "title": "Layer / ZStack",
+          "slug": "layer-zstack",
+          "components": [
+            "Layer",
+            "ZStack"
+          ],
+          "name": "Layer"
+        },
+        {
+          "title": "ScrollArea",
+          "slug": "scrollarea",
+          "components": [
+            "ScrollArea"
+          ],
+          "name": "ScrollArea"
+        },
+        {
+          "title": "Scrollbar",
+          "slug": "scrollbar",
+          "components": [
+            "Scrollbar"
+          ],
+          "name": "Scrollbar"
+        },
+        {
+          "title": "ScrollShadow",
+          "slug": "scrollshadow",
+          "components": [
+            "ScrollShadow"
+          ],
+          "name": "ScrollShadow"
+        },
+        {
+          "title": "ScrollToTop",
+          "slug": "scrolltotop",
+          "components": [
+            "ScrollToTop"
+          ],
+          "name": "ScrollToTop"
+        },
+        {
+          "title": "StickyHeader",
+          "slug": "stickyheader",
+          "components": [
+            "StickyHeader"
+          ],
+          "name": "StickyHeader"
+        },
+        {
+          "title": "SplitPane",
+          "slug": "splitpane",
+          "components": [
+            "SplitPane"
+          ],
+          "name": "SplitPane"
+        },
+        {
+          "title": "ResizeHandle",
+          "slug": "resizehandle",
+          "components": [
+            "ResizeHandle"
+          ],
+          "name": "ResizeHandle"
+        },
+        {
+          "title": "Collapsible",
+          "slug": "collapsible",
+          "components": [
+            "Collapsible"
+          ],
+          "name": "Collapsible"
+        },
+        {
+          "title": "Accordion / AccordionItem",
+          "slug": "accordion-accordionitem",
+          "components": [
+            "Accordion",
+            "AccordionItem"
+          ],
+          "name": "Accordion"
+        },
+        {
+          "title": "Card / CardHeader / CardBody / CardFooter",
+          "slug": "card-cardheader-cardbody-cardfooter",
+          "components": [
+            "Card",
+            "CardHeader",
+            "CardBody",
+            "CardFooter"
+          ],
+          "name": "Card"
+        },
+        {
+          "title": "Panel / PanelHeader",
+          "slug": "panel-panelheader",
+          "components": [
+            "Panel",
+            "PanelHeader"
+          ],
+          "name": "Panel"
+        },
+        {
+          "title": "Section / SectionHeader",
+          "slug": "section-sectionheader",
+          "components": [
+            "Section",
+            "SectionHeader"
+          ],
+          "name": "Section"
+        },
+        {
+          "title": "Group / Fieldset",
+          "slug": "group-fieldset",
+          "components": [
+            "Group",
+            "Fieldset"
+          ],
+          "name": "Group"
+        },
+        {
+          "title": "Frame",
+          "slug": "frame",
+          "components": [
+            "Frame"
+          ],
+          "name": "Frame"
+        },
+        {
+          "title": "Well",
+          "slug": "well",
+          "components": [
+            "Well"
+          ],
+          "name": "Well"
+        },
+        {
+          "title": "Sidebar",
+          "slug": "sidebar",
+          "components": [
+            "Sidebar"
+          ],
+          "name": "Sidebar"
+        },
+        {
+          "title": "Drawer",
+          "slug": "drawer",
+          "components": [
+            "Drawer"
+          ],
+          "name": "Drawer"
+        },
+        {
+          "title": "Sheet",
+          "slug": "sheet",
+          "components": [
+            "Sheet"
+          ],
+          "name": "Sheet"
+        },
+        {
+          "title": "Page / PageHeader / PageContent",
+          "slug": "page-pageheader-pagecontent",
+          "components": [
+            "Page",
+            "PageHeader",
+            "PageContent"
+          ],
+          "name": "Page"
+        },
+        {
+          "title": "AppShell",
+          "slug": "appshell",
+          "components": [
+            "AppShell"
+          ],
+          "name": "AppShell"
+        },
+        {
+          "title": "MasterDetail",
+          "slug": "masterdetail",
+          "components": [
+            "MasterDetail"
+          ],
+          "name": "MasterDetail"
+        },
+        {
+          "title": "Dock / DockPanel",
+          "slug": "dock-dockpanel",
+          "components": [
+            "Dock",
+            "DockPanel"
+          ],
+          "name": "Dock"
+        },
+        {
+          "title": "DockZone / DropIndicator",
+          "slug": "dockzone-dropindicator",
+          "components": [
+            "DockZone",
+            "DropIndicator"
+          ],
+          "name": "DockZone"
+        },
+        {
+          "title": "FloatingPanel",
+          "slug": "floatingpanel",
+          "components": [
+            "FloatingPanel"
+          ],
+          "name": "FloatingPanel"
+        },
+        {
+          "title": "Pane / PaneGroup",
+          "slug": "pane-panegroup",
+          "components": [
+            "Pane",
+            "PaneGroup"
+          ],
+          "name": "Pane"
+        },
+        {
+          "title": "Workspace",
+          "slug": "workspace",
+          "components": [
+            "Workspace"
+          ],
+          "name": "Workspace"
+        },
+        {
+          "title": "Viewport",
+          "slug": "viewport",
+          "components": [
+            "Viewport"
+          ],
+          "name": "Viewport"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "slug": "shell",
+      "title": "Window & Shell",
+      "summary": "Title bars, rails, tabs, and the windows around an app.",
+      "stories": [
+        {
+          "title": "TitleBar",
+          "slug": "titlebar",
+          "components": [
+            "TitleBar"
+          ],
+          "name": "TitleBar"
+        },
+        {
+          "title": "ColumnShell / ShellColumn",
+          "slug": "columnshell-shellcolumn",
+          "components": [
+            "ColumnShell",
+            "ShellColumn"
+          ],
+          "name": "ColumnShell"
+        },
+        {
+          "title": "WindowControls / TrafficLights",
+          "slug": "windowcontrols-trafficlights",
+          "components": [
+            "WindowControls",
+            "TrafficLights"
+          ],
+          "name": "WindowControls"
+        },
+        {
+          "title": "WindowDragRegion",
+          "slug": "windowdragregion",
+          "components": [
+            "WindowDragRegion"
+          ],
+          "name": "WindowDragRegion"
+        },
+        {
+          "title": "WindowResizeBorder",
+          "slug": "windowresizeborder",
+          "components": [
+            "WindowResizeBorder"
+          ],
+          "name": "WindowResizeBorder"
+        },
+        {
+          "title": "NativeMenu / MenuBar / JumpList",
+          "slug": "nativemenu-menubar-jumplist",
+          "components": [
+            "NativeMenu",
+            "MenuBar",
+            "JumpList"
+          ],
+          "name": "NativeMenu"
+        },
+        {
+          "title": "Toolbar / ToolbarGroup / ToolbarSeparator",
+          "slug": "toolbar-toolbargroup-toolbarseparator",
+          "components": [
+            "Toolbar",
+            "ToolbarGroup",
+            "ToolbarSeparator"
+          ],
+          "name": "Toolbar"
+        },
+        {
+          "title": "StatusBar / StatusBarItem",
+          "slug": "statusbar-statusbaritem",
+          "components": [
+            "StatusBar",
+            "StatusBarItem"
+          ],
+          "name": "StatusBar"
+        },
+        {
+          "title": "ActivityBar / NavigationRail",
+          "slug": "activitybar-navigationrail",
+          "components": [
+            "ActivityBar",
+            "NavigationRail"
+          ],
+          "name": "ActivityBar"
+        },
+        {
+          "title": "TabBar",
+          "slug": "tabbar",
+          "components": [
+            "TabBar"
+          ],
+          "name": "TabBar"
+        },
+        {
+          "title": "SplashScreen",
+          "slug": "splashscreen",
+          "components": [
+            "SplashScreen"
+          ],
+          "name": "SplashScreen"
+        },
+        {
+          "title": "AboutDialog",
+          "slug": "aboutdialog",
+          "components": [
+            "AboutDialog"
+          ],
+          "name": "AboutDialog"
+        },
+        {
+          "title": "TrayIcon / TrayMenu",
+          "slug": "trayicon-traymenu",
+          "components": [
+            "TrayIcon",
+            "TrayMenu"
+          ],
+          "name": "TrayIcon"
+        },
+        {
+          "title": "DockBadge",
+          "slug": "dockbadge",
+          "components": [
+            "DockBadge"
+          ],
+          "name": "DockBadge"
+        },
+        {
+          "title": "SystemNotification",
+          "slug": "systemnotification",
+          "components": [
+            "SystemNotification"
+          ],
+          "name": "SystemNotification"
+        },
+        {
+          "title": "MultiWindow Manager",
+          "slug": "multiwindow-manager",
+          "components": [
+            "MultiWindow Manager"
+          ],
+          "name": "MultiWindow Manager"
+        },
+        {
+          "title": "WindowSwitcher",
+          "slug": "windowswitcher",
+          "components": [
+            "WindowSwitcher"
+          ],
+          "name": "WindowSwitcher"
+        },
+        {
+          "title": "QuickLauncher",
+          "slug": "quicklauncher",
+          "components": [
+            "QuickLauncher"
+          ],
+          "name": "QuickLauncher"
+        },
+        {
+          "title": "MiniWindow / CompactMode / PictureInPicture",
+          "slug": "miniwindow-compactmode-pictureinpicture",
+          "components": [
+            "MiniWindow",
+            "CompactMode",
+            "PictureInPicture",
+            "AlwaysOnTop"
+          ],
+          "name": "MiniWindow"
+        },
+        {
+          "title": "UpdateBanner",
+          "slug": "updatebanner",
+          "components": [
+            "UpdateBanner"
+          ],
+          "name": "UpdateBanner"
+        },
+        {
+          "title": "UpdateDialog",
+          "slug": "updatedialog",
+          "components": [
+            "UpdateDialog"
+          ],
+          "name": "UpdateDialog"
+        },
+        {
+          "title": "CrashReporter",
+          "slug": "crashreporter",
+          "components": [
+            "CrashReporter"
+          ],
+          "name": "CrashReporter"
+        },
+        {
+          "title": "OfflineIndicator",
+          "slug": "offlineindicator",
+          "components": [
+            "OfflineIndicator"
+          ],
+          "name": "OfflineIndicator"
+        },
+        {
+          "title": "ZoomControl",
+          "slug": "zoomcontrol",
+          "components": [
+            "ZoomControl"
+          ],
+          "name": "ZoomControl"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "slug": "buttons",
+      "title": "Buttons & Actions",
+      "summary": "Seven variants, three sizes, one focus ring, and the verbs around them.",
+      "stories": [
+        {
+          "title": "Button",
+          "slug": "button",
+          "components": [
+            "Button"
+          ],
+          "name": "Button"
+        },
+        {
+          "title": "Sizes",
+          "slug": "sizes",
+          "components": [],
+          "name": "Sizes"
+        },
+        {
+          "title": "With icons",
+          "slug": "with-icons",
+          "components": [],
+          "name": "With icons"
+        },
+        {
+          "title": "Icon button",
+          "slug": "icon-button",
+          "components": [
+            "IconButton"
+          ],
+          "name": "Icon button"
+        },
+        {
+          "title": "ShortcutHint",
+          "slug": "shortcuthint",
+          "components": [
+            "ShortcutHint"
+          ],
+          "name": "ShortcutHint"
+        },
+        {
+          "title": "ButtonGroup",
+          "slug": "buttongroup",
+          "components": [
+            "ButtonGroup"
+          ],
+          "name": "ButtonGroup"
+        },
+        {
+          "title": "SplitButton / DropdownButton / MenuButton / LoadingButton",
+          "slug": "splitbutton-dropdownbutton-menubutton-loadingbutton",
+          "components": [
+            "SplitButton",
+            "DropdownButton",
+            "MenuButton",
+            "LoadingButton"
+          ],
+          "name": "SplitButton"
+        },
+        {
+          "title": "ToggleButton",
+          "slug": "togglebutton",
+          "components": [
+            "ToggleButton"
+          ],
+          "name": "ToggleButton"
+        },
+        {
+          "title": "ToggleGroup",
+          "slug": "togglegroup",
+          "components": [
+            "ToggleGroup"
+          ],
+          "name": "ToggleGroup"
+        },
+        {
+          "title": "SegmentedControl",
+          "slug": "segmentedcontrol",
+          "components": [
+            "SegmentedControl"
+          ],
+          "name": "SegmentedControl"
+        },
+        {
+          "title": "FloatingActionButton",
+          "slug": "floatingactionbutton",
+          "components": [
+            "FloatingActionButton"
+          ],
+          "name": "FloatingActionButton"
+        },
+        {
+          "title": "ConfirmButton / HoldToConfirm",
+          "slug": "confirmbutton-holdtoconfirm",
+          "components": [
+            "ConfirmButton",
+            "HoldToConfirm"
+          ],
+          "name": "ConfirmButton"
+        },
+        {
+          "title": "CopyButton / ShareButton / CloseButton / BackButton / MoreButton",
+          "slug": "copybutton-sharebutton-closebutton-backbutton-morebutton",
+          "components": [
+            "CopyButton",
+            "ShareButton",
+            "CloseButton",
+            "BackButton",
+            "MoreButton"
+          ],
+          "name": "CopyButton"
+        },
+        {
+          "title": "ActionBar",
+          "slug": "actionbar",
+          "components": [
+            "ActionBar"
+          ],
+          "name": "ActionBar"
+        },
+        {
+          "title": "BulkActionBar",
+          "slug": "bulkactionbar",
+          "components": [
+            "BulkActionBar"
+          ],
+          "name": "BulkActionBar"
+        },
+        {
+          "title": "ActionSheet",
+          "slug": "actionsheet",
+          "components": [
+            "ActionSheet"
+          ],
+          "name": "ActionSheet"
+        },
+        {
+          "title": "QuickActions",
+          "slug": "quickactions",
+          "components": [
+            "QuickActions"
+          ],
+          "name": "QuickActions"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "slug": "forms",
+      "title": "Forms",
+      "summary": "Text, choices, dates, colors, files: every way to say what you mean.",
+      "stories": [
+        {
+          "title": "Input / TextField / ClearableInput",
+          "slug": "input-textfield-clearableinput",
+          "components": [
+            "Input",
+            "TextField",
+            "ClearableInput"
+          ],
+          "name": "Input"
+        },
+        {
+          "title": "TextArea / AutoResizeInput",
+          "slug": "textarea-autoresizeinput",
+          "components": [
+            "TextArea",
+            "AutoResizeInput"
+          ],
+          "name": "TextArea"
+        },
+        {
+          "title": "PasswordInput",
+          "slug": "passwordinput",
+          "components": [
+            "PasswordInput"
+          ],
+          "name": "PasswordInput"
+        },
+        {
+          "title": "SearchInput",
+          "slug": "searchinput",
+          "components": [
+            "SearchInput"
+          ],
+          "name": "SearchInput"
+        },
+        {
+          "title": "NumberInput",
+          "slug": "numberinput",
+          "components": [
+            "NumberInput"
+          ],
+          "name": "NumberInput"
+        },
+        {
+          "title": "ScrubInput",
+          "slug": "scrubinput",
+          "components": [
+            "ScrubInput"
+          ],
+          "name": "ScrubInput"
+        },
+        {
+          "title": "CurrencyInput / PercentInput / UnitInput",
+          "slug": "currencyinput-percentinput-unitinput",
+          "components": [
+            "CurrencyInput",
+            "PercentInput",
+            "UnitInput"
+          ],
+          "name": "CurrencyInput"
+        },
+        {
+          "title": "EmailInput / UrlInput",
+          "slug": "emailinput-urlinput",
+          "components": [
+            "EmailInput",
+            "UrlInput"
+          ],
+          "name": "EmailInput"
+        },
+        {
+          "title": "PhoneInput / MaskedInput",
+          "slug": "phoneinput-maskedinput",
+          "components": [
+            "PhoneInput",
+            "MaskedInput"
+          ],
+          "name": "PhoneInput"
+        },
+        {
+          "title": "PinInput / OTPInput",
+          "slug": "pininput-otpinput",
+          "components": [
+            "PinInput",
+            "OTPInput"
+          ],
+          "name": "PinInput"
+        },
+        {
+          "title": "InlineEdit / EditableText",
+          "slug": "inlineedit-editabletext",
+          "components": [
+            "InlineEdit",
+            "EditableText"
+          ],
+          "name": "InlineEdit"
+        },
+        {
+          "title": "InputGroup / InputAddon",
+          "slug": "inputgroup-inputaddon",
+          "components": [
+            "InputGroup",
+            "InputAddon"
+          ],
+          "name": "InputGroup"
+        },
+        {
+          "title": "MentionInput / HashtagInput",
+          "slug": "mentioninput-hashtaginput",
+          "components": [
+            "MentionInput",
+            "HashtagInput"
+          ],
+          "name": "MentionInput"
+        },
+        {
+          "title": "TagInput / TokenInput",
+          "slug": "taginput-tokeninput",
+          "components": [
+            "TagInput",
+            "TokenInput"
+          ],
+          "name": "TagInput"
+        },
+        {
+          "title": "KeyValueInput / ListInput",
+          "slug": "keyvalueinput-listinput",
+          "components": [
+            "KeyValueInput",
+            "ListInput"
+          ],
+          "name": "KeyValueInput"
+        },
+        {
+          "title": "PathInput",
+          "slug": "pathinput",
+          "components": [
+            "PathInput"
+          ],
+          "name": "PathInput"
+        },
+        {
+          "title": "RegexInput",
+          "slug": "regexinput",
+          "components": [
+            "RegexInput"
+          ],
+          "name": "RegexInput"
+        },
+        {
+          "title": "ExpressionInput",
+          "slug": "expressioninput",
+          "components": [
+            "ExpressionInput"
+          ],
+          "name": "ExpressionInput"
+        },
+        {
+          "title": "HotkeyInput / ShortcutRecorder",
+          "slug": "hotkeyinput-shortcutrecorder",
+          "components": [
+            "HotkeyInput",
+            "ShortcutRecorder"
+          ],
+          "name": "HotkeyInput"
+        },
+        {
+          "title": "Checkbox / CheckboxGroup",
+          "slug": "checkbox-checkboxgroup",
+          "components": [
+            "Checkbox",
+            "CheckboxGroup"
+          ],
+          "name": "Checkbox"
+        },
+        {
+          "title": "Radio / RadioGroup",
+          "slug": "radio-radiogroup",
+          "components": [
+            "Radio",
+            "RadioGroup"
+          ],
+          "name": "Radio"
+        },
+        {
+          "title": "CheckboxCard / RadioCard",
+          "slug": "checkboxcard-radiocard",
+          "components": [
+            "CheckboxCard",
+            "RadioCard"
+          ],
+          "name": "CheckboxCard"
+        },
+        {
+          "title": "Switch / Toggle",
+          "slug": "switch-toggle",
+          "components": [
+            "Switch",
+            "Toggle"
+          ],
+          "name": "Switch"
+        },
+        {
+          "title": "Select / NativeSelect",
+          "slug": "select-nativeselect",
+          "components": [
+            "Select",
+            "NativeSelect"
+          ],
+          "name": "Select"
+        },
+        {
+          "title": "ListBox",
+          "slug": "listbox",
+          "components": [
+            "ListBox"
+          ],
+          "name": "ListBox"
+        },
+        {
+          "title": "Combobox / Autocomplete",
+          "slug": "combobox-autocomplete",
+          "components": [
+            "Combobox",
+            "Autocomplete"
+          ],
+          "name": "Combobox"
+        },
+        {
+          "title": "MultiSelect",
+          "slug": "multiselect",
+          "components": [
+            "MultiSelect"
+          ],
+          "name": "MultiSelect"
+        },
+        {
+          "title": "CascadeSelect / Cascader",
+          "slug": "cascadeselect-cascader",
+          "components": [
+            "CascadeSelect",
+            "Cascader"
+          ],
+          "name": "CascadeSelect"
+        },
+        {
+          "title": "TransferList",
+          "slug": "transferlist",
+          "components": [
+            "Transfer List"
+          ],
+          "name": "TransferList"
+        },
+        {
+          "title": "ChoiceChips / FilterChips",
+          "slug": "choicechips-filterchips",
+          "components": [
+            "ChoiceChips",
+            "FilterChips"
+          ],
+          "name": "ChoiceChips"
+        },
+        {
+          "title": "Rating",
+          "slug": "rating",
+          "components": [
+            "Rating"
+          ],
+          "name": "Rating"
+        },
+        {
+          "title": "Slider / RangeSlider / VerticalSlider",
+          "slug": "slider-rangeslider-verticalslider",
+          "components": [
+            "Slider",
+            "RangeSlider",
+            "VerticalSlider"
+          ],
+          "name": "Slider"
+        },
+        {
+          "title": "Knob / Dial / Stepper",
+          "slug": "knob-dial-stepper",
+          "components": [
+            "Knob",
+            "Dial",
+            "Stepper"
+          ],
+          "name": "Knob"
+        },
+        {
+          "title": "Calendar",
+          "slug": "calendar",
+          "components": [
+            "Calendar"
+          ],
+          "name": "Calendar"
+        },
+        {
+          "title": "DatePicker / DateRangePicker / DateTimePicker / TimePicker",
+          "slug": "datepicker-daterangepicker-datetimepicker-timepicker",
+          "components": [
+            "DatePicker",
+            "DateRangePicker",
+            "DateTimePicker",
+            "TimePicker"
+          ],
+          "name": "DatePicker"
+        },
+        {
+          "title": "MonthPicker / YearPicker / QuarterPicker / WeekPicker",
+          "slug": "monthpicker-yearpicker-quarterpicker-weekpicker",
+          "components": [
+            "MonthPicker",
+            "YearPicker",
+            "QuarterPicker",
+            "WeekPicker"
+          ],
+          "name": "MonthPicker"
+        },
+        {
+          "title": "RelativeDatePicker / TimezoneSelect / DurationPicker",
+          "slug": "relativedatepicker-timezoneselect-durationpicker",
+          "components": [
+            "RelativeDatePicker",
+            "TimezoneSelect",
+            "DurationPicker"
+          ],
+          "name": "RelativeDatePicker"
+        },
+        {
+          "title": "CronEditor",
+          "slug": "croneditor",
+          "components": [
+            "CronEditor"
+          ],
+          "name": "CronEditor"
+        },
+        {
+          "title": "ColorPicker",
+          "slug": "colorpicker",
+          "components": [
+            "ColorPicker"
+          ],
+          "name": "ColorPicker"
+        },
+        {
+          "title": "ColorSwatch / ColorPalette / EyeDropper",
+          "slug": "colorswatch-colorpalette-eyedropper",
+          "components": [
+            "ColorSwatch",
+            "ColorPalette",
+            "EyeDropper"
+          ],
+          "name": "ColorSwatch"
+        },
+        {
+          "title": "GradientEditor",
+          "slug": "gradienteditor",
+          "components": [
+            "GradientEditor"
+          ],
+          "name": "GradientEditor"
+        },
+        {
+          "title": "FileInput / DropZone",
+          "slug": "fileinput-dropzone",
+          "components": [
+            "FileInput",
+            "DropZone"
+          ],
+          "name": "FileInput"
+        },
+        {
+          "title": "SignaturePad",
+          "slug": "signaturepad",
+          "components": [
+            "SignaturePad"
+          ],
+          "name": "SignaturePad"
+        },
+        {
+          "title": "CodeInput / JsonInput",
+          "slug": "codeinput-jsoninput",
+          "components": [
+            "CodeInput",
+            "JsonInput"
+          ],
+          "name": "CodeInput"
+        },
+        {
+          "title": "FontPicker",
+          "slug": "fontpicker",
+          "components": [
+            "FontPicker"
+          ],
+          "name": "FontPicker"
+        },
+        {
+          "title": "IconPicker / EmojiPicker",
+          "slug": "iconpicker-emojipicker",
+          "components": [
+            "IconPicker",
+            "EmojiPicker"
+          ],
+          "name": "IconPicker"
+        },
+        {
+          "title": "LanguageSelect / CountrySelect / CurrencySelect",
+          "slug": "languageselect-countryselect-currencyselect",
+          "components": [
+            "LanguageSelect",
+            "CountrySelect",
+            "CurrencySelect"
+          ],
+          "name": "LanguageSelect"
+        },
+        {
+          "title": "Form / FormSection / FormField / FieldArray / DirtyIndicator",
+          "slug": "form-formsection-formfield-fieldarray-dirtyindicator",
+          "components": [
+            "Form",
+            "FormSection",
+            "FormField",
+            "FieldArray",
+            "DirtyIndicator",
+            "FormLabel",
+            "FormError"
+          ],
+          "name": "Form"
+        },
+        {
+          "title": "InlineForm",
+          "slug": "inlineform",
+          "components": [
+            "InlineForm"
+          ],
+          "name": "InlineForm"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "slug": "navigation",
+      "title": "Navigation",
+      "summary": "Tabs, paths, places and palettes: where you are, and the ways out.",
+      "stories": [
+        {
+          "title": "Tabs",
+          "slug": "tabs",
+          "components": [
+            "Tabs"
+          ],
+          "name": "Tabs"
+        },
+        {
+          "title": "EditorTabs / TabOverflowMenu",
+          "slug": "editortabs-taboverflowmenu",
+          "components": [
+            "EditorTabs",
+            "TabOverflowMenu"
+          ],
+          "name": "EditorTabs"
+        },
+        {
+          "title": "Breadcrumb",
+          "slug": "breadcrumb",
+          "components": [
+            "Breadcrumb"
+          ],
+          "name": "Breadcrumb"
+        },
+        {
+          "title": "Pagination",
+          "slug": "pagination",
+          "components": [
+            "Pagination"
+          ],
+          "name": "Pagination"
+        },
+        {
+          "title": "Steps / Wizard",
+          "slug": "steps-wizard",
+          "components": [
+            "Steps",
+            "Wizard"
+          ],
+          "name": "Steps"
+        },
+        {
+          "title": "Sidebar Navigation / NavItem / NavGroup",
+          "slug": "sidebar-navigation-navitem-navgroup",
+          "components": [
+            "Sidebar Navigation",
+            "NavItem",
+            "NavGroup"
+          ],
+          "name": "Sidebar Navigation"
+        },
+        {
+          "title": "NavigationMenu",
+          "slug": "navigationmenu",
+          "components": [
+            "NavigationMenu"
+          ],
+          "name": "NavigationMenu"
+        },
+        {
+          "title": "BackForwardNavigation / History",
+          "slug": "backforwardnavigation-history",
+          "components": [
+            "BackForwardNavigation"
+          ],
+          "name": "BackForwardNavigation"
+        },
+        {
+          "title": "Anchor / TableOfContents",
+          "slug": "anchor-tableofcontents",
+          "components": [
+            "Anchor",
+            "TableOfContents"
+          ],
+          "name": "Anchor"
+        },
+        {
+          "title": "JumpTo / GoToLine",
+          "slug": "jumpto-gotoline",
+          "components": [
+            "JumpTo",
+            "GoToLine"
+          ],
+          "name": "JumpTo"
+        },
+        {
+          "title": "CommandPalette",
+          "slug": "commandpalette",
+          "components": [
+            "CommandPalette"
+          ],
+          "name": "CommandPalette"
+        },
+        {
+          "title": "QuickOpen",
+          "slug": "quickopen",
+          "components": [
+            "QuickOpen"
+          ],
+          "name": "QuickOpen"
+        },
+        {
+          "title": "QuickSwitcher",
+          "slug": "quickswitcher",
+          "components": [
+            "QuickSwitcher"
+          ],
+          "name": "QuickSwitcher"
+        },
+        {
+          "title": "SearchPalette / SpotlightSearch / QuickLauncher",
+          "slug": "searchpalette-spotlightsearch-quicklauncher",
+          "components": [
+            "SearchPalette",
+            "SpotlightSearch",
+            "QuickLauncher"
+          ],
+          "name": "SearchPalette"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "slug": "menus",
+      "title": "Menus",
+      "summary": "Rows of actions that open from a button, a right click or an arrow, and nest.",
+      "stories": [
+        {
+          "title": "Menu / MenuItem / MenuGroup / MenuSeparator / SubMenu / MenuItemShortcut / MenuItemIcon",
+          "slug": "menu-menuitem-menugroup-menuseparator-submenu-menuitemshortcut-menuitemicon",
+          "components": [
+            "Menu",
+            "MenuItem",
+            "MenuGroup",
+            "MenuSeparator",
+            "SubMenu",
+            "MenuItemShortcut",
+            "MenuItemIcon"
+          ],
+          "name": "Menu"
+        },
+        {
+          "title": "CheckboxMenuItem / RadioMenuItem",
+          "slug": "checkboxmenuitem-radiomenuitem",
+          "components": [
+            "CheckboxMenuItem",
+            "RadioMenuItem"
+          ],
+          "name": "CheckboxMenuItem"
+        },
+        {
+          "title": "DropdownMenu / SplitButton / OverflowMenu",
+          "slug": "dropdownmenu-splitbutton-overflowmenu",
+          "components": [
+            "DropdownMenu",
+            "SplitButton",
+            "OverflowMenu"
+          ],
+          "name": "DropdownMenu"
+        },
+        {
+          "title": "ContextMenu",
+          "slug": "contextmenu",
+          "components": [
+            "ContextMenu"
+          ],
+          "name": "ContextMenu"
+        },
+        {
+          "title": "MenuBar Menu",
+          "slug": "menubar-menu",
+          "components": [
+            "MenuBar Menu"
+          ],
+          "name": "MenuBar Menu"
+        },
+        {
+          "title": "MegaMenu",
+          "slug": "megamenu",
+          "components": [
+            "MegaMenu"
+          ],
+          "name": "MegaMenu"
+        },
+        {
+          "title": "SearchableMenu",
+          "slug": "searchablemenu",
+          "components": [
+            "SearchableMenu"
+          ],
+          "name": "SearchableMenu"
+        },
+        {
+          "title": "PieMenu / RadialMenu",
+          "slug": "piemenu-radialmenu",
+          "components": [
+            "PieMenu",
+            "RadialMenu"
+          ],
+          "name": "PieMenu"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "slug": "overlays",
+      "title": "Overlays",
+      "summary": "Panels over the page: anchored to a control, over a scrim, or over everything.",
+      "stories": [
+        {
+          "title": "Popover / DropdownPanel / InlinePopup",
+          "slug": "popover-dropdownpanel-inlinepopup",
+          "components": [
+            "Popover",
+            "DropdownPanel",
+            "InlinePopup"
+          ],
+          "name": "Popover"
+        },
+        {
+          "title": "HoverCard",
+          "slug": "hovercard",
+          "components": [
+            "HoverCard"
+          ],
+          "name": "HoverCard"
+        },
+        {
+          "title": "Dialog / Modal / AlertDialog / ConfirmDialog / PromptDialog / FullscreenDialog",
+          "slug": "dialog-modal-alertdialog-confirmdialog-promptdialog-fullscreendialog",
+          "components": [
+            "Dialog",
+            "Modal",
+            "AlertDialog",
+            "ConfirmDialog",
+            "PromptDialog",
+            "FullscreenDialog"
+          ],
+          "name": "Dialog"
+        },
+        {
+          "title": "Lightbox",
+          "slug": "lightbox",
+          "components": [
+            "Lightbox"
+          ],
+          "name": "Lightbox"
+        },
+        {
+          "title": "Spotlight / Coachmark / Tour",
+          "slug": "spotlight-coachmark-tour",
+          "components": [
+            "Spotlight",
+            "Coachmark",
+            "Tour"
+          ],
+          "name": "Spotlight"
+        },
+        {
+          "title": "FloatingToolbar",
+          "slug": "floatingtoolbar",
+          "components": [
+            "FloatingToolbar"
+          ],
+          "name": "FloatingToolbar"
+        },
+        {
+          "title": "Callout / Peek",
+          "slug": "callout-peek",
+          "components": [
+            "Callout",
+            "Peek"
+          ],
+          "name": "Callout"
+        },
+        {
+          "title": "Tooltip / Sheet / Drawer / DropdownPanel / InlinePopup / ToastViewport",
+          "slug": "tooltip-sheet-drawer-dropdownpanel-inlinepopup-toastviewport",
+          "components": [
+            "Tooltip",
+            "Sheet",
+            "Drawer",
+            "DropdownPanel",
+            "InlinePopup",
+            "ToastViewport"
+          ],
+          "name": "Tooltip"
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "slug": "feedback",
+      "title": "Feedback",
+      "summary": "What the app tells you: toasts, notifications, alerts and the states a view can be in.",
+      "stories": [
+        {
+          "title": "Toast / Snackbar / UndoToast",
+          "slug": "toast-snackbar-undotoast",
+          "components": [
+            "Toast",
+            "Snackbar",
+            "UndoToast"
+          ],
+          "name": "Toast"
+        },
+        {
+          "title": "Notification / NotificationCenter",
+          "slug": "notification-notificationcenter",
+          "components": [
+            "Notification",
+            "NotificationCenter"
+          ],
+          "name": "Notification"
+        },
+        {
+          "title": "Alert",
+          "slug": "alert",
+          "components": [
+            "Alert"
+          ],
+          "name": "Alert"
+        },
+        {
+          "title": "Banner",
+          "slug": "banner",
+          "components": [
+            "Banner"
+          ],
+          "name": "Banner"
+        },
+        {
+          "title": "Callout / Admonition",
+          "slug": "callout-admonition",
+          "components": [
+            "Callout",
+            "Admonition"
+          ],
+          "name": "Callout"
+        },
+        {
+          "title": "InlineMessage / StatusMessage",
+          "slug": "inlinemessage-statusmessage",
+          "components": [
+            "InlineMessage",
+            "StatusMessage"
+          ],
+          "name": "InlineMessage"
+        },
+        {
+          "title": "EmptyState",
+          "slug": "emptystate",
+          "components": [
+            "EmptyState"
+          ],
+          "name": "EmptyState"
+        },
+        {
+          "title": "ErrorView / NotFound / NoPermission / Maintenance / Offline",
+          "slug": "errorview-notfound-nopermission-maintenance-offline",
+          "components": [
+            "ErrorView",
+            "NotFound",
+            "NoPermission",
+            "Maintenance",
+            "Offline"
+          ],
+          "name": "ErrorView"
+        },
+        {
+          "title": "ErrorBoundary",
+          "slug": "errorboundary",
+          "components": [
+            "ErrorBoundary"
+          ],
+          "name": "ErrorBoundary"
+        },
+        {
+          "title": "Result",
+          "slug": "result",
+          "components": [
+            "Result"
+          ],
+          "name": "Result"
+        },
+        {
+          "title": "ConfirmationCard",
+          "slug": "confirmationcard",
+          "components": [
+            "ConfirmationCard"
+          ],
+          "name": "ConfirmationCard"
+        },
+        {
+          "title": "SavingIndicator / SyncStatus / ConnectionStatus",
+          "slug": "savingindicator-syncstatus-connectionstatus",
+          "components": [
+            "SavingIndicator",
+            "SyncStatus",
+            "ConnectionStatus"
+          ],
+          "name": "SavingIndicator"
+        },
+        {
+          "title": "Countdown / Timer",
+          "slug": "countdown-timer",
+          "components": [
+            "Countdown",
+            "Timer"
+          ],
+          "name": "Countdown"
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "slug": "motion",
+      "title": "Loading & Motion",
+      "summary": "Waiting, shown honestly, and the motion everything else moves with.",
+      "stories": [
+        {
+          "title": "Spinner / DotsLoader / BarsLoader / PulseLoader / RingLoader / OrbitLoader / WaveLoader / InlineLoader",
+          "slug": "spinner-dotsloader-barsloader-pulseloader-ringloader-orbitloader-waveloader-inlineloader",
+          "components": [
+            "Spinner",
+            "DotsLoader",
+            "BarsLoader",
+            "PulseLoader",
+            "RingLoader",
+            "OrbitLoader",
+            "WaveLoader",
+            "InlineLoader"
+          ],
+          "name": "Spinner"
+        },
+        {
+          "title": "Skeleton / SkeletonText / SkeletonAvatar / SkeletonCard / SkeletonTable",
+          "slug": "skeleton-skeletontext-skeletonavatar-skeletoncard-skeletontable",
+          "components": [
+            "Skeleton",
+            "SkeletonText",
+            "SkeletonAvatar",
+            "SkeletonCard",
+            "SkeletonTable"
+          ],
+          "name": "Skeleton"
+        },
+        {
+          "title": "Shimmer",
+          "slug": "shimmer",
+          "components": [
+            "Shimmer"
+          ],
+          "name": "Shimmer"
+        },
+        {
+          "title": "LoadingButton",
+          "slug": "loadingbutton",
+          "components": [
+            "LoadingButton"
+          ],
+          "name": "LoadingButton"
+        },
+        {
+          "title": "LoadMore",
+          "slug": "loadmore",
+          "components": [
+            "LoadMore"
+          ],
+          "name": "LoadMore"
+        },
+        {
+          "title": "ProgressBar / ProgressCircle / ProgressRing",
+          "slug": "progressbar-progresscircle-progressring",
+          "components": [
+            "ProgressBar",
+            "ProgressCircle",
+            "ProgressRing"
+          ],
+          "name": "ProgressBar"
+        },
+        {
+          "title": "LoadingOverlay",
+          "slug": "loadingoverlay",
+          "components": [
+            "LoadingOverlay"
+          ],
+          "name": "LoadingOverlay"
+        },
+        {
+          "title": "LazyLoad",
+          "slug": "lazyload",
+          "components": [
+            "LazyLoad"
+          ],
+          "name": "LazyLoad"
+        },
+        {
+          "title": "Suspense / AsyncView",
+          "slug": "suspense-asyncview",
+          "components": [
+            "Suspense",
+            "AsyncView"
+          ],
+          "name": "Suspense"
+        },
+        {
+          "title": "RefreshIndicator / TypingIndicator",
+          "slug": "refreshindicator-typingindicator",
+          "components": [
+            "RefreshIndicator",
+            "TypingIndicator"
+          ],
+          "name": "RefreshIndicator"
+        },
+        {
+          "title": "UploadList",
+          "slug": "uploadlist",
+          "components": [
+            "UploadList"
+          ],
+          "name": "UploadList"
+        },
+        {
+          "title": "Transition",
+          "slug": "transition",
+          "components": [
+            "Transition"
+          ],
+          "name": "Transition"
+        },
+        {
+          "title": "Stagger",
+          "slug": "stagger",
+          "components": [
+            "Stagger"
+          ],
+          "name": "Stagger"
+        },
+        {
+          "title": "AnimatePresence",
+          "slug": "animatepresence",
+          "components": [
+            "AnimatePresence"
+          ],
+          "name": "AnimatePresence"
+        },
+        {
+          "title": "Flip",
+          "slug": "flip",
+          "components": [
+            "Flip"
+          ],
+          "name": "Flip"
+        },
+        {
+          "title": "Reorder",
+          "slug": "reorder",
+          "components": [
+            "Reorder"
+          ],
+          "name": "Reorder"
+        },
+        {
+          "title": "Marquee",
+          "slug": "marquee",
+          "components": [
+            "Marquee"
+          ],
+          "name": "Marquee"
+        },
+        {
+          "title": "Ripple / Confetti",
+          "slug": "ripple-confetti",
+          "components": [
+            "Ripple",
+            "Confetti"
+          ],
+          "name": "Ripple"
+        },
+        {
+          "title": "Glow / Pulse",
+          "slug": "glow-pulse",
+          "components": [
+            "Glow",
+            "Pulse"
+          ],
+          "name": "Glow"
+        },
+        {
+          "title": "Blink / Flash / Shake",
+          "slug": "blink-flash-shake",
+          "components": [
+            "Blink",
+            "Flash",
+            "Shake"
+          ],
+          "name": "Blink"
+        },
+        {
+          "title": "ParticleBackground / AnimatedGradient / Lottie Player",
+          "slug": "particlebackground-animatedgradient-lottie-player",
+          "components": [
+            "ParticleBackground",
+            "AnimatedGradient",
+            "Lottie Player"
+          ],
+          "name": "ParticleBackground"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "slug": "data",
+      "title": "Data Display",
+      "summary": "People, numbers and records, shown plainly.",
+      "stories": [
+        {
+          "title": "Badge / CountBadge / DotBadge",
+          "slug": "badge-countbadge-dotbadge",
+          "components": [
+            "Badge",
+            "CountBadge",
+            "DotBadge"
+          ],
+          "name": "Badge"
+        },
+        {
+          "title": "Tag / Chip",
+          "slug": "tag-chip",
+          "components": [
+            "Tag",
+            "Chip"
+          ],
+          "name": "Tag"
+        },
+        {
+          "title": "Avatar / AvatarUpload",
+          "slug": "avatar-avatarupload",
+          "components": [
+            "Avatar",
+            "AvatarUpload"
+          ],
+          "name": "Avatar"
+        },
+        {
+          "title": "AvatarGroup / UserChip",
+          "slug": "avatargroup-userchip",
+          "components": [
+            "AvatarGroup",
+            "UserChip"
+          ],
+          "name": "AvatarGroup"
+        },
+        {
+          "title": "Statistic / KPI Card / Metric / TrendIndicator",
+          "slug": "statistic-kpi-card-metric-trendindicator",
+          "components": [
+            "Statistic",
+            "KPI Card",
+            "Metric",
+            "TrendIndicator"
+          ],
+          "name": "Statistic"
+        },
+        {
+          "title": "DescriptionList / KeyValueList / InfoRow",
+          "slug": "descriptionlist-keyvaluelist-inforow",
+          "components": [
+            "DescriptionList",
+            "KeyValueList",
+            "InfoRow"
+          ],
+          "name": "DescriptionList"
+        },
+        {
+          "title": "PropertyGrid",
+          "slug": "propertygrid",
+          "components": [
+            "PropertyGrid"
+          ],
+          "name": "PropertyGrid"
+        },
+        {
+          "title": "Timeline / TimelineItem",
+          "slug": "timeline-timelineitem",
+          "components": [
+            "Timeline",
+            "TimelineItem"
+          ],
+          "name": "Timeline"
+        },
+        {
+          "title": "ActivityFeed",
+          "slug": "activityfeed",
+          "components": [
+            "ActivityFeed"
+          ],
+          "name": "ActivityFeed"
+        },
+        {
+          "title": "Changelog",
+          "slug": "changelog",
+          "components": [
+            "Changelog"
+          ],
+          "name": "Changelog"
+        },
+        {
+          "title": "Carousel",
+          "slug": "carousel",
+          "components": [
+            "Carousel"
+          ],
+          "name": "Carousel"
+        },
+        {
+          "title": "Gallery",
+          "slug": "gallery",
+          "components": [
+            "Gallery"
+          ],
+          "name": "Gallery"
+        },
+        {
+          "title": "BeforeAfter",
+          "slug": "beforeafter",
+          "components": [
+            "BeforeAfter"
+          ],
+          "name": "BeforeAfter"
+        },
+        {
+          "title": "Watermark",
+          "slug": "watermark",
+          "components": [
+            "Watermark"
+          ],
+          "name": "Watermark"
+        },
+        {
+          "title": "QRCode / Barcode",
+          "slug": "qrcode-barcode",
+          "components": [
+            "QRCode",
+            "Barcode"
+          ],
+          "name": "QRCode"
+        },
+        {
+          "title": "Meter / Gauge / UsageBar",
+          "slug": "meter-gauge-usagebar",
+          "components": [
+            "Meter",
+            "Gauge",
+            "UsageBar"
+          ],
+          "name": "Meter"
+        },
+        {
+          "title": "Stars / Rating display",
+          "slug": "stars-rating-display",
+          "components": [
+            "Rating display"
+          ],
+          "name": "Stars"
+        },
+        {
+          "title": "Comparison",
+          "slug": "comparison",
+          "components": [
+            "Comparison"
+          ],
+          "name": "Comparison"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "slug": "lists",
+      "title": "Lists & Trees",
+      "summary": "Rows to read, pick, reorder and swipe; lists long enough to need care.",
+      "stories": [
+        {
+          "title": "List / ListItem",
+          "slug": "list-listitem",
+          "components": [
+            "List",
+            "ListItem"
+          ],
+          "name": "List"
+        },
+        {
+          "title": "SelectableList",
+          "slug": "selectablelist",
+          "components": [
+            "SelectableList"
+          ],
+          "name": "SelectableList"
+        },
+        {
+          "title": "SortableList / ReorderableList",
+          "slug": "sortablelist-reorderablelist",
+          "components": [
+            "SortableList",
+            "ReorderableList"
+          ],
+          "name": "SortableList"
+        },
+        {
+          "title": "SwipeableListItem",
+          "slug": "swipeablelistitem",
+          "components": [
+            "SwipeableListItem"
+          ],
+          "name": "SwipeableListItem"
+        },
+        {
+          "title": "VirtualList",
+          "slug": "virtuallist",
+          "components": [
+            "VirtualList"
+          ],
+          "name": "VirtualList"
+        },
+        {
+          "title": "InfiniteList",
+          "slug": "infinitelist",
+          "components": [
+            "InfiniteList"
+          ],
+          "name": "InfiniteList"
+        },
+        {
+          "title": "GroupedList / SectionList",
+          "slug": "groupedlist-sectionlist",
+          "components": [
+            "GroupedList",
+            "SectionList"
+          ],
+          "name": "GroupedList"
+        },
+        {
+          "title": "Tree / TreeView / VirtualTree",
+          "slug": "tree-treeview-virtualtree",
+          "components": [
+            "Tree",
+            "TreeView",
+            "VirtualTree"
+          ],
+          "name": "Tree"
+        },
+        {
+          "title": "CheckboxTree",
+          "slug": "checkboxtree",
+          "components": [
+            "CheckboxTree"
+          ],
+          "name": "CheckboxTree"
+        },
+        {
+          "title": "TreeSelect",
+          "slug": "treeselect",
+          "components": [
+            "TreeSelect"
+          ],
+          "name": "TreeSelect"
+        },
+        {
+          "title": "Outline / NestedList",
+          "slug": "outline-nestedlist",
+          "components": [
+            "Outline",
+            "NestedList"
+          ],
+          "name": "Outline"
+        },
+        {
+          "title": "FileTree",
+          "slug": "filetree",
+          "components": [
+            "FileTree"
+          ],
+          "name": "FileTree"
+        },
+        {
+          "title": "DirectoryListing",
+          "slug": "directorylisting",
+          "components": [
+            "DirectoryListing"
+          ],
+          "name": "DirectoryListing"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "slug": "tables",
+      "title": "Tables",
+      "summary": "Rows and columns that sort, filter, page and select, and stay quick at a hundred thousand rows.",
+      "stories": [
+        {
+          "title": "Table",
+          "slug": "table",
+          "components": [
+            "Table"
+          ],
+          "name": "Table"
+        },
+        {
+          "title": "DataTable / TableToolbar / FilterBuilder / SortBuilder / ColumnVisibility / CellRenderer / RowSelection / TableDensity / AggregationFooter / ConditionalFormatting",
+          "slug": "datatable-tabletoolbar-filterbuilder-sortbuilder-columnvisibility-cellrenderer-rowselection-tabledensity-aggregationfooter-conditionalformatting",
+          "components": [
+            "DataTable",
+            "TableToolbar",
+            "FilterBuilder",
+            "SortBuilder",
+            "ColumnVisibility",
+            "CellRenderer",
+            "RowSelection",
+            "TableDensity",
+            "AggregationFooter",
+            "ConditionalFormatting",
+            "Sparkline"
+          ],
+          "name": "DataTable"
+        },
+        {
+          "title": "ColumnPinning / ColumnResizer / ColumnReorder",
+          "slug": "columnpinning-columnresizer-columnreorder",
+          "components": [
+            "ColumnPinning",
+            "ColumnResizer",
+            "ColumnReorder"
+          ],
+          "name": "ColumnPinning"
+        },
+        {
+          "title": "RowExpansion / InlineRowEdit",
+          "slug": "rowexpansion-inlinerowedit",
+          "components": [
+            "RowExpansion",
+            "InlineRowEdit"
+          ],
+          "name": "RowExpansion"
+        },
+        {
+          "title": "RowGrouping",
+          "slug": "rowgrouping",
+          "components": [
+            "RowGrouping"
+          ],
+          "name": "RowGrouping"
+        },
+        {
+          "title": "DataGrid",
+          "slug": "datagrid",
+          "components": [
+            "DataGrid"
+          ],
+          "name": "DataGrid"
+        },
+        {
+          "title": "Spreadsheet",
+          "slug": "spreadsheet",
+          "components": [
+            "Spreadsheet"
+          ],
+          "name": "Spreadsheet"
+        },
+        {
+          "title": "TreeTable",
+          "slug": "treetable",
+          "components": [
+            "TreeTable"
+          ],
+          "name": "TreeTable"
+        },
+        {
+          "title": "PivotTable",
+          "slug": "pivottable",
+          "components": [
+            "PivotTable"
+          ],
+          "name": "PivotTable"
+        },
+        {
+          "title": "VirtualTable",
+          "slug": "virtualtable",
+          "components": [
+            "VirtualTable"
+          ],
+          "name": "VirtualTable"
+        },
+        {
+          "title": "HeatmapTable",
+          "slug": "heatmaptable",
+          "components": [
+            "HeatmapTable"
+          ],
+          "name": "HeatmapTable"
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "slug": "charts",
+      "title": "Charts",
+      "summary": "Lines, bars, parts of a whole, spreads, flows and schedules on quiet axes, with legends, tooltips, zoom and export.",
+      "stories": [
+        {
+          "title": "LineChart / ChartAxis / ChartGrid / ChartLegend / ChartTooltip / ChartCrosshair / ChartAnnotation / ChartZoom / ChartExport",
+          "slug": "linechart-chartaxis-chartgrid-chartlegend-charttooltip-chartcrosshair-chartannotation-chartzoom-chartexport",
+          "components": [
+            "LineChart",
+            "ChartAxis",
+            "ChartGrid",
+            "ChartLegend",
+            "ChartTooltip",
+            "ChartCrosshair",
+            "ChartAnnotation",
+            "ChartZoom",
+            "ChartExport"
+          ],
+          "name": "LineChart"
+        },
+        {
+          "title": "AreaChart / StackedArea / BarChart",
+          "slug": "areachart-stackedarea-barchart",
+          "components": [
+            "AreaChart",
+            "StackedArea",
+            "BarChart"
+          ],
+          "name": "AreaChart"
+        },
+        {
+          "title": "PieChart / DonutChart",
+          "slug": "piechart-donutchart",
+          "components": [
+            "PieChart",
+            "DonutChart"
+          ],
+          "name": "PieChart"
+        },
+        {
+          "title": "ScatterChart / BubbleChart",
+          "slug": "scatterchart-bubblechart",
+          "components": [
+            "ScatterChart",
+            "BubbleChart"
+          ],
+          "name": "ScatterChart"
+        },
+        {
+          "title": "RadarChart",
+          "slug": "radarchart",
+          "components": [
+            "RadarChart"
+          ],
+          "name": "RadarChart"
+        },
+        {
+          "title": "HeatmapChart / CalendarHeatmap",
+          "slug": "heatmapchart-calendarheatmap",
+          "components": [
+            "HeatmapChart",
+            "CalendarHeatmap"
+          ],
+          "name": "HeatmapChart"
+        },
+        {
+          "title": "Treemap / Sunburst",
+          "slug": "treemap-sunburst",
+          "components": [
+            "Treemap",
+            "Sunburst"
+          ],
+          "name": "Treemap"
+        },
+        {
+          "title": "SankeyChart / FunnelChart",
+          "slug": "sankeychart-funnelchart",
+          "components": [
+            "SankeyChart",
+            "FunnelChart"
+          ],
+          "name": "SankeyChart"
+        },
+        {
+          "title": "WaterfallChart",
+          "slug": "waterfallchart",
+          "components": [
+            "WaterfallChart"
+          ],
+          "name": "WaterfallChart"
+        },
+        {
+          "title": "Histogram / BoxPlot / ViolinPlot",
+          "slug": "histogram-boxplot-violinplot",
+          "components": [
+            "Histogram",
+            "BoxPlot",
+            "ViolinPlot"
+          ],
+          "name": "Histogram"
+        },
+        {
+          "title": "GanttChart",
+          "slug": "ganttchart",
+          "components": [
+            "GanttChart"
+          ],
+          "name": "GanttChart"
+        },
+        {
+          "title": "NetworkGraph / ForceGraph / ChordDiagram / ParallelCoordinates",
+          "slug": "networkgraph-forcegraph-chorddiagram-parallelcoordinates",
+          "components": [
+            "NetworkGraph",
+            "ForceGraph",
+            "ChordDiagram",
+            "ParallelCoordinates"
+          ],
+          "name": "NetworkGraph"
+        },
+        {
+          "title": "Bullet Chart / ProgressChart",
+          "slug": "bullet-chart-progresschart",
+          "components": [
+            "Bullet Chart",
+            "ProgressChart"
+          ],
+          "name": "Bullet Chart"
+        },
+        {
+          "title": "RealtimeChart",
+          "slug": "realtimechart",
+          "components": [
+            "RealtimeChart"
+          ],
+          "name": "RealtimeChart"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "slug": "finance",
+      "title": "Finance",
+      "summary": "Market charts with the studies traders read, books, quotes, order entry and portfolios.",
+      "stories": [
+        {
+          "title": "CandlestickChart / OHLCChart / HeikinAshiChart / LineQuoteChart / VolumeChart / ChartTypeSwitcher / TimeRangeSelector / IntervalSelector",
+          "slug": "candlestickchart-ohlcchart-heikinashichart-linequotechart-volumechart-charttypeswitcher-timerangeselector-intervalselector",
+          "components": [
+            "CandlestickChart",
+            "OHLCChart",
+            "HeikinAshiChart",
+            "LineQuoteChart",
+            "VolumeChart",
+            "ChartTypeSwitcher",
+            "TimeRangeSelector",
+            "IntervalSelector"
+          ],
+          "name": "CandlestickChart"
+        },
+        {
+          "title": "IndicatorOverlay / IndicatorPane / IndicatorSelector / CompareSymbol / PriceAlertLine",
+          "slug": "indicatoroverlay-indicatorpane-indicatorselector-comparesymbol-pricealertline",
+          "components": [
+            "IndicatorOverlay",
+            "IndicatorPane",
+            "IndicatorSelector",
+            "CompareSymbol",
+            "PriceAlertLine"
+          ],
+          "name": "IndicatorOverlay"
+        },
+        {
+          "title": "DrawingTools / DrawingToolbar",
+          "slug": "drawingtools-drawingtoolbar",
+          "components": [
+            "DrawingTools",
+            "DrawingToolbar"
+          ],
+          "name": "DrawingTools"
+        },
+        {
+          "title": "DepthChart",
+          "slug": "depthchart",
+          "components": [
+            "DepthChart"
+          ],
+          "name": "DepthChart"
+        },
+        {
+          "title": "MarketProfile / VolumeProfile",
+          "slug": "marketprofile-volumeprofile",
+          "components": [
+            "MarketProfile",
+            "VolumeProfile"
+          ],
+          "name": "MarketProfile"
+        },
+        {
+          "title": "RenkoChart / PointAndFigure",
+          "slug": "renkochart-pointandfigure",
+          "components": [
+            "RenkoChart",
+            "PointAndFigure"
+          ],
+          "name": "RenkoChart"
+        },
+        {
+          "title": "MultiChartLayout / ChartSync",
+          "slug": "multichartlayout-chartsync",
+          "components": [
+            "MultiChartLayout",
+            "ChartSync"
+          ],
+          "name": "MultiChartLayout"
+        },
+        {
+          "title": "Ticker / TickerTape / QuoteCard / PriceText / PriceChangeBadge",
+          "slug": "ticker-tickertape-quotecard-pricetext-pricechangebadge",
+          "components": [
+            "Ticker",
+            "TickerTape",
+            "QuoteCard",
+            "PriceText",
+            "PriceChangeBadge"
+          ],
+          "name": "Ticker"
+        },
+        {
+          "title": "OrderBook / SpreadIndicator / BidAskBar / Level2 Quotes",
+          "slug": "orderbook-spreadindicator-bidaskbar-level2-quotes",
+          "components": [
+            "OrderBook",
+            "SpreadIndicator",
+            "BidAskBar",
+            "Level2 Quotes"
+          ],
+          "name": "OrderBook"
+        },
+        {
+          "title": "TimeAndSales / TradeTape / MarketDepthLadder / DOM",
+          "slug": "timeandsales-tradetape-marketdepthladder-dom",
+          "components": [
+            "TimeAndSales",
+            "TradeTape",
+            "MarketDepthLadder",
+            "DOM"
+          ],
+          "name": "TimeAndSales"
+        },
+        {
+          "title": "OrderEntry / TradePanel / QuickTradeButtons / OrderConfirmDialog",
+          "slug": "orderentry-tradepanel-quicktradebuttons-orderconfirmdialog",
+          "components": [
+            "OrderEntry",
+            "TradePanel",
+            "QuickTradeButtons",
+            "OrderConfirmDialog"
+          ],
+          "name": "OrderEntry"
+        },
+        {
+          "title": "PositionTable / OrderTable / TradeHistoryTable / PnLDisplay",
+          "slug": "positiontable-ordertable-tradehistorytable-pnldisplay",
+          "components": [
+            "PositionTable",
+            "OrderTable",
+            "TradeHistoryTable",
+            "PnLDisplay"
+          ],
+          "name": "PositionTable"
+        },
+        {
+          "title": "LeverageSlider / MarginIndicator / RiskMeter",
+          "slug": "leverageslider-marginindicator-riskmeter",
+          "components": [
+            "LeverageSlider",
+            "MarginIndicator",
+            "RiskMeter"
+          ],
+          "name": "LeverageSlider"
+        },
+        {
+          "title": "OptionChain / GreeksTable / PayoffDiagram",
+          "slug": "optionchain-greekstable-payoffdiagram",
+          "components": [
+            "OptionChain",
+            "GreeksTable",
+            "PayoffDiagram"
+          ],
+          "name": "OptionChain"
+        },
+        {
+          "title": "Watchlist / SymbolBadge / SymbolSearch",
+          "slug": "watchlist-symbolbadge-symbolsearch",
+          "components": [
+            "Watchlist",
+            "SymbolBadge",
+            "SymbolSearch"
+          ],
+          "name": "Watchlist"
+        },
+        {
+          "title": "MarketHeatmap / SectorTreemap",
+          "slug": "marketheatmap-sectortreemap",
+          "components": [
+            "MarketHeatmap",
+            "SectorTreemap"
+          ],
+          "name": "MarketHeatmap"
+        },
+        {
+          "title": "Screener / FilterPanel",
+          "slug": "screener-filterpanel",
+          "components": [
+            "Screener",
+            "FilterPanel"
+          ],
+          "name": "Screener"
+        },
+        {
+          "title": "MarketOverview / IndexCard / MarketStatus / TradingSessionClock",
+          "slug": "marketoverview-indexcard-marketstatus-tradingsessionclock",
+          "components": [
+            "MarketOverview",
+            "IndexCard",
+            "MarketStatus",
+            "TradingSessionClock"
+          ],
+          "name": "MarketOverview"
+        },
+        {
+          "title": "EconomicCalendar / EarningsCalendar / NewsFeed",
+          "slug": "economiccalendar-earningscalendar-newsfeed",
+          "components": [
+            "EconomicCalendar",
+            "EarningsCalendar",
+            "NewsFeed"
+          ],
+          "name": "EconomicCalendar"
+        },
+        {
+          "title": "PortfolioSummary / AssetAllocationChart / PerformanceChart / SentimentGauge",
+          "slug": "portfoliosummary-assetallocationchart-performancechart-sentimentgauge",
+          "components": [
+            "PortfolioSummary",
+            "AssetAllocationChart",
+            "PerformanceChart",
+            "SentimentGauge"
+          ],
+          "name": "PortfolioSummary"
+        },
+        {
+          "title": "DividendTable / FinancialStatementTable",
+          "slug": "dividendtable-financialstatementtable",
+          "components": [
+            "DividendTable",
+            "FinancialStatementTable"
+          ],
+          "name": "DividendTable"
+        },
+        {
+          "title": "CurrencyConverter / CryptoWalletCard / TransactionList / Candle Countdown",
+          "slug": "currencyconverter-cryptowalletcard-transactionlist-candle-countdown",
+          "components": [
+            "CurrencyConverter",
+            "CryptoWalletCard",
+            "TransactionList",
+            "Candle Countdown"
+          ],
+          "name": "CurrencyConverter"
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "slug": "editor",
+      "title": "Editor",
+      "summary": "A code editor with the gutter, folds and cursors it needs, the help a language server gives, search, the panels around it and its status row.",
+      "stories": [
+        {
+          "title": "CodeEditor / EditorGutter / LineNumbers / FoldingControl / Minimap / Ruler / IndentGuide / BracketMatcher / RainbowBrackets / MultiCursor / SelectionHighlight / StickyScroll / Breadcrumb / InlayHints / CodeLens / InlineDecoration",
+          "slug": "codeeditor-editorgutter-linenumbers-foldingcontrol-minimap-ruler-indentguide-bracketmatcher-rainbowbrackets-multicursor-selectionhighlight-stickyscroll-breadcrumb-inlayhints-codelens-inlinedecoration",
+          "components": [
+            "CodeEditor",
+            "EditorGutter",
+            "LineNumbers",
+            "FoldingControl",
+            "MiniMap",
+            "Ruler",
+            "IndentGuide",
+            "BracketMatcher",
+            "RainbowBrackets",
+            "MultiCursor",
+            "SelectionHighlight",
+            "StickyScroll",
+            "Breadcrumb",
+            "InlayHints",
+            "CodeLens",
+            "InlineDecoration"
+          ],
+          "name": "CodeEditor"
+        },
+        {
+          "title": "WhitespaceRenderer / CursorRenderer",
+          "slug": "whitespacerenderer-cursorrenderer",
+          "components": [
+            "WhitespaceRenderer",
+            "CursorRenderer"
+          ],
+          "name": "WhitespaceRenderer"
+        },
+        {
+          "title": "InlineDiff / GhostText / InlineChat / ReadOnlyBanner / VimModeIndicator",
+          "slug": "inlinediff-ghosttext-inlinechat-readonlybanner-vimmodeindicator",
+          "components": [
+            "InlineDiff",
+            "GhostText",
+            "InlineChat",
+            "ReadOnlyBanner",
+            "VimModeIndicator"
+          ],
+          "name": "InlineDiff"
+        },
+        {
+          "title": "CompletionMenu / SignatureHelp / HoverInfo",
+          "slug": "completionmenu-signaturehelp-hoverinfo",
+          "components": [
+            "CompletionMenu",
+            "SignatureHelp",
+            "HoverInfo"
+          ],
+          "name": "CompletionMenu"
+        },
+        {
+          "title": "CodeActionMenu / RenameInput / PeekView / ReferencesPanel / SymbolOutline / GoToSymbol / CallHierarchy / TypeHierarchy",
+          "slug": "codeactionmenu-renameinput-peekview-referencespanel-symboloutline-gotosymbol-callhierarchy-typehierarchy",
+          "components": [
+            "CodeActionMenu",
+            "RenameInput",
+            "PeekView",
+            "ReferencesPanel",
+            "SymbolOutline",
+            "GoToSymbol",
+            "CallHierarchy",
+            "TypeHierarchy"
+          ],
+          "name": "CodeActionMenu"
+        },
+        {
+          "title": "FindWidget / ReplaceWidget",
+          "slug": "findwidget-replacewidget",
+          "components": [
+            "FindWidget",
+            "ReplaceWidget"
+          ],
+          "name": "FindWidget"
+        },
+        {
+          "title": "SearchPanel / SearchResultItem / SearchFilters",
+          "slug": "searchpanel-searchresultitem-searchfilters",
+          "components": [
+            "SearchPanel",
+            "SearchResultItem",
+            "SearchFilters"
+          ],
+          "name": "SearchPanel"
+        },
+        {
+          "title": "ProblemsPanel / DiagnosticsList / OutputPanel",
+          "slug": "problemspanel-diagnosticslist-outputpanel",
+          "components": [
+            "ProblemsPanel",
+            "DiagnosticsList",
+            "OutputPanel"
+          ],
+          "name": "ProblemsPanel"
+        },
+        {
+          "title": "DebugConsole / ExtensionsPanel / PluginList",
+          "slug": "debugconsole-extensionspanel-pluginlist",
+          "components": [
+            "DebugConsole",
+            "ExtensionsPanel",
+            "PluginList"
+          ],
+          "name": "DebugConsole"
+        },
+        {
+          "title": "SettingsEditor / KeybindingsEditor",
+          "slug": "settingseditor-keybindingseditor",
+          "components": [
+            "SettingsEditor",
+            "KeybindingsEditor"
+          ],
+          "name": "SettingsEditor"
+        },
+        {
+          "title": "WelcomePage / RecentProjects / ProjectSwitcher / ThemePreview / TaskRunner / RunConfiguration",
+          "slug": "welcomepage-recentprojects-projectswitcher-themepreview-taskrunner-runconfiguration",
+          "components": [
+            "WelcomePage",
+            "RecentProjects",
+            "ProjectSwitcher",
+            "ThemePreview",
+            "TaskRunner",
+            "RunConfiguration"
+          ],
+          "name": "WelcomePage"
+        },
+        {
+          "title": "CursorPosition / LanguageMode / Encoding / LineEnding / IndentSettings / BranchIndicator / LspStatus / NotificationBell",
+          "slug": "cursorposition-languagemode-encoding-lineending-indentsettings-branchindicator-lspstatus-notificationbell",
+          "components": [
+            "CursorPosition",
+            "LanguageMode",
+            "Encoding",
+            "LineEnding",
+            "IndentSettings",
+            "BranchIndicator",
+            "LspStatus",
+            "NotificationBell"
+          ],
+          "name": "CursorPosition"
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "slug": "terminal",
+      "title": "Terminal",
+      "summary": "A real shell drawn cell by cell, with tabs, splits, find and links; command blocks and history; colored output, logs and processes.",
+      "stories": [
+        {
+          "title": "Terminal / TerminalTabs / TerminalSplit / TerminalToolbar / ShellSelector / TerminalSearch / TerminalLink",
+          "slug": "terminal-terminaltabs-terminalsplit-terminaltoolbar-shellselector-terminalsearch-terminallink",
+          "components": [
+            "Terminal",
+            "TerminalTabs",
+            "TerminalSplit",
+            "TerminalToolbar",
+            "ShellSelector",
+            "TerminalSearch",
+            "TerminalLink"
+          ],
+          "name": "Terminal"
+        },
+        {
+          "title": "CommandBlock / CommandHistory",
+          "slug": "commandblock-commandhistory",
+          "components": [
+            "CommandBlock",
+            "CommandHistory"
+          ],
+          "name": "CommandBlock"
+        },
+        {
+          "title": "AnsiText",
+          "slug": "ansitext",
+          "components": [
+            "AnsiText"
+          ],
+          "name": "AnsiText"
+        },
+        {
+          "title": "LogViewer",
+          "slug": "logviewer",
+          "components": [
+            "LogViewer"
+          ],
+          "name": "LogViewer"
+        },
+        {
+          "title": "ProcessList",
+          "slug": "processlist",
+          "components": [
+            "ProcessList"
+          ],
+          "name": "ProcessList"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "slug": "git",
+      "title": "Git",
+      "summary": "Diffs and merges, changes and commits, the commit graph, branches, blame and review.",
+      "stories": [
+        {
+          "title": "DiffViewer / InlineDiff",
+          "slug": "diffviewer-inlinediff",
+          "components": [
+            "DiffViewer",
+            "InlineDiff"
+          ],
+          "name": "DiffViewer"
+        },
+        {
+          "title": "ThreeWayMerge / ConflictResolver",
+          "slug": "threewaymerge-conflictresolver",
+          "components": [
+            "ThreeWayMerge",
+            "ConflictResolver"
+          ],
+          "name": "ThreeWayMerge"
+        },
+        {
+          "title": "ChangesList / CommitInput",
+          "slug": "changeslist-commitinput",
+          "components": [
+            "ChangesList",
+            "CommitInput"
+          ],
+          "name": "ChangesList"
+        },
+        {
+          "title": "CommitGraph / CommitList / CommitItem",
+          "slug": "commitgraph-commitlist-commititem",
+          "components": [
+            "CommitGraph",
+            "CommitList",
+            "CommitItem"
+          ],
+          "name": "CommitGraph"
+        },
+        {
+          "title": "BranchSelector / BranchList / TagList / StashList",
+          "slug": "branchselector-branchlist-taglist-stashlist",
+          "components": [
+            "BranchSelector",
+            "BranchList",
+            "TagList",
+            "StashList"
+          ],
+          "name": "BranchSelector"
+        },
+        {
+          "title": "BlameView / GitBlameAnnotation / FileHistory / DiffStat / GitStatusBadge",
+          "slug": "blameview-gitblameannotation-filehistory-diffstat-gitstatusbadge",
+          "components": [
+            "BlameView",
+            "GitBlameAnnotation",
+            "FileHistory",
+            "DiffStat",
+            "GitStatusBadge"
+          ],
+          "name": "BlameView"
+        },
+        {
+          "title": "PullRequestCard / ReviewComment",
+          "slug": "pullrequestcard-reviewcomment",
+          "components": [
+            "PullRequestCard",
+            "ReviewComment"
+          ],
+          "name": "PullRequestCard"
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "slug": "debug",
+      "title": "Debug",
+      "summary": "A paused program: its breakpoints, stack, threads and values, memory and machine code; profiles and network.",
+      "stories": [
+        {
+          "title": "DebugToolbar",
+          "slug": "debugtoolbar",
+          "components": [
+            "DebugToolbar"
+          ],
+          "name": "DebugToolbar"
+        },
+        {
+          "title": "BreakpointList / BreakpointGutter / CallStack / ThreadList",
+          "slug": "breakpointlist-breakpointgutter-callstack-threadlist",
+          "components": [
+            "BreakpointList",
+            "BreakpointGutter",
+            "CallStack",
+            "ThreadList"
+          ],
+          "name": "BreakpointList"
+        },
+        {
+          "title": "VariablesPanel / WatchPanel / ConsoleREPL",
+          "slug": "variablespanel-watchpanel-consolerepl",
+          "components": [
+            "VariablesPanel",
+            "WatchPanel",
+            "ConsoleREPL"
+          ],
+          "name": "VariablesPanel"
+        },
+        {
+          "title": "MemoryViewer / HexViewer / Disassembly",
+          "slug": "memoryviewer-hexviewer-disassembly",
+          "components": [
+            "MemoryViewer",
+            "HexViewer",
+            "Disassembly"
+          ],
+          "name": "MemoryViewer"
+        },
+        {
+          "title": "PerformanceProfiler / Flamegraph / TimelineProfiler",
+          "slug": "performanceprofiler-flamegraph-timelineprofiler",
+          "components": [
+            "PerformanceProfiler",
+            "Flamegraph",
+            "TimelineProfiler"
+          ],
+          "name": "PerformanceProfiler"
+        },
+        {
+          "title": "NetworkInspector",
+          "slug": "networkinspector",
+          "components": [
+            "NetworkInspector"
+          ],
+          "name": "NetworkInspector"
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "slug": "documents",
+      "title": "Documents",
+      "summary": "Markdown written and read, blocks like a notebook's, and a knowledge base around them.",
+      "stories": [
+        {
+          "title": "RichTextEditor / FixedFormatToolbar / FloatingFormatToolbar / LinkEditor / MentionMenu / EmojiAutocomplete / WordCount / ReadingTime",
+          "slug": "richtexteditor-fixedformattoolbar-floatingformattoolbar-linkeditor-mentionmenu-emojiautocomplete-wordcount-readingtime",
+          "components": [
+            "RichTextEditor",
+            "FixedFormatToolbar",
+            "FloatingFormatToolbar",
+            "LinkEditor",
+            "MentionMenu",
+            "EmojiAutocomplete",
+            "WordCount",
+            "ReadingTime"
+          ],
+          "name": "RichTextEditor"
+        },
+        {
+          "title": "MarkdownEditor",
+          "slug": "markdowneditor",
+          "components": [
+            "MarkdownEditor"
+          ],
+          "name": "MarkdownEditor"
+        },
+        {
+          "title": "BlockEditor / BlockHandle / SlashMenu / PlaceholderText",
+          "slug": "blockeditor-blockhandle-slashmenu-placeholdertext",
+          "components": [
+            "BlockEditor",
+            "BlockHandle",
+            "SlashMenu",
+            "PlaceholderText"
+          ],
+          "name": "BlockEditor"
+        },
+        {
+          "title": "Block types / TableEditor / ImageEditorBlock / MathEditor / DiagramBlock / CodeBlockEditor",
+          "slug": "block-types-tableeditor-imageeditorblock-matheditor-diagramblock-codeblockeditor",
+          "components": [
+            "Block types",
+            "TableEditor",
+            "ImageEditorBlock",
+            "MathEditor",
+            "DiagramBlock",
+            "CodeBlockEditor"
+          ],
+          "name": "Block types"
+        },
+        {
+          "title": "TodoItem / Checklist",
+          "slug": "todoitem-checklist",
+          "components": [
+            "TodoItem",
+            "Checklist"
+          ],
+          "name": "TodoItem"
+        },
+        {
+          "title": "MarkdownRenderer / TableOfContents / DocumentOutline / ReadingProgress",
+          "slug": "markdownrenderer-tableofcontents-documentoutline-readingprogress",
+          "components": [
+            "MarkdownRenderer",
+            "TableOfContents",
+            "DocumentOutline",
+            "ReadingProgress"
+          ],
+          "name": "MarkdownRenderer"
+        },
+        {
+          "title": "DocumentViewer / PDFViewer / PageThumbnailList",
+          "slug": "documentviewer-pdfviewer-pagethumbnaillist",
+          "components": [
+            "DocumentViewer",
+            "PDFViewer",
+            "PageThumbnailList"
+          ],
+          "name": "DocumentViewer"
+        },
+        {
+          "title": "OfficePreview",
+          "slug": "officepreview",
+          "components": [
+            "OfficePreview"
+          ],
+          "name": "OfficePreview"
+        },
+        {
+          "title": "EpubReader",
+          "slug": "epubreader",
+          "components": [
+            "EpubReader"
+          ],
+          "name": "EpubReader"
+        },
+        {
+          "title": "Footnote / Glossary / TooltipTerm",
+          "slug": "footnote-glossary-tooltipterm",
+          "components": [
+            "Footnote",
+            "Glossary",
+            "TooltipTerm"
+          ],
+          "name": "Footnote"
+        },
+        {
+          "title": "FocusMode / ZenMode",
+          "slug": "focusmode-zenmode",
+          "components": [
+            "FocusMode",
+            "ZenMode"
+          ],
+          "name": "FocusMode"
+        },
+        {
+          "title": "PrintPreview",
+          "slug": "printpreview",
+          "components": [
+            "PrintPreview"
+          ],
+          "name": "PrintPreview"
+        },
+        {
+          "title": "PageTree / Favorites / Pinned",
+          "slug": "pagetree-favorites-pinned",
+          "components": [
+            "PageTree",
+            "Favorites",
+            "Pinned"
+          ],
+          "name": "PageTree"
+        },
+        {
+          "title": "PageCover / PageIcon / PageProperties",
+          "slug": "pagecover-pageicon-pageproperties",
+          "components": [
+            "PageCover",
+            "PageIcon",
+            "PageProperties"
+          ],
+          "name": "PageCover"
+        },
+        {
+          "title": "Backlinks / GraphView",
+          "slug": "backlinks-graphview",
+          "components": [
+            "Backlinks",
+            "GraphView"
+          ],
+          "name": "Backlinks"
+        },
+        {
+          "title": "TemplatePicker",
+          "slug": "templatepicker",
+          "components": [
+            "TemplatePicker"
+          ],
+          "name": "TemplatePicker"
+        },
+        {
+          "title": "TrashBin",
+          "slug": "trashbin",
+          "components": [
+            "TrashBin"
+          ],
+          "name": "TrashBin"
+        },
+        {
+          "title": "VersionHistory / PageHistoryDiff",
+          "slug": "versionhistory-pagehistorydiff",
+          "components": [
+            "VersionHistory",
+            "PageHistoryDiff"
+          ],
+          "name": "VersionHistory"
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "slug": "collab",
+      "title": "Collaboration",
+      "summary": "People in the same document: who is here and where, comments and reactions, suggested changes, and sharing.",
+      "stories": [
+        {
+          "title": "PresenceAvatars / LiveIndicator / FollowMode / RemoteCursor / RemoteSelection",
+          "slug": "presenceavatars-liveindicator-followmode-remotecursor-remoteselection",
+          "components": [
+            "PresenceAvatars",
+            "LiveIndicator",
+            "FollowMode",
+            "RemoteCursor",
+            "RemoteSelection"
+          ],
+          "name": "PresenceAvatars"
+        },
+        {
+          "title": "CommentThread / Reply / Reactions / ReactionPicker",
+          "slug": "commentthread-reply-reactions-reactionpicker",
+          "components": [
+            "CommentThread",
+            "Reply",
+            "Reactions",
+            "ReactionPicker"
+          ],
+          "name": "CommentThread"
+        },
+        {
+          "title": "CommentBubble / CommentMarker",
+          "slug": "commentbubble-commentmarker",
+          "components": [
+            "CommentBubble",
+            "CommentMarker"
+          ],
+          "name": "CommentBubble"
+        },
+        {
+          "title": "CommentSidebar",
+          "slug": "commentsidebar",
+          "components": [
+            "CommentSidebar"
+          ],
+          "name": "CommentSidebar"
+        },
+        {
+          "title": "Annotation / Highlight",
+          "slug": "annotation-highlight",
+          "components": [
+            "Annotation",
+            "Highlight"
+          ],
+          "name": "Annotation"
+        },
+        {
+          "title": "SuggestionMode / TrackChanges",
+          "slug": "suggestionmode-trackchanges",
+          "components": [
+            "SuggestionMode",
+            "TrackChanges"
+          ],
+          "name": "SuggestionMode"
+        },
+        {
+          "title": "ShareDialog / InviteInput / PermissionSelect / AccessList",
+          "slug": "sharedialog-inviteinput-permissionselect-accesslist",
+          "components": [
+            "ShareDialog",
+            "InviteInput",
+            "PermissionSelect",
+            "AccessList"
+          ],
+          "name": "ShareDialog"
+        },
+        {
+          "title": "ActivityLog → data_display::ActivityFeed",
+          "slug": "activitylog-data-display-activityfeed",
+          "components": [
+            "ActivityLog"
+          ],
+          "name": "ActivityLog"
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "slug": "chat",
+      "title": "AI Chat",
+      "summary": "A conversation with an assistant: messages that stream in, code and media inside them, and what can be done with each.",
+      "stories": [
+        {
+          "title": "ChatContainer / MessageList / MessageBubble / MessageAvatar / MessageHeader / MessageFooter / DateSeparator / ScrollToBottomButton",
+          "slug": "chatcontainer-messagelist-messagebubble-messageavatar-messageheader-messagefooter-dateseparator-scrolltobottombutton",
+          "components": [
+            "ChatContainer",
+            "MessageList",
+            "MessageBubble",
+            "MessageAvatar",
+            "MessageHeader",
+            "MessageFooter",
+            "DateSeparator",
+            "ScrollToBottomButton"
+          ],
+          "name": "ChatContainer"
+        },
+        {
+          "title": "StreamingText / StreamingMarkdown / StreamingCursor",
+          "slug": "streamingtext-streamingmarkdown-streamingcursor",
+          "components": [
+            "StreamingText",
+            "StreamingMarkdown",
+            "StreamingCursor"
+          ],
+          "name": "StreamingText"
+        },
+        {
+          "title": "CodeBlock",
+          "slug": "codeblock",
+          "components": [
+            "CodeBlock"
+          ],
+          "name": "CodeBlock"
+        },
+        {
+          "title": "MathBlock / TableBlock / MermaidRenderer",
+          "slug": "mathblock-tableblock-mermaidrenderer",
+          "components": [
+            "MathBlock",
+            "TableBlock",
+            "MermaidRenderer"
+          ],
+          "name": "MathBlock"
+        },
+        {
+          "title": "ImageMessage / ImageGrid / FileMessage / AudioMessage / VideoMessage / LinkPreviewCard",
+          "slug": "imagemessage-imagegrid-filemessage-audiomessage-videomessage-linkpreviewcard",
+          "components": [
+            "ImageMessage",
+            "ImageGrid",
+            "FileMessage",
+            "AudioMessage",
+            "VideoMessage",
+            "LinkPreviewCard"
+          ],
+          "name": "ImageMessage"
+        },
+        {
+          "title": "QuoteReply / MessageActions / MessageEditor / BranchNavigator / RegenerateButton / StopGeneratingButton / ContinueButton",
+          "slug": "quotereply-messageactions-messageeditor-branchnavigator-regeneratebutton-stopgeneratingbutton-continuebutton",
+          "components": [
+            "QuoteReply",
+            "MessageActions",
+            "MessageEditor",
+            "BranchNavigator",
+            "RegenerateButton",
+            "StopGeneratingButton",
+            "ContinueButton"
+          ],
+          "name": "QuoteReply"
+        },
+        {
+          "title": "ErrorMessage / RetryMessage / RateLimitNotice / FeedbackForm",
+          "slug": "errormessage-retrymessage-ratelimitnotice-feedbackform",
+          "components": [
+            "ErrorMessage",
+            "RetryMessage",
+            "RateLimitNotice",
+            "FeedbackForm"
+          ],
+          "name": "ErrorMessage"
+        },
+        {
+          "title": "ThinkingBlock / ReasoningPanel / ThinkingIndicator / ThinkingDuration",
+          "slug": "thinkingblock-reasoningpanel-thinkingindicator-thinkingduration",
+          "components": [
+            "ThinkingBlock",
+            "ReasoningPanel",
+            "ThinkingIndicator",
+            "ThinkingDuration"
+          ],
+          "name": "ThinkingBlock"
+        },
+        {
+          "title": "CitationBadge / InlineCitation / SourceCard / SourceList / SourcesPanel",
+          "slug": "citationbadge-inlinecitation-sourcecard-sourcelist-sourcespanel",
+          "components": [
+            "CitationBadge",
+            "InlineCitation",
+            "SourceCard",
+            "SourceList",
+            "SourcesPanel"
+          ],
+          "name": "CitationBadge"
+        },
+        {
+          "title": "SearchProgress / WebResultCard / DocumentChunkPreview",
+          "slug": "searchprogress-webresultcard-documentchunkpreview",
+          "components": [
+            "SearchProgress",
+            "WebResultCard",
+            "DocumentChunkPreview"
+          ],
+          "name": "SearchProgress"
+        },
+        {
+          "title": "PromptInput / Composer / AttachmentButton / AttachmentChip / AttachmentPreview / PasteImagePreview / DragDropOverlay / ContextChips / SlashCommandMenu / ContextMentionMenu / SendButton / InputHint",
+          "slug": "promptinput-composer-attachmentbutton-attachmentchip-attachmentpreview-pasteimagepreview-dragdropoverlay-contextchips-slashcommandmenu-contextmentionmenu-sendbutton-inputhint",
+          "components": [
+            "PromptInput",
+            "Composer",
+            "AttachmentButton",
+            "AttachmentChip",
+            "AttachmentPreview",
+            "PasteImagePreview",
+            "DragDropOverlay",
+            "ContextChips",
+            "SlashCommandMenu",
+            "ContextMentionMenu",
+            "SendButton",
+            "InputHint",
+            "VoiceInputButton",
+            "VoiceWaveform"
+          ],
+          "name": "PromptInput"
+        },
+        {
+          "title": "ModelSelector / ModeSelector / ToolToggleMenu / PromptTemplateMenu",
+          "slug": "modelselector-modeselector-tooltogglemenu-prompttemplatemenu",
+          "components": [
+            "ModelSelector",
+            "ModeSelector",
+            "ToolToggleMenu",
+            "PromptTemplateMenu"
+          ],
+          "name": "ModelSelector"
+        },
+        {
+          "title": "TemperatureSlider / ParameterPanel / SystemPromptEditor / TokenCounter / ContextWindowMeter / CostEstimator",
+          "slug": "temperatureslider-parameterpanel-systemprompteditor-tokencounter-contextwindowmeter-costestimator",
+          "components": [
+            "TemperatureSlider",
+            "ParameterPanel",
+            "SystemPromptEditor",
+            "TokenCounter",
+            "ContextWindowMeter",
+            "CostEstimator"
+          ],
+          "name": "TemperatureSlider"
+        },
+        {
+          "title": "ConversationList / ConversationItem / ConversationSearch / NewChatButton",
+          "slug": "conversationlist-conversationitem-conversationsearch-newchatbutton",
+          "components": [
+            "ConversationList",
+            "ConversationItem",
+            "ConversationSearch",
+            "NewChatButton"
+          ],
+          "name": "ConversationList"
+        },
+        {
+          "title": "FolderList / ProjectList / ProjectKnowledgePanel",
+          "slug": "folderlist-projectlist-projectknowledgepanel",
+          "components": [
+            "FolderList",
+            "ProjectList",
+            "ProjectKnowledgePanel"
+          ],
+          "name": "FolderList"
+        },
+        {
+          "title": "SharedConversationView / ConversationExport",
+          "slug": "sharedconversationview-conversationexport",
+          "components": [
+            "SharedConversationView",
+            "ConversationExport"
+          ],
+          "name": "SharedConversationView"
+        },
+        {
+          "title": "WelcomeScreen / Greeting / SuggestionChips / StarterPrompts / CapabilityCards",
+          "slug": "welcomescreen-greeting-suggestionchips-starterprompts-capabilitycards",
+          "components": [
+            "WelcomeScreen",
+            "Greeting",
+            "SuggestionChips",
+            "StarterPrompts",
+            "CapabilityCards"
+          ],
+          "name": "WelcomeScreen"
+        },
+        {
+          "title": "FollowUpSuggestions",
+          "slug": "followupsuggestions",
+          "components": [
+            "FollowUpSuggestions"
+          ],
+          "name": "FollowUpSuggestions"
+        },
+        {
+          "title": "PromptLibrary",
+          "slug": "promptlibrary",
+          "components": [
+            "PromptLibrary"
+          ],
+          "name": "PromptLibrary"
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "slug": "agent",
+      "title": "Agent",
+      "summary": "An assistant at work: the tools it calls, what it asks before it acts, how far it has come, what it would change, what it sees and what it makes.",
+      "stories": [
+        {
+          "title": "ToolCallCard / ToolCallGroup",
+          "slug": "toolcallcard-toolcallgroup",
+          "components": [
+            "ToolCallCard",
+            "ToolCallGroup"
+          ],
+          "name": "ToolCallCard"
+        },
+        {
+          "title": "ToolApprovalDialog / PermissionPrompt",
+          "slug": "toolapprovaldialog-permissionprompt",
+          "components": [
+            "ToolApprovalDialog",
+            "PermissionPrompt"
+          ],
+          "name": "ToolApprovalDialog"
+        },
+        {
+          "title": "AgentStepList / TaskTimeline / AgentPlan / TodoList / AgentStatus / AgentProgress",
+          "slug": "agentsteplist-tasktimeline-agentplan-todolist-agentstatus-agentprogress",
+          "components": [
+            "AgentStepList",
+            "TaskTimeline",
+            "AgentPlan",
+            "TodoList",
+            "AgentStatus",
+            "AgentProgress"
+          ],
+          "name": "AgentStepList"
+        },
+        {
+          "title": "SubAgentTree",
+          "slug": "subagenttree",
+          "components": [
+            "SubAgentTree"
+          ],
+          "name": "SubAgentTree"
+        },
+        {
+          "title": "FileChangeCard / MultiFileDiff Review / CommandExecutionCard",
+          "slug": "filechangecard-multifilediff-review-commandexecutioncard",
+          "components": [
+            "FileChangeCard",
+            "MultiFileDiff Review",
+            "CommandExecutionCard"
+          ],
+          "name": "FileChangeCard"
+        },
+        {
+          "title": "BrowserPreview / ScreenshotStream / ComputerUseViewer",
+          "slug": "browserpreview-screenshotstream-computeruseviewer",
+          "components": [
+            "BrowserPreview",
+            "ScreenshotStream",
+            "ComputerUseViewer"
+          ],
+          "name": "BrowserPreview"
+        },
+        {
+          "title": "ArtifactPanel / ArtifactVersionSwitcher / LivePreview",
+          "slug": "artifactpanel-artifactversionswitcher-livepreview",
+          "components": [
+            "ArtifactPanel",
+            "ArtifactVersionSwitcher",
+            "LivePreview"
+          ],
+          "name": "ArtifactPanel"
+        },
+        {
+          "title": "SandboxStatus",
+          "slug": "sandboxstatus",
+          "components": [
+            "SandboxStatus"
+          ],
+          "name": "SandboxStatus"
+        },
+        {
+          "title": "MCPServerList / ConnectorList / ToolRegistry Panel",
+          "slug": "mcpserverlist-connectorlist-toolregistry-panel",
+          "components": [
+            "MCPServerList",
+            "ConnectorList",
+            "ToolRegistry Panel"
+          ],
+          "name": "MCPServerList"
+        },
+        {
+          "title": "MemoryPanel / CheckpointList / Rewind",
+          "slug": "memorypanel-checkpointlist-rewind",
+          "components": [
+            "MemoryPanel",
+            "CheckpointList",
+            "Rewind"
+          ],
+          "name": "MemoryPanel"
+        },
+        {
+          "title": "InterruptButton / HumanInputRequest",
+          "slug": "interruptbutton-humaninputrequest",
+          "components": [
+            "InterruptButton",
+            "HumanInputRequest"
+          ],
+          "name": "InterruptButton"
+        },
+        {
+          "title": "TokenUsageChart / CostBreakdown",
+          "slug": "tokenusagechart-costbreakdown",
+          "components": [
+            "TokenUsageChart",
+            "CostBreakdown"
+          ],
+          "name": "TokenUsageChart"
+        },
+        {
+          "title": "TraceViewer / EvalResultTable",
+          "slug": "traceviewer-evalresulttable",
+          "components": [
+            "TraceViewer",
+            "EvalResultTable"
+          ],
+          "name": "TraceViewer"
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "slug": "generative",
+      "title": "Generative",
+      "summary": "Making pictures, sound and video with a model: the prompt and its settings, the queue and what comes back, the canvas, the models behind them, and the data and prompts they work from.",
+      "stories": [
+        {
+          "title": "ImageGenerationPanel / PromptEnhancer / NegativePromptInput / StylePresetPicker / AspectRatioPicker / SeedInput",
+          "slug": "imagegenerationpanel-promptenhancer-negativepromptinput-stylepresetpicker-aspectratiopicker-seedinput",
+          "components": [
+            "ImageGenerationPanel",
+            "PromptEnhancer",
+            "NegativePromptInput",
+            "StylePresetPicker",
+            "AspectRatioPicker",
+            "SeedInput"
+          ],
+          "name": "ImageGenerationPanel"
+        },
+        {
+          "title": "GenerationQueue",
+          "slug": "generationqueue",
+          "components": [
+            "GenerationQueue"
+          ],
+          "name": "GenerationQueue"
+        },
+        {
+          "title": "GenerationGrid / ImageCompare",
+          "slug": "generationgrid-imagecompare",
+          "components": [
+            "GenerationGrid",
+            "ImageCompare"
+          ],
+          "name": "GenerationGrid"
+        },
+        {
+          "title": "VariationPicker / ABCompareView",
+          "slug": "variationpicker-abcompareview",
+          "components": [
+            "VariationPicker",
+            "ABCompareView"
+          ],
+          "name": "VariationPicker"
+        },
+        {
+          "title": "InpaintCanvas / MaskBrush",
+          "slug": "inpaintcanvas-maskbrush",
+          "components": [
+            "InpaintCanvas",
+            "MaskBrush"
+          ],
+          "name": "InpaintCanvas"
+        },
+        {
+          "title": "AudioGenerationPlayer",
+          "slug": "audiogenerationplayer",
+          "components": [
+            "AudioGenerationPlayer"
+          ],
+          "name": "AudioGenerationPlayer"
+        },
+        {
+          "title": "TTSVoicePicker",
+          "slug": "ttsvoicepicker",
+          "components": [
+            "TTSVoicePicker"
+          ],
+          "name": "TTSVoicePicker"
+        },
+        {
+          "title": "VideoGenerationTimeline",
+          "slug": "videogenerationtimeline",
+          "components": [
+            "VideoGenerationTimeline"
+          ],
+          "name": "VideoGenerationTimeline"
+        },
+        {
+          "title": "ModelCard",
+          "slug": "modelcard",
+          "components": [
+            "ModelCard"
+          ],
+          "name": "ModelCard"
+        },
+        {
+          "title": "ModelDownloadManager",
+          "slug": "modeldownloadmanager",
+          "components": [
+            "ModelDownloadManager"
+          ],
+          "name": "ModelDownloadManager"
+        },
+        {
+          "title": "ModelStatus / HardwareMonitor",
+          "slug": "modelstatus-hardwaremonitor",
+          "components": [
+            "ModelStatus",
+            "HardwareMonitor"
+          ],
+          "name": "ModelStatus"
+        },
+        {
+          "title": "FineTuneJobCard",
+          "slug": "finetunejobcard",
+          "components": [
+            "FineTuneJobCard"
+          ],
+          "name": "FineTuneJobCard"
+        },
+        {
+          "title": "DatasetViewer → tables::DataTable",
+          "slug": "datasetviewer-tables-datatable",
+          "components": [
+            "DatasetViewer"
+          ],
+          "name": "DatasetViewer"
+        },
+        {
+          "title": "EmbeddingVisualizer",
+          "slug": "embeddingvisualizer",
+          "components": [
+            "EmbeddingVisualizer"
+          ],
+          "name": "EmbeddingVisualizer"
+        },
+        {
+          "title": "PromptPlayground",
+          "slug": "promptplayground",
+          "components": [
+            "PromptPlayground"
+          ],
+          "name": "PromptPlayground"
+        },
+        {
+          "title": "PromptDiff / PromptVersionHistory",
+          "slug": "promptdiff-promptversionhistory",
+          "components": [
+            "PromptDiff",
+            "PromptVersionHistory"
+          ],
+          "name": "PromptDiff"
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "slug": "media",
+      "title": "Media",
+      "summary": "Pictures, video and sound: looking closely, cropping and marking up, playing, and the controls and devices around them.",
+      "stories": [
+        {
+          "title": "ImageViewer",
+          "slug": "imageviewer",
+          "components": [
+            "ImageViewer"
+          ],
+          "name": "ImageViewer"
+        },
+        {
+          "title": "ImageThumbnail / Lightbox → overlays::Lightbox",
+          "slug": "imagethumbnail-lightbox-overlays-lightbox",
+          "components": [
+            "ImageThumbnail",
+            "Lightbox"
+          ],
+          "name": "ImageThumbnail"
+        },
+        {
+          "title": "ImageCropper",
+          "slug": "imagecropper",
+          "components": [
+            "ImageCropper"
+          ],
+          "name": "ImageCropper"
+        },
+        {
+          "title": "ImageUpload",
+          "slug": "imageupload",
+          "components": [
+            "ImageUpload"
+          ],
+          "name": "ImageUpload"
+        },
+        {
+          "title": "ImageAnnotator",
+          "slug": "imageannotator",
+          "components": [
+            "ImageAnnotator"
+          ],
+          "name": "ImageAnnotator"
+        },
+        {
+          "title": "VideoPlayer",
+          "slug": "videoplayer",
+          "components": [
+            "VideoPlayer"
+          ],
+          "name": "VideoPlayer"
+        },
+        {
+          "title": "VideoTimeline / Scrubber",
+          "slug": "videotimeline-scrubber",
+          "components": [
+            "VideoTimeline",
+            "Scrubber"
+          ],
+          "name": "VideoTimeline"
+        },
+        {
+          "title": "VideoThumbnailStrip",
+          "slug": "videothumbnailstrip",
+          "components": [
+            "VideoThumbnailStrip"
+          ],
+          "name": "VideoThumbnailStrip"
+        },
+        {
+          "title": "SubtitleEditor",
+          "slug": "subtitleeditor",
+          "components": [
+            "SubtitleEditor"
+          ],
+          "name": "SubtitleEditor"
+        },
+        {
+          "title": "AudioPlayer",
+          "slug": "audioplayer",
+          "components": [
+            "AudioPlayer"
+          ],
+          "name": "AudioPlayer"
+        },
+        {
+          "title": "AudioWaveform",
+          "slug": "audiowaveform",
+          "components": [
+            "AudioWaveform"
+          ],
+          "name": "AudioWaveform"
+        },
+        {
+          "title": "AudioSpectrum / Visualizer",
+          "slug": "audiospectrum-visualizer",
+          "components": [
+            "AudioSpectrum",
+            "Visualizer"
+          ],
+          "name": "AudioSpectrum"
+        },
+        {
+          "title": "VolumeControl",
+          "slug": "volumecontrol",
+          "components": [
+            "VolumeControl"
+          ],
+          "name": "VolumeControl"
+        },
+        {
+          "title": "PlaybackSpeedControl",
+          "slug": "playbackspeedcontrol",
+          "components": [
+            "PlaybackSpeedControl"
+          ],
+          "name": "PlaybackSpeedControl"
+        },
+        {
+          "title": "MediaControls",
+          "slug": "mediacontrols",
+          "components": [
+            "MediaControls"
+          ],
+          "name": "MediaControls"
+        },
+        {
+          "title": "Playlist",
+          "slug": "playlist",
+          "components": [
+            "Playlist"
+          ],
+          "name": "Playlist"
+        },
+        {
+          "title": "ScreenRecorderControls",
+          "slug": "screenrecordercontrols",
+          "components": [
+            "ScreenRecorderControls"
+          ],
+          "name": "ScreenRecorderControls"
+        },
+        {
+          "title": "CameraPreview",
+          "slug": "camerapreview",
+          "components": [
+            "CameraPreview"
+          ],
+          "name": "CameraPreview"
+        },
+        {
+          "title": "MicLevelMeter",
+          "slug": "miclevelmeter",
+          "components": [
+            "MicLevelMeter"
+          ],
+          "name": "MicLevelMeter"
+        },
+        {
+          "title": "DeviceSelector",
+          "slug": "deviceselector",
+          "components": [
+            "DeviceSelector"
+          ],
+          "name": "DeviceSelector"
+        },
+        {
+          "title": "3DModelViewer",
+          "slug": "3dmodelviewer",
+          "components": [
+            "3DModelViewer"
+          ],
+          "name": "3DModelViewer"
+        }
+      ]
+    },
+    {
+      "number": 27,
+      "slug": "files",
+      "title": "Files",
+      "summary": "Files and folders: their icons, rows and tiles, and the listings, searches and transfers around them.",
+      "stories": [
+        {
+          "title": "FileIcon",
+          "slug": "fileicon",
+          "components": [
+            "FileIcon"
+          ],
+          "name": "FileIcon"
+        },
+        {
+          "title": "FileItem",
+          "slug": "fileitem",
+          "components": [
+            "FileItem"
+          ],
+          "name": "FileItem"
+        },
+        {
+          "title": "FileList",
+          "slug": "filelist",
+          "components": [
+            "FileList"
+          ],
+          "name": "FileList"
+        },
+        {
+          "title": "FileGrid",
+          "slug": "filegrid",
+          "components": [
+            "FileGrid"
+          ],
+          "name": "FileGrid"
+        },
+        {
+          "title": "FileExplorer",
+          "slug": "fileexplorer",
+          "components": [
+            "FileExplorer"
+          ],
+          "name": "FileExplorer"
+        },
+        {
+          "title": "FolderTree",
+          "slug": "foldertree",
+          "components": [
+            "FolderTree"
+          ],
+          "name": "FolderTree"
+        },
+        {
+          "title": "FileContextMenu",
+          "slug": "filecontextmenu",
+          "components": [
+            "FileContextMenu"
+          ],
+          "name": "FileContextMenu"
+        },
+        {
+          "title": "RenameInline",
+          "slug": "renameinline",
+          "components": [
+            "RenameInline"
+          ],
+          "name": "RenameInline"
+        },
+        {
+          "title": "DragDropFiles",
+          "slug": "dragdropfiles",
+          "components": [
+            "DragDropFiles"
+          ],
+          "name": "DragDropFiles"
+        },
+        {
+          "title": "FilePreview / QuickLook",
+          "slug": "filepreview-quicklook",
+          "components": [
+            "FilePreview",
+            "QuickLook"
+          ],
+          "name": "FilePreview"
+        },
+        {
+          "title": "RecentFiles",
+          "slug": "recentfiles",
+          "components": [
+            "RecentFiles"
+          ],
+          "name": "RecentFiles"
+        },
+        {
+          "title": "Favorites / Bookmarks",
+          "slug": "favorites-bookmarks",
+          "components": [
+            "Favorites",
+            "Bookmarks"
+          ],
+          "name": "Favorites"
+        },
+        {
+          "title": "FileSearch",
+          "slug": "filesearch",
+          "components": [
+            "FileSearch"
+          ],
+          "name": "FileSearch"
+        },
+        {
+          "title": "DuplicateFinder",
+          "slug": "duplicatefinder",
+          "components": [
+            "DuplicateFinder"
+          ],
+          "name": "DuplicateFinder"
+        },
+        {
+          "title": "ArchiveViewer",
+          "slug": "archiveviewer",
+          "components": [
+            "ArchiveViewer"
+          ],
+          "name": "ArchiveViewer"
+        },
+        {
+          "title": "HexViewer",
+          "slug": "hexviewer",
+          "components": [
+            "HexViewer"
+          ],
+          "name": "HexViewer"
+        },
+        {
+          "title": "FileOperationProgress",
+          "slug": "fileoperationprogress",
+          "components": [
+            "FileOperationProgress"
+          ],
+          "name": "FileOperationProgress"
+        },
+        {
+          "title": "TransferQueue",
+          "slug": "transferqueue",
+          "components": [
+            "TransferQueue"
+          ],
+          "name": "TransferQueue"
+        },
+        {
+          "title": "DownloadManager",
+          "slug": "downloadmanager",
+          "components": [
+            "DownloadManager"
+          ],
+          "name": "DownloadManager"
+        },
+        {
+          "title": "StorageUsage",
+          "slug": "storageusage",
+          "components": [
+            "StorageUsage"
+          ],
+          "name": "StorageUsage"
+        }
+      ]
+    },
+    {
+      "number": 28,
+      "slug": "messaging",
+      "title": "Messaging",
+      "summary": "Channels and people: the lists and heads of chats, the messages in them, the people behind them, and calls.",
+      "stories": [
+        {
+          "title": "ChannelList / ChatList",
+          "slug": "channellist-chatlist",
+          "components": [
+            "ChannelList",
+            "ChatList"
+          ],
+          "name": "ChannelList"
+        },
+        {
+          "title": "ChannelItem / DirectMessageItem",
+          "slug": "channelitem-directmessageitem",
+          "components": [
+            "ChannelItem",
+            "DirectMessageItem"
+          ],
+          "name": "ChannelItem"
+        },
+        {
+          "title": "ChannelHeader",
+          "slug": "channelheader",
+          "components": [
+            "ChannelHeader"
+          ],
+          "name": "ChannelHeader"
+        },
+        {
+          "title": "PinnedMessages",
+          "slug": "pinnedmessages",
+          "components": [
+            "PinnedMessages"
+          ],
+          "name": "PinnedMessages"
+        },
+        {
+          "title": "ChatMessage / UnreadDivider / MessageReactions / TypingIndicator",
+          "slug": "chatmessage-unreaddivider-messagereactions-typingindicator",
+          "components": [
+            "ChatMessage",
+            "UnreadDivider",
+            "MessageReactions",
+            "TypingIndicator"
+          ],
+          "name": "ChatMessage"
+        },
+        {
+          "title": "MessageThread / ThreadPanel",
+          "slug": "messagethread-threadpanel",
+          "components": [
+            "MessageThread",
+            "ThreadPanel"
+          ],
+          "name": "MessageThread"
+        },
+        {
+          "title": "ReadReceipt",
+          "slug": "readreceipt",
+          "components": [
+            "ReadReceipt"
+          ],
+          "name": "ReadReceipt"
+        },
+        {
+          "title": "MemberList / UserProfileCard",
+          "slug": "memberlist-userprofilecard",
+          "components": [
+            "MemberList",
+            "UserProfileCard"
+          ],
+          "name": "MemberList"
+        },
+        {
+          "title": "OnlineStatus",
+          "slug": "onlinestatus",
+          "components": [
+            "OnlineStatus"
+          ],
+          "name": "OnlineStatus"
+        },
+        {
+          "title": "StatusSetter",
+          "slug": "statussetter",
+          "components": [
+            "StatusSetter"
+          ],
+          "name": "StatusSetter"
+        },
+        {
+          "title": "CallControls / VoiceCallBar / HuddleIndicator",
+          "slug": "callcontrols-voicecallbar-huddleindicator",
+          "components": [
+            "CallControls",
+            "VoiceCallBar",
+            "HuddleIndicator"
+          ],
+          "name": "CallControls"
+        },
+        {
+          "title": "ParticipantTile / VideoCallGrid",
+          "slug": "participanttile-videocallgrid",
+          "components": [
+            "ParticipantTile",
+            "VideoCallGrid"
+          ],
+          "name": "ParticipantTile"
+        },
+        {
+          "title": "ScreenShareView",
+          "slug": "screenshareview",
+          "components": [
+            "ScreenShareView"
+          ],
+          "name": "ScreenShareView"
+        },
+        {
+          "title": "IncomingCallDialog",
+          "slug": "incomingcalldialog",
+          "components": [
+            "IncomingCallDialog"
+          ],
+          "name": "IncomingCallDialog"
+        },
+        {
+          "title": "StickerPicker",
+          "slug": "stickerpicker",
+          "components": [
+            "StickerPicker"
+          ],
+          "name": "StickerPicker"
+        },
+        {
+          "title": "GifPicker",
+          "slug": "gifpicker",
+          "components": [
+            "GifPicker"
+          ],
+          "name": "GifPicker"
+        }
+      ]
+    },
+    {
+      "number": 29,
+      "slug": "mail",
+      "title": "Mail",
+      "summary": "Mailboxes and the messages in them: reading, writing, sorting and putting off.",
+      "stories": [
+        {
+          "title": "MailboxList / FolderList",
+          "slug": "mailboxlist-folderlist",
+          "components": [
+            "MailboxList",
+            "FolderList"
+          ],
+          "name": "MailboxList"
+        },
+        {
+          "title": "MailList / MailItem",
+          "slug": "maillist-mailitem",
+          "components": [
+            "MailList",
+            "MailItem"
+          ],
+          "name": "MailList"
+        },
+        {
+          "title": "InboxZeroState → EmptyState",
+          "slug": "inboxzerostate-emptystate",
+          "components": [
+            "InboxZeroState"
+          ],
+          "name": "InboxZeroState"
+        },
+        {
+          "title": "MailReader / QuotedText",
+          "slug": "mailreader-quotedtext",
+          "components": [
+            "MailReader",
+            "QuotedText"
+          ],
+          "name": "MailReader"
+        },
+        {
+          "title": "MailThreadView",
+          "slug": "mailthreadview",
+          "components": [
+            "MailThreadView"
+          ],
+          "name": "MailThreadView"
+        },
+        {
+          "title": "MailComposer / RecipientInput → TagInput",
+          "slug": "mailcomposer-recipientinput-taginput",
+          "components": [
+            "MailComposer",
+            "RecipientInput"
+          ],
+          "name": "MailComposer"
+        },
+        {
+          "title": "SignatureEditor",
+          "slug": "signatureeditor",
+          "components": [
+            "SignatureEditor"
+          ],
+          "name": "SignatureEditor"
+        },
+        {
+          "title": "LabelPicker",
+          "slug": "labelpicker",
+          "components": [
+            "LabelPicker"
+          ],
+          "name": "LabelPicker"
+        },
+        {
+          "title": "SnoozePicker",
+          "slug": "snoozepicker",
+          "components": [
+            "SnoozePicker"
+          ],
+          "name": "SnoozePicker"
+        },
+        {
+          "title": "ScheduleSend",
+          "slug": "schedulesend",
+          "components": [
+            "ScheduleSend"
+          ],
+          "name": "ScheduleSend"
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "slug": "calendar",
+      "title": "Calendar",
+      "summary": "Days, weeks, months and years, and what happens in them.",
+      "stories": [
+        {
+          "title": "CalendarMonthView",
+          "slug": "calendarmonthview",
+          "components": [
+            "CalendarMonthView"
+          ],
+          "name": "CalendarMonthView"
+        },
+        {
+          "title": "MiniCalendar → forms::Calendar",
+          "slug": "minicalendar-forms-calendar",
+          "components": [
+            "MiniCalendar"
+          ],
+          "name": "MiniCalendar"
+        },
+        {
+          "title": "CalendarWeekView / TimeGrid / AllDayRow / CurrentTimeIndicator",
+          "slug": "calendarweekview-timegrid-alldayrow-currenttimeindicator",
+          "components": [
+            "CalendarWeekView",
+            "TimeGrid",
+            "AllDayRow",
+            "CurrentTimeIndicator"
+          ],
+          "name": "CalendarWeekView"
+        },
+        {
+          "title": "CalendarDayView / TimezoneOverlay",
+          "slug": "calendardayview-timezoneoverlay",
+          "components": [
+            "CalendarDayView",
+            "TimezoneOverlay"
+          ],
+          "name": "CalendarDayView"
+        },
+        {
+          "title": "AgendaView",
+          "slug": "agendaview",
+          "components": [
+            "AgendaView"
+          ],
+          "name": "AgendaView"
+        },
+        {
+          "title": "EventPopover / AttendeeList",
+          "slug": "eventpopover-attendeelist",
+          "components": [
+            "EventPopover",
+            "AttendeeList"
+          ],
+          "name": "EventPopover"
+        },
+        {
+          "title": "EventEditor / RecurrenceEditor / ReminderPicker",
+          "slug": "eventeditor-recurrenceeditor-reminderpicker",
+          "components": [
+            "EventEditor",
+            "RecurrenceEditor",
+            "ReminderPicker"
+          ],
+          "name": "EventEditor"
+        },
+        {
+          "title": "AvailabilityPicker",
+          "slug": "availabilitypicker",
+          "components": [
+            "AvailabilityPicker"
+          ],
+          "name": "AvailabilityPicker"
+        },
+        {
+          "title": "YearView",
+          "slug": "yearview",
+          "components": [
+            "YearView"
+          ],
+          "name": "YearView"
+        },
+        {
+          "title": "EventCard / EventChip",
+          "slug": "eventcard-eventchip",
+          "components": [
+            "EventCard",
+            "EventChip"
+          ],
+          "name": "EventCard"
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "slug": "project",
+      "title": "Project",
+      "summary": "Tasks and issues, who has them, where they stand, and when they are due.",
+      "stories": [
+        {
+          "title": "PriorityIndicator / IssueIdBadge",
+          "slug": "priorityindicator-issueidbadge",
+          "components": [
+            "PriorityIndicator",
+            "IssueIdBadge"
+          ],
+          "name": "PriorityIndicator"
+        },
+        {
+          "title": "StatusSelect / AssigneePicker / DueDatePicker",
+          "slug": "statusselect-assigneepicker-duedatepicker",
+          "components": [
+            "StatusSelect",
+            "AssigneePicker",
+            "DueDatePicker"
+          ],
+          "name": "StatusSelect"
+        },
+        {
+          "title": "TaskItem / TaskList",
+          "slug": "taskitem-tasklist",
+          "components": [
+            "TaskItem",
+            "TaskList"
+          ],
+          "name": "TaskItem"
+        },
+        {
+          "title": "SubtaskList",
+          "slug": "subtasklist",
+          "components": [
+            "SubtaskList"
+          ],
+          "name": "SubtaskList"
+        },
+        {
+          "title": "KanbanBoard / KanbanColumn / KanbanCard · IssueCard · Sprint Board",
+          "slug": "kanbanboard-kanbancolumn-kanbancard-issuecard-sprint-board",
+          "components": [
+            "KanbanBoard",
+            "KanbanColumn",
+            "KanbanCard",
+            "IssueCard",
+            "Sprint Board"
+          ],
+          "name": "KanbanBoard"
+        },
+        {
+          "title": "TaskDetailPanel",
+          "slug": "taskdetailpanel",
+          "components": [
+            "TaskDetailPanel"
+          ],
+          "name": "TaskDetailPanel"
+        },
+        {
+          "title": "LabelManager",
+          "slug": "labelmanager",
+          "components": [
+            "LabelManager"
+          ],
+          "name": "LabelManager"
+        },
+        {
+          "title": "GanttChart / TimelineView · Roadmap",
+          "slug": "ganttchart-timelineview-roadmap",
+          "components": [
+            "GanttChart",
+            "TimelineView",
+            "Roadmap"
+          ],
+          "name": "GanttChart"
+        },
+        {
+          "title": "Burndown Chart",
+          "slug": "burndown-chart",
+          "components": [
+            "Burndown Chart"
+          ],
+          "name": "Burndown Chart"
+        },
+        {
+          "title": "MilestoneProgress",
+          "slug": "milestoneprogress",
+          "components": [
+            "MilestoneProgress"
+          ],
+          "name": "MilestoneProgress"
+        },
+        {
+          "title": "WorkloadView",
+          "slug": "workloadview",
+          "components": [
+            "WorkloadView"
+          ],
+          "name": "WorkloadView"
+        },
+        {
+          "title": "TimeTracker",
+          "slug": "timetracker",
+          "components": [
+            "TimeTracker"
+          ],
+          "name": "TimeTracker"
+        },
+        {
+          "title": "Pomodoro Timer",
+          "slug": "pomodoro-timer",
+          "components": [
+            "Pomodoro Timer"
+          ],
+          "name": "Pomodoro Timer"
+        },
+        {
+          "title": "DatabaseView",
+          "slug": "databaseview",
+          "components": [
+            "DatabaseView"
+          ],
+          "name": "DatabaseView"
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "slug": "canvas",
+      "title": "Canvas & Design",
+      "summary": "An endless plane to lay work on, the tools and panels around it, and graphs of nodes.",
+      "stories": [
+        {
+          "title": "InfiniteCanvas · CanvasGrid / Guides · Ruler · ArtboardFrame · ZoomControls / ZoomIndicator · MiniMap",
+          "slug": "infinitecanvas-canvasgrid-guides-ruler-artboardframe-zoomcontrols-zoomindicator-minimap",
+          "components": [
+            "InfiniteCanvas",
+            "CanvasGrid",
+            "Guides",
+            "Ruler",
+            "ArtboardFrame",
+            "ZoomControls",
+            "ZoomIndicator",
+            "MiniMap"
+          ],
+          "name": "InfiniteCanvas"
+        },
+        {
+          "title": "ToolPalette · SelectionBox · TransformHandles · SnapIndicator · ShapeTools · PenTool / PathEditor · TextTool · BrushTool / BrushSettings · HistoryPanel",
+          "slug": "toolpalette-selectionbox-transformhandles-snapindicator-shapetools-pentool-patheditor-texttool-brushtool-brushsettings-historypanel",
+          "components": [
+            "ToolPalette",
+            "SelectionBox",
+            "TransformHandles",
+            "SnapIndicator",
+            "ShapeTools",
+            "PenTool",
+            "PathEditor",
+            "TextTool",
+            "BrushTool",
+            "BrushSettings",
+            "HistoryPanel"
+          ],
+          "name": "ToolPalette"
+        },
+        {
+          "title": "LayerPanel · InspectorPanel · AlignmentToolbar · AssetPanel",
+          "slug": "layerpanel-inspectorpanel-alignmenttoolbar-assetpanel",
+          "components": [
+            "LayerPanel",
+            "InspectorPanel",
+            "AlignmentToolbar",
+            "AssetPanel"
+          ],
+          "name": "LayerPanel"
+        },
+        {
+          "title": "ColorPanel · GradientPanel · ShadowEditor · BorderEditor · TypographyPanel",
+          "slug": "colorpanel-gradientpanel-shadoweditor-bordereditor-typographypanel",
+          "components": [
+            "ColorPanel",
+            "GradientPanel",
+            "ShadowEditor",
+            "BorderEditor",
+            "TypographyPanel"
+          ],
+          "name": "ColorPanel"
+        },
+        {
+          "title": "ConstraintsEditor · AutoLayoutControls · ExportPanel",
+          "slug": "constraintseditor-autolayoutcontrols-exportpanel",
+          "components": [
+            "ConstraintsEditor",
+            "AutoLayoutControls",
+            "ExportPanel"
+          ],
+          "name": "ConstraintsEditor"
+        },
+        {
+          "title": "NodeEditor / NodeGraph · Node / Port / Edge / Connection",
+          "slug": "nodeeditor-nodegraph-node-port-edge-connection",
+          "components": [
+            "NodeEditor",
+            "NodeGraph",
+            "Node",
+            "Port",
+            "Edge",
+            "Connection"
+          ],
+          "name": "NodeEditor"
+        },
+        {
+          "title": "FlowChart / DiagramEditor · Connector Line",
+          "slug": "flowchart-diagrameditor-connector-line",
+          "components": [
+            "FlowChart",
+            "DiagramEditor",
+            "Connector Line"
+          ],
+          "name": "FlowChart"
+        },
+        {
+          "title": "MindMap",
+          "slug": "mindmap",
+          "components": [
+            "MindMap"
+          ],
+          "name": "MindMap"
+        },
+        {
+          "title": "Whiteboard · StickyNote",
+          "slug": "whiteboard-stickynote",
+          "components": [
+            "Whiteboard",
+            "StickyNote"
+          ],
+          "name": "Whiteboard"
+        }
+      ]
+    },
+    {
+      "number": 33,
+      "slug": "devtools",
+      "title": "DB & Dev Tools",
+      "summary": "Connections, schemas and queries, data to read, requests to send, and the machines that run them.",
+      "stories": [
+        {
+          "title": "ConnectionManager · ConnectionForm",
+          "slug": "connectionmanager-connectionform",
+          "components": [
+            "ConnectionManager",
+            "ConnectionForm"
+          ],
+          "name": "ConnectionManager"
+        },
+        {
+          "title": "SchemaTree · ERDiagram",
+          "slug": "schematree-erdiagram",
+          "components": [
+            "SchemaTree",
+            "ERDiagram"
+          ],
+          "name": "SchemaTree"
+        },
+        {
+          "title": "QueryEditor → editor::CodeEditor · QueryResultGrid → tables::DataGrid · QueryHistory · QueryPlanViewer",
+          "slug": "queryeditor-editor-codeeditor-queryresultgrid-tables-datagrid-queryhistory-queryplanviewer",
+          "components": [
+            "QueryEditor",
+            "QueryResultGrid",
+            "QueryHistory",
+            "QueryPlanViewer"
+          ],
+          "name": "QueryEditor"
+        },
+        {
+          "title": "TableStructureEditor · IndexManager",
+          "slug": "tablestructureeditor-indexmanager",
+          "components": [
+            "TableStructureEditor",
+            "IndexManager"
+          ],
+          "name": "TableStructureEditor"
+        },
+        {
+          "title": "RedisKeyBrowser",
+          "slug": "rediskeybrowser",
+          "components": [
+            "RedisKeyBrowser"
+          ],
+          "name": "RedisKeyBrowser"
+        },
+        {
+          "title": "DocumentViewer (MongoDB / JSON) → devtools::JsonViewer · JsonViewer / JsonTree · JsonEditor · YamlViewer · XmlViewer",
+          "slug": "documentviewer-mongodb-json-devtools-jsonviewer-jsonviewer-jsontree-jsoneditor-yamlviewer-xmlviewer",
+          "components": [
+            "DocumentViewer",
+            "JsonViewer",
+            "JsonTree",
+            "JsonEditor",
+            "YamlViewer",
+            "XmlViewer"
+          ],
+          "name": "DocumentViewer"
+        },
+        {
+          "title": "ApiRequestBuilder · ResponseViewer · HeadersTable · QueryParamsEditor → forms::KeyValueInput · EnvironmentSelector · CollectionTree",
+          "slug": "apirequestbuilder-responseviewer-headerstable-queryparamseditor-forms-keyvalueinput-environmentselector-collectiontree",
+          "components": [
+            "ApiRequestBuilder",
+            "ResponseViewer",
+            "HeadersTable",
+            "QueryParamsEditor",
+            "EnvironmentSelector",
+            "CollectionTree"
+          ],
+          "name": "ApiRequestBuilder"
+        },
+        {
+          "title": "WebSocketConsole",
+          "slug": "websocketconsole",
+          "components": [
+            "WebSocketConsole"
+          ],
+          "name": "WebSocketConsole"
+        },
+        {
+          "title": "GraphQLExplorer",
+          "slug": "graphqlexplorer",
+          "components": [
+            "GraphQLExplorer"
+          ],
+          "name": "GraphQLExplorer"
+        },
+        {
+          "title": "RegexTester · Base64 / Encoder · ColorContrastChecker",
+          "slug": "regextester-base64-encoder-colorcontrastchecker",
+          "components": [
+            "RegexTester",
+            "Base64",
+            "Encoder",
+            "ColorContrastChecker"
+          ],
+          "name": "RegexTester"
+        },
+        {
+          "title": "ContainerList · PodList · ResourceMonitor",
+          "slug": "containerlist-podlist-resourcemonitor",
+          "components": [
+            "ContainerList",
+            "PodList",
+            "ResourceMonitor"
+          ],
+          "name": "ContainerList"
+        }
+      ]
+    },
+    {
+      "number": 34,
+      "slug": "dashboard",
+      "title": "Dashboard & Monitoring",
+      "summary": "Widgets on a grid you arrange, what is firing and what is up, and the stream of what happens.",
+      "stories": [
+        {
+          "title": "Dashboard Grid · Widget / DashboardCard · RefreshIntervalSelector · DashboardFilterBar · StatCard → data_display::Statistic · MetricsChart → charts::LineChart · ResourceGauge → data_display::Gauge",
+          "slug": "dashboard-grid-widget-dashboardcard-refreshintervalselector-dashboardfilterbar-statcard-data-display-statistic-metricschart-charts-linechart-resourcegauge-data-display-gauge",
+          "components": [
+            "Dashboard Grid",
+            "Widget",
+            "DashboardCard",
+            "RefreshIntervalSelector",
+            "DashboardFilterBar",
+            "StatCard",
+            "MetricsChart",
+            "ResourceGauge"
+          ],
+          "name": "Dashboard Grid"
+        },
+        {
+          "title": "UptimeBar · ServiceStatus · HealthCheck Indicator",
+          "slug": "uptimebar-servicestatus-healthcheck-indicator",
+          "components": [
+            "UptimeBar",
+            "ServiceStatus",
+            "HealthCheck Indicator"
+          ],
+          "name": "UptimeBar"
+        },
+        {
+          "title": "AlertList · IncidentCard",
+          "slug": "alertlist-incidentcard",
+          "components": [
+            "AlertList",
+            "IncidentCard"
+          ],
+          "name": "AlertList"
+        },
+        {
+          "title": "EventStream · LogStream → terminal::LogViewer · TraceWaterfall → debug::TimelineProfiler · SystemMonitor → devtools::ResourceMonitor · ProcessTable → terminal::ProcessList · NetworkGraph (throughput) → charts::RealtimeChart",
+          "slug": "eventstream-logstream-terminal-logviewer-tracewaterfall-debug-timelineprofiler-systemmonitor-devtools-resourcemonitor-processtable-terminal-processlist-networkgraph-throughput-charts-realtimechart",
+          "components": [
+            "EventStream",
+            "LogStream",
+            "TraceWaterfall",
+            "SystemMonitor",
+            "ProcessTable",
+            "NetworkGraph"
+          ],
+          "name": "EventStream"
+        }
+      ]
+    },
+    {
+      "number": 35,
+      "slug": "settings",
+      "title": "Settings",
+      "summary": "A settings window: its sections, a search over them, and the controls each one holds.",
+      "stories": [
+        {
+          "title": "SettingsLayout · SettingsSection · SettingsRow · SettingsSearch",
+          "slug": "settingslayout-settingssection-settingsrow-settingssearch",
+          "components": [
+            "SettingsLayout",
+            "ThemeSelector",
+            "AccentColorPicker",
+            "FontSizeControl",
+            "DensitySelector",
+            "KeyboardShortcutsList",
+            "ProxySettings",
+            "PrivacySettings",
+            "NotificationSettings",
+            "StartupSettings",
+            "StorageSettings",
+            "ResetToDefault",
+            "ImportExportSettings",
+            "AdvancedSettings",
+            "DeveloperMode Toggle",
+            "SettingsSection",
+            "SettingsRow",
+            "SettingsSearch"
+          ],
+          "name": "SettingsLayout"
+        }
+      ]
+    },
+    {
+      "number": 36,
+      "slug": "account",
+      "title": "Account",
+      "summary": "Signing in and up, a link by email, a second factor, and the account once inside.",
+      "stories": [
+        {
+          "title": "LoginForm · OAuthButtons",
+          "slug": "loginform-oauthbuttons",
+          "components": [
+            "LoginForm",
+            "OAuthButtons"
+          ],
+          "name": "LoginForm"
+        },
+        {
+          "title": "SignupForm",
+          "slug": "signupform",
+          "components": [
+            "SignupForm"
+          ],
+          "name": "SignupForm"
+        },
+        {
+          "title": "MagicLinkForm · ForgotPassword",
+          "slug": "magiclinkform-forgotpassword",
+          "components": [
+            "MagicLinkForm",
+            "ForgotPassword"
+          ],
+          "name": "MagicLinkForm"
+        },
+        {
+          "title": "TwoFactorInput",
+          "slug": "twofactorinput",
+          "components": [
+            "TwoFactorInput"
+          ],
+          "name": "TwoFactorInput"
+        },
+        {
+          "title": "AccountSwitcher · WorkspaceSwitcher / OrgSwitcher · UserMenu",
+          "slug": "accountswitcher-workspaceswitcher-orgswitcher-usermenu",
+          "components": [
+            "AccountSwitcher",
+            "WorkspaceSwitcher",
+            "OrgSwitcher",
+            "UserMenu"
+          ],
+          "name": "AccountSwitcher"
+        },
+        {
+          "title": "ProfileCard · ProfileEditor",
+          "slug": "profilecard-profileeditor",
+          "components": [
+            "ProfileCard",
+            "ProfileEditor"
+          ],
+          "name": "ProfileCard"
+        },
+        {
+          "title": "SessionList · ApiKeyManager",
+          "slug": "sessionlist-apikeymanager",
+          "components": [
+            "SessionList",
+            "ApiKeyManager"
+          ],
+          "name": "SessionList"
+        },
+        {
+          "title": "SubscriptionCard / PlanBadge · UsageQuota · PaymentMethodForm",
+          "slug": "subscriptioncard-planbadge-usagequota-paymentmethodform",
+          "components": [
+            "SubscriptionCard",
+            "PlanBadge",
+            "UsageQuota",
+            "PaymentMethodForm"
+          ],
+          "name": "SubscriptionCard"
+        },
+        {
+          "title": "BillingHistory · UpgradePrompt / Paywall",
+          "slug": "billinghistory-upgradeprompt-paywall",
+          "components": [
+            "BillingHistory",
+            "UpgradePrompt",
+            "Paywall"
+          ],
+          "name": "BillingHistory"
+        },
+        {
+          "title": "TeamMemberTable · RoleSelector · InvitationList",
+          "slug": "teammembertable-roleselector-invitationlist",
+          "components": [
+            "TeamMemberTable",
+            "RoleSelector",
+            "InvitationList"
+          ],
+          "name": "TeamMemberTable"
+        }
+      ]
+    },
+    {
+      "number": 37,
+      "slug": "onboarding",
+      "title": "Onboarding & Help",
+      "summary": "A first run in steps, what is new called out, first things to do, and help where it is needed.",
+      "stories": [
+        {
+          "title": "OnboardingWizard · WelcomeTour",
+          "slug": "onboardingwizard-welcometour",
+          "components": [
+            "OnboardingWizard",
+            "WelcomeTour"
+          ],
+          "name": "OnboardingWizard"
+        },
+        {
+          "title": "Coachmark / Hotspot · FeatureHighlight / NewBadge",
+          "slug": "coachmark-hotspot-featurehighlight-newbadge",
+          "components": [
+            "Coachmark",
+            "Hotspot",
+            "FeatureHighlight",
+            "NewBadge"
+          ],
+          "name": "Coachmark"
+        },
+        {
+          "title": "Checklist (first-run tasks)",
+          "slug": "checklist-first-run-tasks",
+          "components": [
+            "Checklist"
+          ],
+          "name": "Checklist"
+        },
+        {
+          "title": "HelpTooltip · InlineHelp · EmptyStateWithAction",
+          "slug": "helptooltip-inlinehelp-emptystatewithaction",
+          "components": [
+            "HelpTooltip",
+            "InlineHelp",
+            "EmptyStateWithAction"
+          ],
+          "name": "HelpTooltip"
+        },
+        {
+          "title": "HelpPanel / DocsSidebar",
+          "slug": "helppanel-docssidebar",
+          "components": [
+            "HelpPanel",
+            "DocsSidebar"
+          ],
+          "name": "HelpPanel"
+        },
+        {
+          "title": "KeyboardShortcutCheatsheet · WhatsNewDialog",
+          "slug": "keyboardshortcutcheatsheet-whatsnewdialog",
+          "components": [
+            "KeyboardShortcutCheatsheet",
+            "WhatsNewDialog"
+          ],
+          "name": "KeyboardShortcutCheatsheet"
+        },
+        {
+          "title": "FeedbackWidget · ContactSupport",
+          "slug": "feedbackwidget-contactsupport",
+          "components": [
+            "FeedbackWidget",
+            "ContactSupport"
+          ],
+          "name": "FeedbackWidget"
+        }
+      ]
+    },
+    {
+      "number": 38,
+      "slug": "interaction",
+      "title": "Interaction",
+      "summary": "Drag and drop, resizing and turning, band selection, presses and gestures, keys, scrolling and focus.",
+      "stories": [
+        {
+          "title": "Draggable · Droppable / DropTarget · DragOverlay / DragPreview · DragGhost",
+          "slug": "draggable-droppable-droptarget-dragoverlay-dragpreview-dragghost",
+          "components": [
+            "Draggable",
+            "Droppable",
+            "DropTarget",
+            "DragOverlay",
+            "DragPreview",
+            "DragGhost"
+          ],
+          "name": "Draggable"
+        },
+        {
+          "title": "Resizable · Rotatable · Selectable / SelectionArea · RubberBandSelection · Sortable",
+          "slug": "resizable-rotatable-selectable-selectionarea-rubberbandselection-sortable",
+          "components": [
+            "Resizable",
+            "Rotatable",
+            "Selectable",
+            "SelectionArea",
+            "RubberBandSelection",
+            "Sortable"
+          ],
+          "name": "Resizable"
+        },
+        {
+          "title": "LongPress · DoubleClick · Gesture · PanZoom",
+          "slug": "longpress-doubleclick-gesture-panzoom",
+          "components": [
+            "LongPress",
+            "DoubleClick",
+            "Gesture",
+            "PanZoom"
+          ],
+          "name": "LongPress"
+        },
+        {
+          "title": "Hotkeys / KeyBinding · KeyChord",
+          "slug": "hotkeys-keybinding-keychord",
+          "components": [
+            "Hotkeys",
+            "KeyBinding",
+            "KeyChord"
+          ],
+          "name": "Hotkeys"
+        },
+        {
+          "title": "Undo / Redo Manager",
+          "slug": "undo-redo-manager",
+          "components": [
+            "Undo",
+            "Redo Manager"
+          ],
+          "name": "Undo"
+        },
+        {
+          "title": "VirtualScroller · ScrollSync · InfiniteScroll Trigger",
+          "slug": "virtualscroller-scrollsync-infinitescroll-trigger",
+          "components": [
+            "VirtualScroller",
+            "ScrollSync",
+            "InfiniteScroll Trigger"
+          ],
+          "name": "VirtualScroller"
+        },
+        {
+          "title": "Autofocus · RovingTabIndex · TypeAhead · FocusVisible",
+          "slug": "autofocus-rovingtabindex-typeahead-focusvisible",
+          "components": [
+            "Autofocus",
+            "RovingTabIndex",
+            "TypeAhead",
+            "FocusVisible"
+          ],
+          "name": "Autofocus"
+        }
+      ]
+    },
+    {
+      "number": 39,
+      "slug": "theme",
+      "title": "Theme",
+      "summary": "Tokens every component reads. Light and dark share one grammar.",
+      "stories": [
+        {
+          "title": "Surfaces",
+          "slug": "surfaces",
+          "components": [
+            "ColorTokens"
+          ],
+          "name": "Surfaces"
+        },
+        {
+          "title": "Ink",
+          "slug": "ink",
+          "components": [
+            "ColorTokens"
+          ],
+          "name": "Ink"
+        },
+        {
+          "title": "Signals",
+          "slug": "signals",
+          "components": [
+            "ColorTokens"
+          ],
+          "name": "Signals"
+        },
+        {
+          "title": "Series",
+          "slug": "series",
+          "components": [
+            "ColorTokens"
+          ],
+          "name": "Series"
+        },
+        {
+          "title": "Syntax",
+          "slug": "syntax",
+          "components": [
+            "ColorTokens"
+          ],
+          "name": "Syntax"
+        },
+        {
+          "title": "Type",
+          "slug": "type",
+          "components": [],
+          "name": "Type"
+        },
+        {
+          "title": "Shape",
+          "slug": "shape",
+          "components": [
+            "Elevation"
+          ],
+          "name": "Shape"
+        },
+        {
+          "title": "Motion",
+          "slug": "motion",
+          "components": [
+            "Motion",
+            "Spring"
+          ],
+          "name": "Motion"
+        },
+        {
+          "title": "ThemeEditor · DensityProvider · RadiusProvider · FontProvider · HighContrastMode · ReducedMotionProvider",
+          "slug": "themeeditor-densityprovider-radiusprovider-fontprovider-highcontrastmode-reducedmotionprovider",
+          "components": [
+            "ThemeEditor",
+            "ThemeProvider",
+            "DensityProvider",
+            "RadiusProvider",
+            "FontProvider",
+            "HighContrastMode",
+            "ReducedMotionProvider"
+          ],
+          "name": "ThemeEditor"
+        },
+        {
+          "title": "ThemeImporter · SyntaxThemes",
+          "slug": "themeimporter-syntaxthemes",
+          "components": [
+            "ThemeImporter",
+            "SyntaxThemes"
+          ],
+          "name": "ThemeImporter"
+        },
+        {
+          "title": "Platform Style · IconThemeProvider · VibrancyBackground",
+          "slug": "platform-style-iconthemeprovider-vibrancybackground",
+          "components": [
+            "Platform Style",
+            "IconThemeProvider",
+            "VibrancyBackground"
+          ],
+          "name": "Platform Style"
+        }
+      ]
+    },
+    {
+      "number": 40,
+      "slug": "i18n",
+      "title": "i18n & a11y",
+      "summary": "Messages, numbers and dates in the reader's locale. A right-to-left locale mirrors its stacks.",
+      "stories": [
+        {
+          "title": "I18nProvider · Trans / LocalizedText",
+          "slug": "i18nprovider-trans-localizedtext",
+          "components": [
+            "I18nProvider",
+            "Trans",
+            "LocalizedText"
+          ],
+          "name": "I18nProvider"
+        },
+        {
+          "title": "LocaleNumber / LocaleDate",
+          "slug": "localenumber-localedate",
+          "components": [
+            "LocaleNumber",
+            "LocaleDate"
+          ],
+          "name": "LocaleNumber"
+        },
+        {
+          "title": "RTL layout",
+          "slug": "rtl-layout",
+          "components": [
+            "RTL layout"
+          ],
+          "name": "RTL layout"
+        },
+        {
+          "title": "SkipLink · KeyboardNavigationHelper",
+          "slug": "skiplink-keyboardnavigationhelper",
+          "components": [
+            "SkipLink",
+            "KeyboardNavigationHelper"
+          ],
+          "name": "SkipLink"
+        },
+        {
+          "title": "ColorBlindSafe Palette",
+          "slug": "colorblindsafe-palette",
+          "components": [
+            "ColorBlindSafe Palette"
+          ],
+          "name": "ColorBlindSafe Palette"
+        }
+      ]
+    },
+    {
+      "number": 41,
+      "slug": "maps",
+      "title": "Maps",
+      "summary": "Tiles the host supplies, pins with a popup, a picker's crosshair, routes, GeoJSON, heat, clusters and choropleths. The land is Natural Earth's.",
+      "stories": [
+        {
+          "title": "MapView · MapMarker · MapPopup",
+          "slug": "mapview-mapmarker-mappopup",
+          "components": [
+            "MapView",
+            "MapMarker",
+            "MapPopup"
+          ],
+          "name": "MapView"
+        },
+        {
+          "title": "CoordinateDisplay",
+          "slug": "coordinatedisplay",
+          "components": [
+            "CoordinateDisplay"
+          ],
+          "name": "CoordinateDisplay"
+        },
+        {
+          "title": "LocationPicker",
+          "slug": "locationpicker",
+          "components": [
+            "LocationPicker"
+          ],
+          "name": "LocationPicker"
+        },
+        {
+          "title": "RouteLine · GeoJSON Layer",
+          "slug": "routeline-geojson-layer",
+          "components": [
+            "RouteLine",
+            "GeoJSON Layer"
+          ],
+          "name": "RouteLine"
+        },
+        {
+          "title": "GeoHeatmap",
+          "slug": "geoheatmap",
+          "components": [
+            "GeoHeatmap"
+          ],
+          "name": "GeoHeatmap"
+        },
+        {
+          "title": "MapCluster",
+          "slug": "mapcluster",
+          "components": [
+            "MapCluster"
+          ],
+          "name": "MapCluster"
+        },
+        {
+          "title": "ChoroplethMap · WorldMap",
+          "slug": "choroplethmap-worldmap",
+          "components": [
+            "ChoroplethMap",
+            "WorldMap"
+          ],
+          "name": "ChoroplethMap"
+        }
+      ]
+    },
+    {
+      "number": 42,
+      "slug": "misc",
+      "title": "Misc",
+      "summary": "Small tools that stand alone: clocks, a stopwatch, a calculator, a unit converter, a QR code scanner, a captcha, a poll, a survey, a quiz, flashcards, licenses, terms, a cookie banner, data out and in, and web views.",
+      "stories": [
+        {
+          "title": "Clock / WorldClock",
+          "slug": "clock-worldclock",
+          "components": [
+            "Clock",
+            "WorldClock"
+          ],
+          "name": "Clock"
+        },
+        {
+          "title": "Stopwatch",
+          "slug": "stopwatch",
+          "components": [
+            "Stopwatch"
+          ],
+          "name": "Stopwatch"
+        },
+        {
+          "title": "Calculator",
+          "slug": "calculator",
+          "components": [
+            "Calculator"
+          ],
+          "name": "Calculator"
+        },
+        {
+          "title": "UnitConverter",
+          "slug": "unitconverter",
+          "components": [
+            "UnitConverter"
+          ],
+          "name": "UnitConverter"
+        },
+        {
+          "title": "QRCodeScanner",
+          "slug": "qrcodescanner",
+          "components": [
+            "QRCodeScanner"
+          ],
+          "name": "QRCodeScanner"
+        },
+        {
+          "title": "Captcha",
+          "slug": "captcha",
+          "components": [
+            "Captcha"
+          ],
+          "name": "Captcha"
+        },
+        {
+          "title": "BarcodeDisplay · Signature · Rating Widget",
+          "slug": "barcodedisplay-signature-rating-widget",
+          "components": [
+            "BarcodeDisplay",
+            "Signature",
+            "Rating Widget"
+          ],
+          "name": "BarcodeDisplay"
+        },
+        {
+          "title": "Poll / Survey",
+          "slug": "poll-survey",
+          "components": [
+            "Poll",
+            "Survey"
+          ],
+          "name": "Poll"
+        },
+        {
+          "title": "Quiz / Flashcard",
+          "slug": "quiz-flashcard",
+          "components": [
+            "Quiz",
+            "Flashcard"
+          ],
+          "name": "Quiz"
+        },
+        {
+          "title": "ChangeLog Viewer",
+          "slug": "changelog-viewer",
+          "components": [
+            "ChangeLog Viewer"
+          ],
+          "name": "ChangeLog Viewer"
+        },
+        {
+          "title": "LicenseViewer",
+          "slug": "licenseviewer",
+          "components": [
+            "LicenseViewer"
+          ],
+          "name": "LicenseViewer"
+        },
+        {
+          "title": "Terms / Consent Dialog / CookieBanner",
+          "slug": "terms-consent-dialog-cookiebanner",
+          "components": [
+            "Terms",
+            "Consent Dialog",
+            "CookieBanner"
+          ],
+          "name": "Terms"
+        },
+        {
+          "title": "ExportDialog / ImportDialog / CSVImporter",
+          "slug": "exportdialog-importdialog-csvimporter",
+          "components": [
+            "ExportDialog",
+            "ImportDialog",
+            "CSVImporter"
+          ],
+          "name": "ExportDialog"
+        },
+        {
+          "title": "WebView / HTMLPreview",
+          "slug": "webview-htmlpreview",
+          "components": [
+            "WebView",
+            "HTMLPreview"
+          ],
+          "name": "WebView"
+        },
+        {
+          "title": "IframeEmbed / EmbedCard",
+          "slug": "iframeembed-embedcard",
+          "components": [
+            "IframeEmbed",
+            "EmbedCard"
+          ],
+          "name": "IframeEmbed"
+        },
+        {
+          "title": "PrintButton · ShareSheet",
+          "slug": "printbutton-sharesheet",
+          "components": [
+            "PrintButton",
+            "ShareSheet"
+          ],
+          "name": "PrintButton"
+        }
+      ]
+    },
+    {
+      "number": 43,
+      "slug": "tooling",
+      "title": "Library Tooling",
+      "summary": "Tools for building with the library: this gallery, a playground that edits a component live, tools that inspect a running window, its boxes, frames, renders and input, and catalogs of its tokens, icons and contrast.",
+      "stories": [
+        {
+          "title": "InspectorOverlay",
+          "slug": "inspectoroverlay",
+          "components": [
+            "InspectorOverlay"
+          ],
+          "name": "InspectorOverlay"
+        },
+        {
+          "title": "FPSMeter / PerfOverlay",
+          "slug": "fpsmeter-perfoverlay",
+          "components": [
+            "FPSMeter",
+            "PerfOverlay"
+          ],
+          "name": "FPSMeter"
+        },
+        {
+          "title": "RenderCounter",
+          "slug": "rendercounter",
+          "components": [
+            "RenderCounter"
+          ],
+          "name": "RenderCounter"
+        },
+        {
+          "title": "EventLogger",
+          "slug": "eventlogger",
+          "components": [
+            "EventLogger"
+          ],
+          "name": "EventLogger"
+        },
+        {
+          "title": "DesignTokenViewer",
+          "slug": "designtokenviewer",
+          "components": [
+            "DesignTokenViewer"
+          ],
+          "name": "DesignTokenViewer"
+        },
+        {
+          "title": "IconBrowser",
+          "slug": "iconbrowser",
+          "components": [
+            "IconBrowser"
+          ],
+          "name": "IconBrowser"
+        },
+        {
+          "title": "A11yChecker",
+          "slug": "a11ychecker",
+          "components": [
+            "A11yChecker"
+          ],
+          "name": "A11yChecker"
+        },
+        {
+          "title": "ScreenshotTest Harness",
+          "slug": "screenshottest-harness",
+          "components": [
+            "ScreenshotTest Harness"
+          ],
+          "name": "ScreenshotTest Harness"
+        },
+        {
+          "title": "ComponentGallery / Storybook",
+          "slug": "componentgallery-storybook",
+          "components": [
+            "ComponentGallery",
+            "Storybook"
+          ],
+          "name": "ComponentGallery"
+        },
+        {
+          "title": "PlaygroundPanel",
+          "slug": "playgroundpanel",
+          "components": [
+            "PlaygroundPanel"
+          ],
+          "name": "PlaygroundPanel"
+        }
+      ]
+    },
+    {
+      "number": 44,
+      "slug": "rendering",
+      "title": "Rendering",
+      "summary": "Pixels the host draws at the box's size in device pixels, drawn again for a new size or content.",
+      "stories": [
+        {
+          "title": "RenderSurface",
+          "slug": "rendersurface",
+          "components": [
+            "RenderSurface",
+            "ShaderView",
+            "CameraTexture",
+            "ZeroCopyTexture",
+            "MetalSurface"
+          ],
+          "name": "RenderSurface"
+        }
+      ]
+    }
+  ]
+}

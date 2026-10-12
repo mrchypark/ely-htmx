@@ -1,0 +1,42 @@
+{{define "page"}}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ely HTMX app example</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/example.css">
+  <script src="/assets/htmx.min.js" defer></script>
+  {{template "ui-component-assets"}}
+  {{template "ui-advanced-family-assets" "forms"}}
+  <script src="/assets/theme.js"></script>
+</head>
+<body>
+  <main class="example-shell">
+    <h1>Native form with an htmx response</h1>
+    <p>This example validates on the server. Without JavaScript, the same POST returns this full page.</p>
+    <form method="post" action="/submit" hx-post="/submit" hx-target="#result" hx-swap="outerHTML">
+      <label for="name">{{template "field-label" (dict "Label" "Name" "Required" true)}}{{template "input" (dict "ID" "name" "Name" "name" "Value" .Name "Required" true "MaxLength" 100 "Autocomplete" "name")}}</label>
+      {{template "tag-input" (dict "ID" "form-tags" "Label" "Tags" "Name" "tags" "Value" .Tags "Placeholder" "Type a tag and press Enter")}}
+      {{template "button" (dict "Type" "submit" "Label" "Send")}}
+    </form>
+    {{template "result" .}}
+  </main>
+</body>
+</html>
+{{end}}
+
+{{define "result"}}
+<section id="result" class="example-result" aria-live="polite">
+  {{if .Error}}
+  <p role="alert">{{.Error}}</p>
+  {{else if .Submitted}}
+  <p>Hello, {{.Name}}.</p>
+  <p>You can add or remove tags in the response.</p>
+  {{.TagInput}}
+  {{else}}
+  <p>Send the form to replace this area.</p>
+  {{end}}
+</section>
+{{end}}

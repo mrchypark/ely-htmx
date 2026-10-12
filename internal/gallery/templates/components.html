@@ -1,0 +1,44 @@
+{{define "components"}}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ely HTMX UI · 예제</title>{{template "brand-icon" .}}{{template "font-preloads"}}
+  <link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/components.css"><link rel="stylesheet" href="/assets/ely.css">{{template "ui-component-assets"}}
+  {{if .Components.Story}}{{template "ui-advanced-family-assets" .Components.Family}}<script type="module" src="/assets/advanced-usage.js"></script>{{if eq .Components.Chapter.Slug "maps"}}{{template "ui-map-assets"}}{{end}}{{end}}
+  <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false,"selfRequestsOnly":true}'>
+  <script src="/assets/htmx.min.js" defer></script><script src="/assets/theme.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  {{template "gallery-header" "components"}}
+  {{if .Components.Story}}
+  <div class="shell component-layout">
+    <aside class="component-sidebar" aria-label="컴포넌트 목록">
+      <form class="component-search" action="/components"><label class="sr-only" for="component-query">컴포넌트 검색</label><input id="component-query" type="search" name="q" placeholder="{{.Components.Count}}개 컴포넌트 검색" maxlength="200"><button class="sr-only" type="submit">검색</button></form>
+      <nav aria-label="컴포넌트 분류">{{range .Components.Chapters}}<details{{if eq .Slug $.Components.Chapter.Slug}} open{{end}}><summary>{{.Title}}</summary><ul>{{$chapter:=.Slug}}{{range .Stories}}<li><a href="/components/{{$chapter}}/{{.Slug}}"{{if and (eq $chapter $.Components.Chapter.Slug) (eq .Slug $.Components.Story.Slug)}} aria-current="page"{{end}}>{{.Name}}</a></li>{{end}}</ul></details>{{end}}</nav>
+    </aside>
+    <main id="main" class="component-story">
+      <a class="note" href="/components">{{.Components.Chapter.Title}}</a>
+      <h1>{{.Components.Story.Name}}</h1>
+      <p class="component-aliases">{{range $i,$name:=.Components.Story.Components}}{{if $i}} · {{end}}{{$name}}{{end}}</p>
+      <section class="component-live native-preview" aria-label="{{.Components.Story.Name}} 예제" data-demo-story="{{.Components.Chapter.Slug}}/{{.Components.Story.Slug}}">{{.Components.Preview}}</section>
+      <p class="hint component-runtime-note">호출자 데이터로 구성한 공통 API 예제입니다.</p><output data-api-host-status aria-live="polite">외부 동작의 요청 데이터를 여기 표시합니다.</output>
+      <nav class="component-paging" aria-label="이전과 다음 예제" tabindex="-1" data-after-live>{{if .Components.Previous}}<a href="{{.Components.Previous.Href}}">← {{.Components.Previous.Name}}</a>{{else}}<span></span>{{end}}{{if .Components.Next}}<a href="{{.Components.Next.Href}}">{{.Components.Next.Name}} →</a>{{end}}</nav>
+    </main>
+  </div>
+  {{else}}
+  <main id="main" class="shell component-index">
+    <p class="eyebrow">ELY HTMX / UI LIBRARY</p><h1>Components.</h1>
+    <div class="component-index-intro"><p class="lede">Ely 컴포넌트의 공통 HTML 구현과 사용 예제.</p><span class="note">44개 분류 · {{.Components.Count}}개 컴포넌트 · {{.Components.Stories}}개 예제</span></div>
+    <form class="component-search" action="/components" hx-get="/components" hx-trigger="submit, input changed delay:250ms" hx-target="#main" hx-select="#main" hx-swap="outerHTML"><label class="sr-only" for="component-query">컴포넌트 검색</label><input id="component-query" type="search" name="q" value="{{.Components.Query}}" placeholder="컴포넌트 이름 또는 분류 검색" maxlength="200"><button type="submit">검색 ↗</button></form>
+    {{if .Components.Query}}<p class="note">“{{.Components.Query}}” 검색 결과 · <a href="/components">전체 목록</a></p>{{end}}
+    <ol class="component-chapters">{{range .Components.Chapters}}<li><span class="chapter-number">{{printf "%02d" .Number}}</span><a class="chapter-title" href="/components/{{.Slug}}/{{(index .Stories 0).Slug}}">{{.Title}}</a><span class="chapter-stories">{{$chapter:=.Slug}}{{range .Stories}}<a href="/components/{{$chapter}}/{{.Slug}}">{{.Name}}</a>{{end}}</span></li>{{else}}<li class="component-no-results">일치하는 컴포넌트가 없습니다. 다른 검색어를 입력하세요.</li>{{end}}</ol>
+  </main>
+  {{end}}
+  {{template "gallery-footer"}}
+</body>
+</html>
+{{end}}
+
+{{define "component-demo-response"}}<div class="demo-stack" role="status"><strong>로컬 예제 응답</strong><p>{{if .Query}}입력: {{.Query}}{{else}}입력을 받았습니다. 실제 데이터는 저장하지 않았습니다.{{end}}</p>{{if .Matches}}<ul>{{range .Matches}}<li>{{.}}</li>{{end}}</ul>{{else}}<p class="demo-muted">외부 서비스 연결 없이 생성한 샘플 응답입니다.</p>{{end}}</div>{{end}}

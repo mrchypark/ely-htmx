@@ -1,0 +1,15 @@
+{{define "ely-api-wrapper"}}<section id="{{.ID}}" data-ely-family="{{.Family}}" data-ely-component="{{.Chapter}}/{{.Name}}" data-ely-kind="{{.Kind}}"{{if .Disabled}} data-ely-disabled="true"{{end}}>{{if .Disabled}}<fieldset class="ely-api-disabled" disabled>{{.Body}}</fieldset>{{else}}{{.Body}}{{end}}</section>{{end}}
+{{define "ui-advanced-assets"}}
+<link rel="stylesheet" href="/assets/ely-api.css">
+<link rel="stylesheet" href="/assets/ely-api-foundation.css">
+<link rel="stylesheet" href="/assets/ely-api-interaction.css">
+<link rel="stylesheet" href="/assets/ely-api-data.css">
+<link rel="stylesheet" href="/assets/ely-api-workspace.css">
+<link rel="stylesheet" href="/assets/ely-api-communication.css">
+<link rel="stylesheet" href="/assets/ely-api-native.css">
+<link rel="stylesheet" href="/assets/ely-api-forms.css">
+<script src="/assets/lottie-light.min.js" defer></script>
+<script type="module" src="/assets/ely-api-all.js"></script>
+{{end}}
+
+{{define "ui-advanced-family-assets"}}<link rel="stylesheet" href="/assets/ely-api.css"><link rel="stylesheet" href="/assets/ely-api-{{.}}.css">{{if eq . "interaction"}}<script src="/assets/lottie-light.min.js" defer></script>{{end}}<script type="module" src="/assets/ely-api-all.js"></script>{{end}}

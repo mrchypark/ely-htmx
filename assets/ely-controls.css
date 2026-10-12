@@ -1,0 +1,34 @@
+:root { --ely-control-height: 1.75rem; --ely-control-padding: .75rem; --ely-control-radius: .375rem; --ely-control-font-size: .8125rem; }
+/* Native Ely Md controls; .button keeps the website's larger page actions. */
+:is([data-ui-component], [data-ely-family]) [data-slot='input']:not([type='hidden']), :is([data-ui-component], [data-ely-family]) [data-slot='select']:not([multiple]):not([size]), [data-ely-family] input:not([data-slot]):where(:not([type='hidden']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color'])), [data-ely-family] select:not([data-slot]):where(:not([multiple]):not([size])) { height: var(--ely-control-height); min-height: var(--ely-control-height); padding: .1875rem var(--ely-control-padding); border-radius: var(--ely-control-radius); font-size: var(--ely-control-font-size); font-weight: 400; line-height: 1.25rem; }
+:is([data-ui-component], [data-ely-family]) [data-slot='button']:not(.button):not([data-size^='icon']) { height: auto; min-height: var(--ely-control-height); padding: .1875rem var(--ely-control-padding); border-radius: var(--ely-control-radius); font-size: var(--ely-control-font-size); line-height: 1.25rem; }
+:is([data-ui-component], [data-ely-family]) [data-slot='button'][data-size^='icon'] { inline-size: var(--ely-control-height); block-size: var(--ely-control-height); min-height: 0; padding: 0; border-radius: var(--ely-control-radius); }
+:is([data-ui-component], [data-ely-family]) [data-slot='button'][data-size='sm']:not(.button) { min-height: 1.5rem; padding: .0625rem .5rem; font-size: .75rem; }
+:is([data-ui-component], [data-ely-family]) [data-slot='button'][data-size='lg']:not(.button) { min-height: 2rem; padding: .3125rem 1rem; font-size: .875rem; }
+:is([data-ui-component], [data-ely-family]) [data-slot='input'][type='file'] { padding-block: .0625rem; }
+:is([data-ui-component], [data-ely-family]) [data-slot='input'][type='file']::file-selector-button { height: 1.5rem; margin-inline-end: .5rem; padding: 0; font: inherit; line-height: 1.25rem; }
+[data-ui-component]:not(dialog) { display: grid; gap: .5rem; align-content: start; min-inline-size: 0; }
+dialog[data-ui-component]:not([open]) { display: none; }
+[data-ui-component] label, .ely-control-label { font-size: var(--ely-control-font-size); font-weight: 500; line-height: 1.25rem; margin: 0; }
+.ely-control-row, .ely-pin-slots, [data-ui-tags], [data-ui-key-values], [data-ui-multi-list], [data-ui-component] [role="tablist"] { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.ely-control-row > [data-slot="input"] { flex: 1 1 12rem; }
+.ely-control-row[data-ui-key-value] { flex: 1 1 100%; inline-size: 100%; }
+[data-ui-component] button:not([data-slot]), [data-ui-component] [role="option"] { border: 1px solid var(--border, #8c8781); border-radius: .4rem; background: var(--surface, #fff); color: inherit; cursor: pointer; padding: .55rem .75rem; }
+[data-ui-component] button:disabled, [data-ui-component] :disabled { cursor: not-allowed; opacity: .55; }
+:is([data-ui-component], [data-ely-family]) [data-slot="input"][data-ui-pin-slot] { inline-size: 2.5rem; height: 2.5rem; block-size: 2.5rem; min-height: 2.5rem; min-block-size: 2.5rem; padding: 0; flex: 0 0 2.5rem; border: 1px solid var(--border, #8c8781); border-radius: var(--ely-control-radius); font-size: 1.25rem; font-weight: 500; line-height: 1.5rem; text-align: center; }
+[data-ui-tags] { gap: .25rem; }
+.ely-tag-field { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; min-height: var(--ely-control-height); padding: .125rem .25rem; border: 1px solid var(--border); border-radius: var(--ely-control-radius); background: var(--surface); }
+.ely-tag-field:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+[data-ui-tag] { display: inline-flex; gap: .25rem; align-items: center; min-height: 1.5rem; border-radius: .25rem; background: var(--accent-tint, #eef2ff); padding: 0 .25rem 0 .5rem; font-size: .75rem; font-weight: 400; line-height: 1rem; }
+[data-ui-tag] [data-slot='button'][data-size='icon-xs'] { inline-size: 1rem; block-size: 1rem; font: inherit; line-height: 1rem; }
+[data-ui-component='tag-input'] [data-slot='input'][data-ui-tag-entry] { flex: 1 1 10ch; inline-size: 10ch; height: 1.5rem; min-height: 1.5rem; padding: 0 .25rem; border: 0; background: transparent; outline: 0; box-shadow: none; }
+[data-ui-tag] button { border: 0; background: transparent; padding: 0; }
+[data-ui-file-names] { color: var(--color-muted, #6f6b66); }
+[data-ui-file-names]:empty { display: none; }
+[data-ui-signature] { inline-size: min(100%, 32rem); block-size: 12rem; border: 1px solid var(--border, #8c8781); border-radius: .4rem; background: var(--surface, #fff); touch-action: none; }
+[data-ui-combobox-list] { z-index: 1; max-block-size: 14rem; overflow: auto; margin: 0; padding: .25rem; border: 1px solid var(--border, #8c8781); border-radius: .4rem; background: var(--surface, #fff); list-style: none; }
+[data-ui-option], [data-ui-multi-option], [data-ui-selectable-option], [data-ui-tab] { cursor: pointer; padding: .5rem .75rem; }
+[data-ui-option][aria-selected="true"], [data-ui-multi-option]:has(input:checked), [data-ui-selectable-option][aria-selected="true"], [data-ui-tab][aria-selected="true"] { background: var(--accent-tint, #eef2ff); color: var(--color-ink); }
+[data-ui-multi-option] { display: inline-flex; gap: .5rem; align-items: center; border: 1px solid var(--border, #8c8781); border-radius: .4rem; padding: .5rem .75rem; }
+[data-ui-component] [role="tabpanel"] { border: 1px solid var(--border, #8c8781); border-radius: .4rem; padding: 1rem; }
+[data-ui-component] dialog { margin: auto; }

@@ -1,0 +1,4 @@
+/.tools/
+/bin/
+/audit-results/
+node_modules/

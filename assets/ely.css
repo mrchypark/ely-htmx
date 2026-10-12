@@ -1,0 +1,47 @@
+/* Native preview controls inherit the application's tokens in both themes. */
+.component-live { position: relative; max-inline-size: 100%; background: var(--surface); border: 1px solid var(--color-line); border-radius: .75rem; padding: clamp(1rem, 3vw, 2.5rem); min-height: 24rem; overflow: auto; overscroll-behavior: contain; }
+.native-preview { font-size: 1rem; font-weight: 300; line-height: 1.625; }
+.native-preview h2, .native-preview h3, .native-preview h4 { font-weight: 600; letter-spacing: -.025em; margin: 0 0 .5rem; }
+.native-preview h2 { font-size: 1.5rem; } .native-preview h3 { font-size: 1.1rem; }
+.native-preview p { margin: 0; }
+.demo-stack { display: flex; flex-direction: column; gap: 1rem; }
+.demo-row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.demo-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.demo-card { padding: 1.25rem; border: 1px solid var(--color-line); border-radius: .65rem; background: var(--surface); min-width: 0; }
+/* Example bundles override buttons globally; keep their colors on the shared theme. */
+.native-preview .demo-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.25rem; padding: .45rem .85rem; border-radius: .4rem; border: 1px solid transparent; border-color: var(--color-accent) !important; background: var(--color-accent) !important; color: var(--on-accent) !important; font-size: .85rem; font-weight: 500; cursor: pointer; }
+.native-preview .demo-button:hover { background: var(--accent-hover) !important; border-color: var(--accent-hover) !important; }
+.native-preview .demo-button[data-variant='outline'], .native-preview .demo-button[data-variant='ghost'] { color: var(--color-ink) !important; background: transparent !important; border-color: var(--color-line) !important; }
+.native-preview .demo-button[data-variant='ghost'] { border-color: transparent !important; }
+.native-preview .demo-button[data-variant='outline']:hover,.native-preview .demo-button[data-variant='ghost']:hover { background: var(--accent-tint) !important; }
+.native-preview .demo-button[data-variant='destructive'] { background: var(--error-tint) !important; border-color: var(--error) !important; color: var(--error) !important; }
+.native-preview .demo-button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.demo-button:disabled { opacity: .5; cursor: not-allowed; }
+.demo-input, .native-preview select, .native-preview textarea:not([data-slot]) { padding: .55rem .7rem; min-height: 2.25rem; border: 1px solid var(--border); border-radius: .4rem; background: transparent; color: var(--color-ink); width: 100%; font: inherit; }
+.demo-field { display: flex; flex-direction: column; gap: .5rem; font-size: .85rem; }
+.demo-field input:not([type='checkbox']):not([type='radio']):not([type='range']), .demo-field select, .demo-field textarea { width: 100%; }
+.demo-forms [data-slot='input'], .demo-forms [data-slot='textarea'] { background: var(--surface); font: inherit; box-shadow: none; }
+.demo-forms [data-slot='textarea'] { field-sizing: fixed; }
+.demo-forms [data-slot='button'] { min-height: 2.25rem; height: auto; padding: .45rem .7rem; border-radius: .45rem; font: inherit; white-space: normal; }
+.demo-chip { display: inline-flex; align-items: center; gap: .3rem; padding: .15rem .55rem; border: 1px solid var(--color-line); border-radius: 99px; font-size: .75rem; color: var(--color-muted); }
+.demo-muted { color: var(--color-muted); font-size: .8rem; }
+.demo-table { width: 100%; border-collapse: collapse; font-size: .85rem; text-align: left; }
+.demo-table td,.demo-table th { padding: .65rem .75rem; border-bottom: 1px solid var(--color-line); }
+.demo-table th { font-weight: 500; color: var(--color-muted); }
+.demo-table tr:hover { background: var(--accent-tint); }
+.demo-code { font-family: 'Geist Mono',monospace; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .8rem; padding: 1rem; background: var(--color-paper); border: 1px solid var(--color-line); border-radius: .5rem; }
+.demo-chart { width: 100%; height: auto; min-height: 10rem; color: var(--color-accent); }
+.demo-tabs { display: flex; gap: .25rem; padding: .25rem; border-radius: .5rem; background: var(--color-paper); width: fit-content; }
+.demo-tabs button { background: transparent; color: var(--color-muted); border: 0; border-radius: .3rem; padding: .4rem .75rem; cursor: pointer; }
+.demo-tabs button[aria-selected='true'] { color: var(--color-ink); background: var(--surface); box-shadow: 0 1px 3px #0001; }
+.native-preview details { border: 1px solid var(--color-line); border-radius: .4rem; padding: .7rem; }
+.native-preview summary { cursor: pointer; }
+.native-preview input[type='checkbox'], .native-preview input[type='radio'], .native-preview input[type='range'] { accent-color: var(--color-accent); }
+.native-preview img { max-width: 100%; height: auto; border-radius: .5rem; }
+.native-preview progress { width: 100%; height: .5rem; accent-color: var(--color-accent); }
+dialog.demo-card, .native-preview dialog { color: var(--color-ink); background: var(--surface); border: 1px solid var(--color-line); border-radius: .75rem; padding: 1.5rem; max-width: min(90vw,32rem); }
+dialog::backdrop { background: #0006; }
+.demo-toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 50; background: var(--surface); color: var(--color-ink); border: 1px solid var(--border); border-radius: .5rem; padding: .8rem 1.25rem; box-shadow: 0 4px 20px #0002; max-width: min(90vw,28rem); }
+.native-preview [data-slot='kbd'] { background: var(--color-paper); color: var(--color-muted); border-color: var(--color-line); }
+@media(max-width:42rem){ .demo-grid { grid-template-columns: 1fr; } .component-live { min-height: 18rem; } }
+@media(prefers-reduced-motion:reduce){ .native-preview *, .native-preview *::before, .native-preview *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }

@@ -1,0 +1,98 @@
+{{/* Data API: geometry and records are caller-owned. No fixture series or provider result is synthesized. */}}
+{{define "ely-api-lists"}}{{template "ely-api-data" .}}{{end}}{{define "ely-api-tables"}}{{template "ely-api-data" .}}{{end}}{{define "ely-api-charts"}}{{template "ely-api-data" .}}{{end}}{{define "ely-api-finance"}}{{template "ely-api-data" .}}{{end}}{{define "ely-api-dashboard"}}{{template "ely-api-data" .}}{{end}}
+{{define "ely-api-data-table"}}{{template "data-table" (withProps . "ID" (printf "%s-table" .ID) "EmptyLabel" .Empty)}}{{end}}
+{{define "ely-api-data-list"}}<ul class="ely-data__list">{{range .Items}}<li><button type="button" data-ely-select data-value="{{.Value}}"{{if .Disabled}} disabled{{end}}{{if .Selected}} aria-selected="true"{{end}}><strong>{{or .Label .Value}}</strong><small>{{.Detail}}</small></button></li>{{else}}<li>{{.Empty}}</li>{{end}}</ul>{{end}}
+{{define "ely-api-tree"}}<li><details{{if .Open}} open{{end}}><summary><button type="button" data-ely-select data-value="{{.Value}}"{{if .Selected}} aria-selected="true"{{end}}>{{.Label}}</button></summary>{{if .Children}}<ul>{{range .Children}}{{template "ely-api-tree" .}}{{end}}</ul>{{end}}</details></li>{{end}}
+{{define "ely-api-checkbox-node"}}<li><label><input type="checkbox" name="{{.Name}}" value="{{.Node.Value}}"{{if .Node.Selected}} checked{{end}}{{if .Node.Disabled}} disabled{{end}}>{{.Node.Label}}</label>{{if .Node.Children}}<ul>{{range .Node.Children}}{{template "ely-api-checkbox-node" (dict "Name" $.Name "Node" .)}}{{end}}</ul>{{end}}</li>{{end}}
+{{define "ely-api-tree-option"}}<option value="{{.Node.Value}}"{{if .Node.Selected}} selected{{end}}{{if .Node.Disabled}} disabled{{end}}>{{.Prefix}}{{.Node.Label}}</option>{{range .Node.Children}}{{template "ely-api-tree-option" (dict "Node" . "Prefix" (printf "%s— " $.Prefix))}}{{end}}{{end}}
+{{define "ely-api-tree-table-node"}}<details id="{{.ID}}" open data-ely-tree-row><summary>{{.Row.Label}}</summary>{{if .Row.Cells}}{{template "ely-api-data-table" (dict "ID" (printf "%s-values" .ID) "Columns" .Columns "Rows" (list .Row))}}{{end}}{{range $index, $child := .Row.Children}}{{template "ely-api-tree-table-node" (dict "ID" (printf "%s-%d" $.ID $index) "Row" $child "Columns" $.Columns)}}{{end}}</details>{{end}}
+{{define "ely-api-chart"}}<figure class="ely-data__chart"><svg{{if eq .Kind "DrawingTools"}} data-ely-drawing-surface{{end}} viewBox="{{.ViewBox}}" role="img" aria-label="{{.AriaLabel}}">{{template "ely-api-chart-geometry" .}}</svg><figcaption>{{.Caption}}</figcaption></figure>{{end}}
+{{define "ely-api-chart-geometry"}}
+{{if eq .Kind "LineChart"}}<path class="ely-data__grid" d="{{.GridPath}}"/><polyline class="ely-data__line" points="{{.Points}}"/>
+{{else if eq .Kind "AreaChart"}}<path class="ely-data__area" d="{{.AreaPath}}"/>{{range .Bars}}<rect class="ely-data__bar" x="{{.X}}" y="{{.Y}}" width="{{.Width}}" height="{{.Height}}"/>{{end}}
+{{else if eq .Kind "PieChart"}}{{range .Segments}}<path class="ely-data__segment" d="{{.Path}}"><title>{{.Label}}</title></path>{{end}}
+{{else if eq .Kind "ScatterChart"}}{{range .Points}}<circle class="ely-data__point" cx="{{.X}}" cy="{{.Y}}" r="{{.R}}"><title>{{.Label}}</title></circle>{{end}}
+{{else if eq .Kind "RadarChart"}}<polygon class="ely-data__radar-grid" points="{{.GridPoints}}"/><polygon class="ely-data__radar" points="{{.Points}}"/>
+{{else if eq .Kind "Treemap"}}{{range .Items}}<rect class="ely-data__tile" x="{{.X}}" y="{{.Y}}" width="{{.Width}}" height="{{.Height}}"/><text x="{{.TextX}}" y="{{.TextY}}">{{.Label}}</text>{{end}}
+{{else if eq .Kind "SankeyChart"}}{{range .Links}}<path class="ely-data__flow" d="{{.Path}}"/>{{end}}{{range .Nodes}}<rect class="ely-data__node" x="{{.X}}" y="{{.Y}}" width="{{.Width}}" height="{{.Height}}"/><text x="{{.X}}" y="{{.LabelY}}">{{.Label}}</text>{{end}}
+{{else if or (eq .Kind "WaterfallChart") (eq .Kind "Histogram")}}{{range .Bars}}<rect class="ely-data__bar" x="{{.X}}" y="{{.Y}}" width="{{.Width}}" height="{{.Height}}"/>{{end}}
+{{else if eq .Kind "NetworkGraph"}}{{range .Edges}}<line class="ely-data__edge" x1="{{.X1}}" y1="{{.Y1}}" x2="{{.X2}}" y2="{{.Y2}}"/>{{end}}{{range .Nodes}}<circle class="ely-data__point" cx="{{.X}}" cy="{{.Y}}" r="{{.R}}"/><text x="{{.LabelX}}" y="{{.LabelY}}">{{.Label}}</text>{{end}}
+{{else if eq .Kind "CandlestickChart"}}{{range .Candles}}<line class="ely-data__wick" x1="{{.X}}" x2="{{.X}}" y1="{{.High}}" y2="{{.Low}}"/><rect class="ely-data__candle {{.Direction}}" x="{{.BodyX}}" y="{{.Open}}" width="{{.Width}}" height="{{.BodyHeight}}"/>{{end}}
+{{else if eq .Kind "IndicatorOverlay"}}<polyline class="ely-data__line" points="{{.Points}}"/>{{range .Paths}}<path class="ely-data__indicator" d="{{.Path}}"/>{{end}}
+{{else if eq .Kind "DrawingTools"}}<polyline class="ely-data__line" points="{{.Points}}"/>{{range .Drawings}}<path class="ely-data__drawing" d="{{.Path}}"/>{{end}}
+{{else if eq .Kind "DepthChart"}}<path class="ely-data__bid" d="{{.BidPath}}"/><path class="ely-data__ask" d="{{.AskPath}}"/>
+{{else if eq .Kind "OptionChain"}}<path class="ely-data__line" d="{{.PayoffPath}}"/>
+{{else}}<polyline class="ely-data__line" points="{{.Points}}"/>{{end}}
+{{end}}
+{{define "ely-api-data"}}
+{{if eq .Chapter "data"}}
+{{if eq .Kind "Badge"}}<div class="ely-data__badges">{{range .Items}}<span class="ely-data__badge" data-tone="{{.Tone}}">{{.Label}}</span>{{end}}</div>
+{{else if eq .Kind "Tag"}}{{template "ely-api-data-list" .}}
+{{else if eq .Kind "Avatar"}}<figure class="ely-data__avatar">{{if .ImageURL}}<img src="{{.ImageURL}}" alt="{{.ImageAlt}}">{{else}}<span aria-label="{{.ImageAlt}}">{{.Initials}}</span>{{end}}<figcaption>{{.Label}}</figcaption></figure>
+{{else if eq .Kind "AvatarGroup"}}<div class="ely-data__avatars">{{range .Items}}<span>{{if .ImageURL}}<img src="{{.ImageURL}}" alt="{{.Label}}">{{else}}{{.Initials}}{{end}}</span>{{end}}</div>
+{{else if eq .Kind "Statistic"}}<article class="ely-data__stat"><small>{{.Label}}</small><output>{{.Value}}</output><span>{{.Trend}}</span></article>
+{{else if eq .Kind "DescriptionList"}}<dl class="ely-data__description">{{range .Items}}<div><dt>{{.Label}}</dt><dd>{{.Value}}</dd></div>{{end}}</dl>
+{{else if eq .Kind "PropertyGrid"}}<form class="ely-data__properties" data-ely-submit="save">{{range .Fields}}<label>{{.Label}}<input name="{{.Name}}" value="{{.Value}}"{{if .Required}} required{{end}}{{if .Disabled}} disabled{{end}}></label>{{end}}<button type="submit">Save</button></form>
+{{else if or (eq .Kind "Timeline") (eq .Kind "ActivityFeed") (eq .Kind "Changelog")}}<ol class="ely-data__timeline">{{range .Items}}<li><time>{{or .Time .Version}}</time><strong>{{.Label}}</strong><span>{{.Detail}}</span></li>{{end}}</ol>
+{{else if eq .Kind "Carousel"}}<section class="ely-data__carousel" data-ely-carousel>{{range .Items}}<figure data-ely-carousel-item{{if .Selected}} data-ely-current{{end}}><img src="{{.ImageURL}}" alt="{{.ImageAlt}}"><figcaption>{{.Label}}</figcaption></figure>{{end}}<button type="button" data-ely-carousel-prev>Previous</button><output data-ely-carousel-position>1</output><button type="button" data-ely-carousel-next>Next</button></section>
+{{else if eq .Kind "Gallery"}}<section class="ely-data__gallery">{{range .Items}}<button type="button" data-ely-select data-value="{{.Value}}"><img src="{{.ImageURL}}" alt="{{.ImageAlt}}"></button>{{end}}</section>
+{{else if eq .Kind "BeforeAfter"}}<figure class="ely-data__before-after" data-ely-before-after><img src="{{.BeforeURL}}" alt="{{.BeforeAlt}}"><img src="{{.AfterURL}}" alt="{{.AfterAlt}}" data-ely-after-image><label>Comparison<input type="range" min="0" max="100" value="{{.Value}}" data-ely-range><output data-ely-range-value>{{.Value}}</output>%</label></figure>
+{{else if eq .Kind "Watermark"}}<article class="ely-data__watermark" data-watermark="{{.Watermark}}"><h2>{{.Title}}</h2><p>{{.Description}}</p></article>
+{{else if eq .Kind "QRCode"}}<figure class="ely-data__code">{{qrSVG .Value}}{{barcodeSVG .Value}}<figcaption>{{.Value}}</figcaption></figure>
+{{else if eq .Kind "Meter"}}<label>{{.Label}}<meter min="{{.Min}}" max="{{.Max}}" value="{{.Value}}">{{.Value}}</meter><output>{{.ValueText}}</output></label>
+{{else if eq .Kind "Stars"}}<div class="ely-data__stars" role="img" aria-label="{{.AriaLabel}}">{{range .Stars}}<span{{if .Filled}} data-filled="true"{{end}}>★</span>{{end}}<output>{{.Value}}</output></div>
+{{else}}{{template "ely-api-data-table" .}}{{end}}
+{{else if eq .Chapter "lists"}}
+{{if or (eq .Kind "Tree") (eq .Kind "FileTree")}}<nav class="ely-data__tree"><ul>{{range .Items}}{{template "ely-api-tree" .}}{{end}}</ul></nav>
+{{else if eq .Kind "CheckboxTree"}}<fieldset><ul>{{range .Items}}{{template "ely-api-checkbox-node" (dict "Name" $.Name "Node" .)}}{{end}}</ul></fieldset>
+{{else if eq .Kind "TreeSelect"}}<select name="{{.Name}}">{{range .Items}}{{template "ely-api-tree-option" (dict "Node" . "Prefix" "")}}{{end}}</select>
+{{else if eq .Kind "SortableList"}}<ol class="ely-data__list" data-ely-sortable>{{range .Items}}<li data-ely-sort-item draggable="true"><button type="button" data-ely-move>Move</button>{{.Label}}</li>{{end}}</ol>
+{{else if eq .Kind "GroupedList"}}<section class="ely-data__groups">{{range .Groups}}<section><h3>{{.Label}}</h3>{{template "ely-api-data-list" (dict "Items" .Items)}}</section>{{end}}</section>
+{{else if eq .Kind "VirtualList"}}<div class="ely-data__virtual">{{template "ely-api-data-list" .}}</div>
+{{else if eq .Kind "InfiniteList"}}{{template "ely-api-data-list" .}}<button type="button" data-ely-action="load-more" value="{{.Cursor}}"{{if .Loading}} disabled{{end}}>Load more</button><output role="status">{{.Status}}</output>
+{{else if eq .Kind "SwipeableListItem"}}<div data-ely-swipe data-value="{{.Value}}">{{template "ely-api-data-list" .}}<button type="button" data-ely-swipe-dismiss>Dismiss</button><button type="button" data-ely-swipe-undo hidden>Undo</button></div>
+{{else if eq .Kind "DirectoryListing"}}<form data-ely-submit="search"><input name="q" type="search" value="{{.Value}}"><button>Search</button></form>{{template "ely-api-data-list" .}}
+{{else}}{{template "ely-api-data-list" .}}{{end}}
+{{else if eq .Chapter "tables"}}
+{{if eq .Kind "DataTable"}}{{template "ely-api-data-table" .}}
+{{else if eq .Kind "ColumnPinning"}}<section data-ely-pinning><button type="button" data-ely-pin>Pin first column</button>{{template "ely-api-data-table" .}}</section>
+{{else if eq .Kind "VirtualTable"}}<div class="ely-data__virtual">{{template "ely-api-data-table" .}}</div>
+{{else if eq .Kind "DataGrid"}}<div class="ely-data__grid" role="grid">{{range .Rows}}<div role="row">{{range .Cells}}<span role="gridcell" tabindex="0">{{.}}</span>{{end}}</div>{{end}}</div>
+{{else if eq .Kind "Spreadsheet"}}<div class="ely-data__sheet" role="grid">{{range .Cells}}<input name="{{.Name}}" value="{{.Value}}" aria-label="{{.Label}}"{{if .Disabled}} disabled{{end}}>{{end}}</div>
+{{else if eq .Kind "RowGrouping"}}<section class="ely-data__groups">{{range $index,$group := .Groups}}<details open data-ely-group><summary>{{.Label}}</summary>{{template "ely-api-data-table" (withProps $ "Rows" .Rows "ID" (printf "%s-group-%d" $.ID $index))}}</details>{{end}}</section>
+{{else if eq .Kind "TreeTable"}}<section class="ely-data__tree-table">{{range $index, $row := .Rows}}{{template "ely-api-tree-table-node" (dict "ID" (printf "%s-tree-%d" $.ID $index) "Row" $row "Columns" $.Columns)}}{{end}}</section>
+{{else if eq .Kind "PivotTable"}}<form data-ely-submit="pivot-measure"><label>Measure<select name="measure" data-ely-pivot-measure>{{range .Measures}}<option value="{{.Value}}">{{.Label}}</option>{{end}}</select></label><button type="submit">Apply</button></form><section data-ely-pivot>{{range $index,$measure := .Measures}}<div data-ely-pivot-rows="{{.Value}}"{{if not .Selected}} hidden{{end}}>{{template "ely-api-data-table" (withProps $ "Rows" .Rows "ID" (printf "%s-pivot-%d" $.ID $index))}}</div>{{end}}</section>
+{{else if eq .Kind "HeatmapTable"}}<div class="ely-data__heatmap" role="grid">{{range .Cells}}<span role="gridcell" data-level="{{.Level}}">{{.Value}}</span>{{end}}</div>
+{{else if eq .Kind "RowExpansion"}}<details><summary>{{.Title}}</summary><form data-ely-submit="save"><input name="value" value="{{.Value}}"><button>Save</button></form></details>
+{{else}}{{template "ely-api-data-table" .}}{{end}}
+{{else if eq .Chapter "charts"}}
+{{if eq .Kind "HeatmapChart"}}<div class="ely-data__heatmap">{{range .Cells}}<span data-level="{{.Level}}" aria-label="{{.Label}}"></span>{{end}}</div>
+{{else if eq .Kind "GanttChart"}}<div class="ely-data__gantt">{{range .Tasks}}<p><span>{{.Label}}</span><i data-ely-left="{{.Left}}" data-ely-width="{{.Width}}">{{.Detail}}</i></p>{{end}}</div>
+{{else if eq .Kind "Bullet Chart"}}<meter min="0" max="{{.Max}}" value="{{.Value}}">{{.Value}}</meter><output>Target {{.Target}}</output>
+{{else}}{{template "ely-api-chart" .}}{{end}}{{if eq .Kind "RealtimeChart"}}<button type="button" data-ely-realtime>Add sample</button><output data-ely-samples>{{.Samples}}</output>{{end}}
+{{else if eq .Chapter "finance"}}
+{{if eq .Kind "CandlestickChart"}}<div class="ely-data__toolbar"><select data-ely-chart-type>{{range .Types}}<option value="{{.Value}}">{{.Label}}</option>{{end}}</select>{{range .Ranges}}<button type="button" data-ely-range-select value="{{.Value}}">{{.Label}}</button>{{end}}</div>{{template "ely-api-chart" .}}
+{{else if eq .Kind "IndicatorOverlay"}}<form data-ely-submit="indicators"><select name="indicator">{{range .Indicators}}<option value="{{.Value}}">{{.Label}}</option>{{end}}</select><input name="symbol" value="{{.Symbol}}"><button>Apply</button></form>{{template "ely-api-chart" .}}
+{{else if eq .Kind "DrawingTools"}}<div>{{range .Tools}}<button type="button" data-ely-drawing value="{{.Value}}" aria-pressed="{{.Selected}}">{{.Label}}</button>{{end}}</div>{{template "ely-api-chart" .}}
+{{else if or (eq .Kind "DepthChart") (eq .Kind "OptionChain")}}{{template "ely-api-chart" .}}{{if .Rows}}{{template "ely-api-data-table" .}}{{end}}
+{{else if eq .Kind "OrderBook"}}<div class="ely-data__book"><section><h2>Bids</h2>{{template "ely-api-data-table" (withProps . "Rows" .Bids "ID" (printf "%s-bids" .ID))}}</section><section><h2>Asks</h2>{{template "ely-api-data-table" (withProps . "Rows" .Asks "ID" (printf "%s-asks" .ID))}}</section></div>
+{{else if or (eq .Kind "TimeAndSales") (eq .Kind "PositionTable") (eq .Kind "DividendTable")}}{{template "ely-api-data-table" .}}
+{{else if eq .Kind "OrderEntry"}}<form class="ely-data__order" data-ely-submit="order"><label>Symbol<input name="symbol" value="{{.Symbol}}" required></label><label>Quantity<input name="quantity" type="number" min="1" value="{{.Quantity}}" required></label><label>Price<input name="price" type="number" min="0" step="any" value="{{.Price}}" required></label><button type="submit">Review order</button><output>Host approval is required.</output></form>
+{{else if eq .Kind "LeverageSlider"}}<label>Leverage<input type="range" min="1" max="{{.Max}}" value="{{.Value}}" data-ely-range><output data-ely-range-value>{{.Value}}</output>×</label><meter min="0" max="100" value="{{.Risk}}">{{.Risk}}</meter>
+{{else if eq .Kind "Watchlist"}}<input type="search" data-ely-filter value="{{.Filter}}">{{template "ely-api-data-list" .}}
+{{else if eq .Kind "MarketHeatmap"}}<div class="ely-data__heatmap">{{range .Items}}<span data-level="{{.Level}}">{{.Label}} {{.Value}}</span>{{end}}</div>
+{{else if eq .Kind "Screener"}}<form data-ely-submit="screen">{{range .Filters}}<label>{{.Label}}<select name="{{.Name}}">{{range .Options}}<option value="{{.Value}}">{{.Label}}</option>{{end}}</select></label>{{end}}<button>Apply</button></form>{{template "ely-api-data-table" .}}
+{{else if eq .Kind "MarketOverview"}}{{template "ely-api-data-list" .}}
+{{else if eq .Kind "EconomicCalendar"}}<ol class="ely-data__timeline">{{range .Items}}<li><time>{{.Time}}</time><strong>{{.Label}}</strong><span>{{.Detail}}</span></li>{{end}}</ol>
+{{else if eq .Kind "PortfolioSummary"}}<section><output>{{.Value}}</output>{{template "ely-api-chart" .}}</section>
+{{else if eq .Kind "CurrencyConverter"}}<form data-ely-submit="convert"><input name="amount" type="number" value="{{.Value}}" required><select name="to">{{range .Currencies}}<option value="{{.Value}}">{{.Label}}</option>{{end}}</select><button>Convert</button></form>
+{{else if eq .Kind "MarketProfile"}}<div class="ely-data__profile">{{range .Items}}<span data-ely-width="{{.Width}}">{{.Label}}</span>{{end}}</div>
+{{else if eq .Kind "RenkoChart"}}<div class="ely-data__renko">{{range .Items}}<i data-direction="{{.Direction}}">{{.Label}}</i>{{end}}</div>
+{{else if eq .Kind "MultiChartLayout"}}<div class="ely-data__multi">{{range .Charts}}<figure><figcaption>{{.Label}}</figcaption><svg viewBox="{{.ViewBox}}"><polyline class="ely-data__line" points="{{.Points}}"/></svg></figure>{{end}}</div>
+{{else if eq .Kind "Ticker"}}{{template "ely-api-data-list" .}}{{end}}
+{{else if eq .Chapter "dashboard"}}
+{{if eq .Kind "Dashboard Grid"}}<section class="ely-data__dashboard">{{range .Widgets}}<article><h2>{{.Label}}</h2><output>{{.Value}}</output><svg viewBox="{{.ViewBox}}"><polyline class="ely-data__line" points="{{.Points}}"/></svg></article>{{end}}</section>
+{{else if eq .Kind "UptimeBar"}}<section class="ely-data__uptime">{{range .Services}}<p><strong>{{.Label}}</strong>{{range .Samples}}<i data-state="{{.State}}"></i>{{end}}<output>{{.Value}}</output></p>{{end}}</section>
+{{else if eq .Kind "AlertList"}}<section class="ely-data__alerts">{{range .Items}}<article data-ely-alert><strong>{{.Label}}</strong><span>{{.Detail}}</span><button type="button" data-ely-dismiss>Acknowledge</button></article>{{end}}</section>
+{{else if eq .Kind "EventStream"}}<ol class="ely-data__stream">{{range .Items}}<li><time>{{.Time}}</time>{{.Label}}<code>{{.Detail}}</code></li>{{end}}</ol>{{end}}
+{{end}}{{end}}

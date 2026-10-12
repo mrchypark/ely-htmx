@@ -1,0 +1,195 @@
+{{/* Native catalogue demos for primitives through overlays. Every branch is an explicit catalogue slug. */}}
+{{define "ely-core-head"}}<header class="core-demo__head"><p class="core-demo__eyebrow">Native HTML specimen</p><h2>{{.Title}}</h2><p class="demo-muted">{{.Name}} · local demonstration only</p></header>{{end}}
+
+{{define "ely-primitives"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "box-view"}}<div class="core-boxes"><div>View</div><div>Box</div><div>Content</div></div>
+{{else if eq .Slug "text"}}<p class="core-text-sample">Text follows the page type scale and current color tokens.</p>
+{{else if eq .Slug "icon"}}<div class="core-icon-row" aria-label="Interface icon examples"><span aria-hidden="true">⌕</span><span aria-hidden="true">⌘</span><span aria-hidden="true">✓</span><span aria-hidden="true">→</span></div>
+{{else if eq .Slug "iconset-iconregistry"}}<div class="core-icon-grid"><button aria-label="Search">⌕</button><button aria-label="Save">▣</button><button aria-label="Share">↗</button><button aria-label="Settings">⚙</button></div>
+{{else if eq .Slug "svg"}}<svg class="core-svg" viewBox="0 0 240 80" role="img" aria-label="A simple native vector chart"><path d="M8 64 L62 46 L112 55 L164 18 L232 30"/><circle cx="164" cy="18" r="5"/></svg>
+{{else if eq .Slug "image"}}<figure class="core-image"><div role="img" aria-label="Abstract blue and violet cover art"></div><figcaption>Local decorative image treatment with descriptive alternative text.</figcaption></figure>
+{{else if eq .Slug "canvas"}}<div class="core-canvas" role="img" aria-label="Static dot and line drawing"><i></i><i></i><i></i><b></b></div>
+{{else if eq .Slug "divider-separator"}}<div class="core-divider-demo"><span>Before</span><hr><span>After</span></div>
+{{else if eq .Slug "spacer"}}<div class="core-spacer-demo"><span>Start</span><span aria-hidden="true"></span><span>End</span></div>
+{{else if eq .Slug "portal"}}<div class="core-portal"><p>Document content</p><aside>Overlay layer</aside></div>
+{{else if eq .Slug "overlay-backdrop"}}<div class="core-backdrop"><div><strong>Backdrop</strong><p>Foreground content stays readable.</p></div></div>
+{{else if eq .Slug "slot"}}<article class="demo-card"><strong>Profile slot</strong><p>Custom body supplied by the caller.</p><button class="demo-button" data-variant="outline">Edit</button></article>
+{{else if eq .Slug "show-when"}}<label class="core-toggle"><input type="checkbox" data-core-show="primitive-conditional" checked> Show optional note</label><p id="primitive-conditional">This detail appears only when the condition is on.</p>
+{{else if eq .Slug "for-each"}}<ul class="core-list"><li>Research question</li><li>Evidence</li><li>Review</li></ul>
+{{else if eq .Slug "fragment"}}<div class="core-row"><span>Leading fragment</span><strong>Shared parent</strong><span>Trailing fragment</span></div>
+{{else if eq .Slug "visuallyhidden"}}<button class="demo-button">Inbox <span class="core-visually-hidden">3 unread items</span><span aria-hidden="true">(3)</span></button>
+{{else if eq .Slug "focusring"}}<div class="core-focus"><button>Tab to inspect focus</button><a href="#core-focus-target" id="core-focus-target">Focusable link</a></div>
+{{else if eq .Slug "focusscope-focustrap"}}<button type="button" data-core-focus-trap-open="primitive-focus-trap" aria-controls="primitive-focus-trap" aria-expanded="false">Enter focused region</button><div id="primitive-focus-trap" class="core-mini-dialog" data-core-focus-trap hidden><strong>Focused region</strong><input aria-label="Sample name" value="Ada"><button type="button">Continue</button><p class="demo-muted">Press Escape to exit this local focus trap.</p></div>
+{{else if eq .Slug "clickoutside"}}<div class="core-menu-wrap"><button data-core-menu="primitive-menu" aria-expanded="false">Options</button><div id="primitive-menu" class="core-menu" hidden><button>Rename</button><button>Duplicate</button></div></div>
+{{else if eq .Slug "hoverarea"}}<div class="core-hover-area" tabindex="0"><strong>Hover or focus</strong><span>Context appears in the interaction area.</span></div>
+{{else if eq .Slug "pressable"}}<button class="core-pressable" data-core-action="press-status" aria-describedby="press-status">Press and release</button><output id="press-status" class="demo-muted">Waiting for input.</output>
+{{else if eq .Slug "keyboardhandler"}}<div class="core-keyboard" tabindex="0" data-core-keyboard="primitive-keys">Focus here, then press Enter or Escape.<output></output></div>
+{{else if eq .Slug "measure"}}<div class="core-measure" data-core-measure>Resize this page to inspect the specimen width.</div>
+{{else if eq .Slug "intersectionobserver"}}<div class="core-observer"><p>Scroll marker</p><div data-core-observe tabindex="0">Visible observation target</div></div>
+{{else if eq .Slug "clipboard"}}<div class="core-row"><code id="core-clip-text">ely://sample</code><button data-core-copy-label="core-clip-text">Select text</button></div><p class="demo-muted">The browser clipboard is not used by this local demo.</p>
+{{else if eq .Slug "tooltip-trigger"}}<button class="core-tooltip" aria-describedby="core-tip">Hover help<span id="core-tip" role="tooltip">Shows help without leaving the page.</span></button>
+{{end}}</section>{{end}}
+
+{{define "ely-typography"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "heading-h1-h6"}}<div class="core-type-scale"><h1>Heading one</h1><h2>Heading two</h2><h3>Heading three</h3><h4>Heading four</h4></div>
+{{else if eq .Slug "title-subtitle"}}<div><h2>Project overview</h2><p class="demo-muted">A short supporting subtitle explains the view.</p></div>
+{{else if eq .Slug "paragraph"}}<p class="core-prose">A paragraph keeps line length comfortable for reading, with enough rhythm for long-form research notes.</p>
+{{else if eq .Slug "label"}}<label for="type-label-input">Project name</label><input id="type-label-input" class="demo-input" value="Survey design" aria-label="입력 값">
+{{else if eq .Slug "caption"}}<figure class="demo-card"><div class="core-image__blank"></div><figcaption>Caption: a compact explanation belongs close to its object.</figcaption></figure>
+{{else if eq .Slug "overline"}}<p class="core-overline">RESEARCH WORKSPACE</p><h3>Evidence review</h3>
+{{else if eq .Slug "code"}}<p>Use <code class="core-code">Research.Version</code> to identify a reviewed draft.</p>
+{{else if eq .Slug "kbd"}}<p>Open search with <kbd>⌘</kbd></p>
+{{else if eq .Slug "kbdcombo"}}<p>Save revision <kbd>⌘</kbd><span>+</span><kbd>S</kbd></p>
+{{else if eq .Slug "blockquote"}}<blockquote class="core-quote">“A result is only as clear as the evidence trail behind it.”<cite>— Method note</cite></blockquote>
+{{else if eq .Slug "highlight-mark"}}<p>Review the <mark>specific observation</mark> before making a claim.</p>
+{{else if eq .Slug "truncate-ellipsis"}}<p class="core-truncate" title="A very long research project title that is clipped in a narrow list">A very long research project title that is clipped in a narrow list</p>
+{{else if eq .Slug "lineclamp"}}<p class="core-clamp">This preview is intentionally limited to two lines, so a dense list can stay scannable while the original record remains available on opening.</p>
+{{else if eq .Slug "middleellipsis"}}<code class="core-middle">/research/fieldwork/participant-consent-form-v3.pdf</code>
+{{else if eq .Slug "ellipsistooltip"}}<p class="core-truncate" title="Full evidence collection label: interviews, survey notes, and coding guide">Full evidence collection label: interviews, survey notes, and coding guide</p>
+{{else if eq .Slug "link"}}<a class="core-link" href="#typography-link">Read the methodology note</a>
+{{else if eq .Slug "externallink"}}<a class="core-link" href="#external-reference">Reference library <span aria-hidden="true">↗</span></a><p id="external-reference" class="demo-muted">External destinations are represented locally in this catalogue.</p>
+{{else if eq .Slug "relativetime"}}<p><time datetime="2026-10-10T08:45:00+09:00">Updated 25 minutes ago</time></p>
+{{else if eq .Slug "datetimetext"}}<p><time datetime="2026-10-10T09:30:00+09:00">10 Oct 2026, 9:30 AM</time></p>
+{{else if eq .Slug "numbertext"}}<p class="core-value">12,480 <span>responses</span></p>
+{{else if eq .Slug "currencytext"}}<p class="core-value">₩48,000 <span>estimated incentive budget</span></p>
+{{else if eq .Slug "percenttext"}}<p class="core-value">74.2% <span>completion rate</span></p>
+{{else if eq .Slug "filesizetext"}}<p class="core-value">2.4 MB <span>transcript.pdf</span></p>
+{{else if eq .Slug "durationtext"}}<p class="core-value">01:42:18 <span>recording length</span></p>
+{{else if eq .Slug "pluraltext"}}<p><strong>1 source</strong> selected · <strong>3 notes</strong> ready to review</p>
+{{else if eq .Slug "copyabletext"}}<div class="core-row"><code id="core-copyable">10.5281/zenodo.12345</code><button data-core-copy-label="core-copyable">Select identifier</button></div>
+{{else if eq .Slug "selectabletext"}}<p class="core-selectable">Drag to select this evidence excerpt for comparison.</p>
+{{else if eq .Slug "emoji"}}<p class="core-emoji" aria-label="Completed sample">✓ <span>Review ready</span></p>
+{{else if eq .Slug "latex-mathinline"}}<p class="core-math">Mean: μ = (Σx) / n · p &lt; .05</p>
+{{else if eq .Slug "animatednumber"}}<p class="core-value" data-core-counter="128">128 <span>coded excerpts</span></p>
+{{else if eq .Slug "typewriter"}}<p class="core-typewriter" data-core-typewriter="Drafting a concise research summary."></p>
+{{else if eq .Slug "gradienttext"}}<h2 class="core-gradient">Evidence, made legible.</h2>
+{{else if eq .Slug "shimmertext"}}<p class="core-shimmer">Preparing a local preview…</p>
+{{end}}</section>{{end}}
+
+{{define "ely-layout"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "stack-hstack-vstack"}}<div class="core-stack"><span>One</span><span>Two</span><span>Three</span></div><div class="core-hstack"><span>One</span><span>Two</span><span>Three</span></div>
+{{else if eq .Slug "flex"}}<div class="core-flex"><span>Start</span><span>Flexible middle</span><span>End</span></div>
+{{else if eq .Slug "grid-griditem"}}<div class="core-grid-sample"><b>A</b><b>B</b><b>C</b><b>D</b></div>
+{{else if eq .Slug "simplegrid"}}<div class="core-simple-grid"><span>Notes</span><span>Sources</span><span>Drafts</span></div>
+{{else if eq .Slug "masonry"}}<div class="core-masonry"><div>Short note</div><div>Longer evidence excerpt that establishes a taller card.</div><div>Tag</div><div>Another study summary with a distinct height.</div></div>
+{{else if eq .Slug "center"}}<div class="core-center">Centered content</div>
+{{else if eq .Slug "container"}}<div class="core-container">A capped reading column keeps the content readable.</div>
+{{else if eq .Slug "aspectratio"}}<div class="core-aspect">16 : 9 evidence preview</div>
+{{else if eq .Slug "inset-padding"}}<div class="core-inset"><div>Inset content</div></div>
+{{else if eq .Slug "wrap"}}<div class="core-wrap"><span>Qualitative</span><span>Survey</span><span>Interview</span><span>Longitudinal</span><span>Mixed methods</span></div>
+{{else if eq .Slug "absolute-positioned"}}<div class="core-position"><span>Anchor</span><b>Positioned</b></div>
+{{else if eq .Slug "layer-zstack"}}<div class="core-layer"><i>Layer 1</i><i>Layer 2</i><i>Layer 3</i></div>
+{{else if eq .Slug "scrollarea"}}<div class="core-scroll" tabindex="0"><p>Evidence note 01</p><p>Evidence note 02</p><p>Evidence note 03</p><p>Evidence note 04</p><p>Evidence note 05</p></div>
+{{else if eq .Slug "scrollbar"}}<div class="core-scroll core-scrollbar"><p>Native scrollbars appear when content exceeds the panel.</p><p>Second item</p><p>Third item</p><p>Fourth item</p></div>
+{{else if eq .Slug "scrollshadow"}}<div class="core-scroll-shadow"><div class="core-scroll"><p>Scroll through a shaded edge.</p><p>Supporting content</p><p>More content</p><p>End</p></div></div>
+{{else if eq .Slug "scrolltotop"}}<div class="core-scroll" id="core-scroll-top"><p>Top</p><p>Content</p><p>Content</p><p>Content</p><button data-core-scrolltop="core-scroll-top">Back to top</button></div>
+{{else if eq .Slug "stickyheader"}}<div class="core-sticky"><strong>Evidence list</strong><p>First record</p><p>Second record</p><p>Third record</p><p>Fourth record</p></div>
+{{else if eq .Slug "splitpane"}}<div class="core-split"><section>Outline</section><section>Detail</section></div>
+{{else if eq .Slug "resizehandle"}}<div class="core-resize"><section>Flexible panel</section><div aria-hidden="true">⋮</div><section>Second panel</section></div>
+{{else if eq .Slug "collapsible"}}<details class="core-details"><summary>Methods note</summary><p>A native disclosure keeps secondary information available.</p></details>
+{{else if eq .Slug "accordion-accordionitem"}}<div class="core-accordion"><details open><summary>Research question</summary><p>What changes after the intervention?</p></details><details><summary>Evidence</summary><p>Three local sources are attached.</p></details></div>
+{{else if eq .Slug "card-cardheader-cardbody-cardfooter"}}<article class="core-card"><header><strong>Participant summary</strong><span>Draft</span></header><p>Review the selected variables before export.</p><footer><button>Inspect</button></footer></article>
+{{else if eq .Slug "panel-panelheader"}}<section class="core-panel"><header><strong>Analysis</strong><button>···</button></header><p>Panels group related work in a bordered region.</p></section>
+{{else if eq .Slug "section-sectionheader"}}<section class="core-section"><header><p class="core-overline">SECTION</p><h3>Literature review</h3></header><p>A section gives a page its reading structure.</p></section>
+{{else if eq .Slug "group-fieldset"}}<fieldset class="core-fieldset"><legend>Collection options</legend><label><input type="checkbox" checked> Include notes</label><label><input type="checkbox"> Include drafts</label></fieldset>
+{{else if eq .Slug "frame"}}<div class="core-frame"><div>Framed content</div></div>
+{{else if eq .Slug "well"}}<div class="core-well">A recessed area for supporting information.</div>
+{{else if eq .Slug "sidebar"}}<div class="core-sidebar-layout"><nav><a href="#">Overview</a><a href="#">Evidence</a><a href="#">Draft</a></nav><main>Selected page</main></div>
+{{else if eq .Slug "drawer"}}<button data-core-dialog-open="core-layout-drawer">Open local drawer</button><dialog id="core-layout-drawer" class="core-drawer"><header><strong>Filters</strong><button data-core-dialog-close>Close</button></header><label>Stage <select><option>Any</option><option>Reviewed</option></select></label></dialog>
+{{else if eq .Slug "sheet"}}<button data-core-dialog-open="core-layout-sheet">Open sheet</button><dialog id="core-layout-sheet" class="core-sheet"><h3>Selected evidence</h3><p>Sheet content is local and does not save.</p><button data-core-dialog-close>Done</button></dialog>
+{{else if eq .Slug "page-pageheader-pagecontent"}}<article class="core-page"><header><p class="core-overline">PROJECT</p><h2>Study workspace</h2></header><main><p>Page content begins below a clear page header.</p></main></article>
+{{else if eq .Slug "appshell"}}<div class="core-appshell"><header>Ely HTMX <button>Search</button></header><nav>Projects · Evidence · Drafts</nav><main>Workspace content</main></div>
+{{else if eq .Slug "masterdetail"}}<div class="core-master-detail"><nav><button class="is-selected">Interview 01</button><button>Interview 02</button></nav><article><h3>Interview 01</h3><p>Detail follows the selected record.</p></article></div>
+{{else if eq .Slug "dock-dockpanel"}}<div class="core-dock"><aside>Explorer</aside><main>Editor</main><footer>Output</footer></div>
+{{else if eq .Slug "dockzone-dropindicator"}}<div class="core-dropzones"><div>Explorer</div><b>Drop workspace panel here</b><div>Inspector</div></div>
+{{else if eq .Slug "floatingpanel"}}<div class="core-float-host"><p>Canvas</p><aside><strong>Inspector</strong><p>Floating panel</p></aside></div>
+{{else if eq .Slug "pane-panegroup"}}<div class="core-panes"><section>Sources</section><section>Notes</section><section>Preview</section></div>
+{{else if eq .Slug "workspace"}}<div class="core-workspace"><nav>⌕<br>▣<br>⚙</nav><aside>Files<br><small>brief.md</small></aside><main>Editor</main></div>
+{{else if eq .Slug "viewport"}}<div class="core-viewport"><div>Viewport content</div></div>
+{{end}}</section>{{end}}
+
+{{define "ely-shell"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "titlebar"}}<div class="core-titlebar"><span>● ● ●</span><strong>Ely HTMX — Evidence</strong><span>⌕</span></div>
+{{else if eq .Slug "columnshell-shellcolumn"}}<div class="core-columns"><aside>Workspace<br>Search<br>Settings</aside><aside>Studies<br>Notes<br>Sources</aside><main>Reading pane</main></div>
+{{else if eq .Slug "windowcontrols-trafficlights"}}<div class="core-window-controls"><i></i><i></i><i></i><span>Local shell controls</span></div>
+{{else if eq .Slug "windowdragregion"}}<div class="core-drag-region">Drag region (visual only in browser)</div>
+{{else if eq .Slug "windowresizeborder"}}<div class="core-resize-border">Resize border treatment</div>
+{{else if eq .Slug "nativemenu-menubar-jumplist"}}<div class="core-menubar"><button data-core-menu="core-file-menu">File</button><button>Edit</button><button>View</button><div id="core-file-menu" class="core-menu" hidden><button>New study</button><button>Open local demo</button></div></div>
+{{else if eq .Slug "toolbar-toolbargroup-toolbarseparator"}}<div class="core-toolbar"><button aria-label="Back">←</button><button aria-label="Forward">→</button><i></i><button>Search</button><button>Share</button></div>
+{{else if eq .Slug "statusbar-statusbaritem"}}<div class="core-status"><span>Ready</span><span>UTF-8</span><span>Ln 12, Col 8</span></div>
+{{else if eq .Slug "activitybar-navigationrail"}}<div class="core-activity"><button aria-label="Files" class="is-selected">▤</button><button aria-label="Search">⌕</button><button aria-label="Extensions">⊞</button></div>
+{{else if eq .Slug "tabbar"}}<div class="core-tabbar"><button class="is-selected">methods.md <span>×</span></button><button>notes.md <span>×</span></button><button aria-label="New tab">+</button></div>
+{{else if eq .Slug "splashscreen"}}<div class="core-splash"><strong>ely</strong><span>Loading local workspace…</span></div>
+{{else if eq .Slug "aboutdialog"}}<button data-core-dialog-open="core-about">About Ely HTMX</button><dialog id="core-about"><h2>Ely HTMX</h2><p>Native catalogue preview. No desktop integration is active.</p><button data-core-dialog-close>Close</button></dialog>
+{{else if eq .Slug "trayicon-traymenu"}}<div class="core-tray"><button data-core-menu="core-tray-menu" aria-label="Open tray menu">◉</button><div id="core-tray-menu" class="core-menu" hidden><button>Show workspace</button><button>Pause local preview</button></div><p class="demo-muted">Tray integration is represented locally.</p></div>
+{{else if eq .Slug "dockbadge"}}<div class="core-dock-badge">▣<b>3</b><span>Unread review notes</span></div>
+{{else if eq .Slug "systemnotification"}}<div class="core-notification"><strong>Review reminder</strong><p>One local draft needs attention.</p><button>Dismiss</button></div>
+{{else if eq .Slug "multiwindow-manager"}}<div class="core-window-list"><strong>Open views</strong><button>Research outline</button><button>Evidence table</button></div>
+{{else if eq .Slug "windowswitcher"}}<div class="core-switcher"><kbd>⌘</kbd><kbd>Tab</kbd><strong>Evidence table</strong><span>Research outline</span><span>Notes</span></div>
+{{else if eq .Slug "quicklauncher"}}<div class="core-quicklaunch"><input class="demo-input" placeholder="Search commands" aria-label="Search commands"><button>New note</button><button>Open study</button></div>
+{{else if eq .Slug "miniwindow-compactmode-pictureinpicture"}}<div class="core-mini-window"><header>Recording summary <button>×</button></header><p>Compact local preview</p></div>
+{{else if eq .Slug "updatebanner"}}<div class="core-update"><span>New local preview available.</span><button>Review changes</button><button aria-label="Dismiss">×</button></div>
+{{else if eq .Slug "updatedialog"}}<button data-core-dialog-open="core-update-dialog">View update</button><dialog id="core-update-dialog"><h3>Preview update</h3><p>This demo does not download or install software.</p><button data-core-dialog-close>Close</button></dialog>
+{{else if eq .Slug "crashreporter"}}<form class="core-report"><h3>Share local diagnostics?</h3><p>This prototype does not send reports.</p><textarea placeholder="What happened?" aria-label="What happened?"></textarea><button type="button">Keep report local</button></form>
+{{else if eq .Slug "offlineindicator"}}<p class="core-offline"><span aria-hidden="true">●</span> Offline preview — edits are not persisted.</p>
+{{else if eq .Slug "zoomcontrol"}}<div class="core-zoom"><button data-core-zoom="out">−</button><output data-core-zoom-output>100%</output><button data-core-zoom="in">+</button></div>
+{{end}}</section>{{end}}
+
+{{define "ely-buttons"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "button"}}<div class="core-row"><button class="demo-button" data-variant="default">Continue</button><button class="demo-button" data-variant="outline">Secondary</button><button class="demo-button" data-variant="ghost">Quiet</button></div>
+{{else if eq .Slug "sizes"}}<div class="core-row"><button class="core-btn-sm">Small</button><button class="demo-button">Default</button><button class="core-btn-lg">Large</button></div>
+{{else if eq .Slug "with-icons"}}<div class="core-row"><button class="demo-button">＋ Add source</button><button class="demo-button" data-variant="outline">↓ Export</button></div>
+{{else if eq .Slug "icon-button"}}<div class="core-row"><button class="core-icon-button" aria-label="Edit">✎</button><button class="core-icon-button" aria-label="Delete">⌫</button><button class="core-icon-button" aria-label="More options">···</button></div>
+{{else if eq .Slug "shortcuthint"}}<button class="demo-button">Save <kbd>⌘</kbd><kbd>S</kbd></button>
+{{else if eq .Slug "buttongroup"}}<div class="core-button-group"><button>Day</button><button class="is-selected">Week</button><button>Month</button></div>
+{{else if eq .Slug "splitbutton-dropdownbutton-menubutton-loadingbutton"}}<div class="core-row"><div class="core-split-button"><button>Publish draft</button><button data-core-menu="core-publish-menu" aria-label="More publish options">⌄</button><div id="core-publish-menu" class="core-menu" hidden><button>Save copy</button><button>Preview only</button></div></div><button data-core-loading>Generate local preview</button></div>
+{{else if eq .Slug "togglebutton"}}<button class="core-toggle-button" data-core-toggle-button="" aria-pressed="false">Show annotations</button>
+{{else if eq .Slug "togglegroup"}}<div class="core-toggle-group" data-core-choice><button aria-pressed="true">Bold</button><button aria-pressed="false">Italic</button><button aria-pressed="false">Quote</button></div>
+{{else if eq .Slug "segmentedcontrol"}}<div class="core-segmented" data-core-choice><button aria-pressed="true">List</button><button aria-pressed="false">Board</button><button aria-pressed="false">Table</button></div>
+{{else if eq .Slug "floatingactionbutton"}}<div class="core-fab-host"><p>Canvas area</p><button class="core-fab" aria-label="Create local note">＋</button></div>
+{{else if eq .Slug "confirmbutton-holdtoconfirm"}}<button class="core-confirm" data-core-hold>Hold to mark reviewed</button><output class="demo-muted" data-core-hold-status>Hold pointer for one second.</output>
+{{else if eq .Slug "copybutton-sharebutton-closebutton-backbutton-morebutton"}}<div class="core-row"><button data-core-copy-label="core-action-copy">Copy</button><span id="core-action-copy" class="core-visually-hidden">Research link</span><button>Share</button><button>Close</button><button>← Back</button><button>More ···</button></div><p class="demo-muted">Actions remain local in the catalogue.</p>
+{{else if eq .Slug "actionbar"}}<div class="core-actionbar"><strong>Draft proposal</strong><span></span><button>Preview</button><button class="demo-button">Review</button></div>
+{{else if eq .Slug "bulkactionbar"}}<div class="core-bulk"><strong>3 selected</strong><button>Tag</button><button>Archive</button><button>Clear</button></div>
+{{else if eq .Slug "actionsheet"}}<button data-core-dialog-open="core-action-sheet">Open actions</button><dialog id="core-action-sheet" class="core-action-sheet"><button>Rename note</button><button>Move to folder</button><button>Delete local sample</button><button data-core-dialog-close>Cancel</button></dialog>
+{{else if eq .Slug "quickactions"}}<div class="core-quick-actions"><button>New note</button><button>Attach evidence</button><button>Open search</button></div>
+{{end}}</section>{{end}}
+
+{{define "ely-navigation"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "tabs"}}<div class="core-tabs" data-core-tabs="nav-tabs"><div role="tablist"><button role="tab" aria-selected="true" data-core-tab="overview">Overview</button><button role="tab" aria-selected="false" data-core-tab="evidence">Evidence</button><button role="tab" aria-selected="false" data-core-tab="notes">Notes</button></div><section data-core-panel="overview">Project overview</section><section data-core-panel="evidence" hidden>Evidence records</section><section data-core-panel="notes" hidden>Working notes</section></div>
+{{else if eq .Slug "editortabs-taboverflowmenu"}}<div class="core-editor-tabs"><button class="is-selected">methods.md ×</button><button>results.md ×</button><button data-core-menu="core-tab-overflow">⌄</button><div id="core-tab-overflow" class="core-menu" hidden><button>discussion.md</button><button>appendix.md</button></div></div>
+{{else if eq .Slug "breadcrumb"}}<nav class="core-breadcrumb" aria-label="Breadcrumb"><a href="#">Projects</a><span>/</span><a href="#">Field study</a><span>/</span><strong>Evidence</strong></nav>
+{{else if eq .Slug "pagination"}}<nav class="core-pagination" aria-label="Pagination"><button disabled>Previous</button><button class="is-selected">1</button><button>2</button><button>3</button><button>Next</button></nav>
+{{else if eq .Slug "steps-wizard"}}<ol class="core-steps"><li class="is-done">Question</li><li class="is-current">Evidence</li><li>Review</li><li>Write</li></ol>
+{{else if eq .Slug "sidebar-navigation-navitem-navgroup"}}<nav class="core-nav-list"><strong>Workspace</strong><a class="is-selected" href="#">Overview</a><a href="#">Evidence</a><details open><summary>Writing</summary><a href="#">Proposal</a><a href="#">Results</a></details></nav>
+{{else if eq .Slug "navigationmenu"}}<nav class="core-navigation-menu"><a href="#">Projects</a><a href="#">Library</a><a href="#">Templates</a><button data-core-menu="core-nav-more">More</button><div id="core-nav-more" class="core-menu" hidden><button>Settings</button><button>Help</button></div></nav>
+{{else if eq .Slug "backforwardnavigation-history"}}<div class="core-row"><button>← Back</button><button>Forward →</button><select aria-label="History"><option>Evidence overview</option><option>Source note</option></select></div>
+{{else if eq .Slug "anchor-tableofcontents"}}<div class="core-toc"><nav><a href="#core-intro">Introduction</a><a href="#core-method">Method</a><a href="#core-result">Results</a></nav><article><h3 id="core-intro">Introduction</h3><p>Opening context.</p><h3 id="core-method">Method</h3><p>Approach.</p><h3 id="core-result">Results</h3><p>Observed output.</p></article></div>
+{{else if eq .Slug "jumpto-gotoline"}}<div class="core-row"><label for="core-line">Go to line</label><input id="core-line" type="number" min="1" value="24" aria-label="입력 값"><button type="button">Go</button></div>
+{{else if eq .Slug "commandpalette"}}<button data-core-dialog-open="core-command-palette">Open command palette</button><dialog id="core-command-palette" class="core-palette"><input autofocus placeholder="Type a command" aria-label="Type a command"><button>New note <kbd>⌘N</kbd></button><button>Search evidence <kbd>⌘K</kbd></button><button>Toggle theme</button><button data-core-dialog-close>Close</button></dialog>
+{{else if eq .Slug "quickopen"}}<form {{if .Endpoint}}hx-get="{{.Endpoint}}"{{end}} hx-target="#core-quickopen-output" hx-swap="innerHTML" class="core-search"><label for="core-quickopen">Quick open</label><input id="core-quickopen" name="q" placeholder="Search local paths" aria-label="Search local paths"><button>Search</button></form><div id="core-quickopen-output" aria-live="polite"></div>
+{{else if eq .Slug "quickswitcher"}}<div class="core-switch-list"><input class="demo-input" placeholder="Switch to…" aria-label="Switch to…"><button>Evidence table <kbd>1</kbd></button><button>Research outline <kbd>2</kbd></button></div>
+{{else if eq .Slug "searchpalette-spotlightsearch-quicklauncher"}}<form {{if .Endpoint}}hx-get="{{.Endpoint}}"{{end}} hx-target="#core-search-output" hx-swap="innerHTML" class="core-search"><input name="q" placeholder="Search this local catalogue" aria-label="Search this local catalogue"><button>Search</button></form><div id="core-search-output" aria-live="polite"></div>
+{{end}}</section>{{end}}
+
+{{define "ely-menus"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "menu-menuitem-menugroup-menuseparator-submenu-menuitemshortcut-menuitemicon"}}<div class="core-menu-static"><strong>File</strong><button>＋ New <kbd>⌘N</kbd></button><button>▣ Save <kbd>⌘S</kbd></button><hr><details><summary>Open recent</summary><button>methods.md</button><button>notes.md</button></details><hr><p>Share</p><button>↗ Export PDF</button></div>
+{{else if eq .Slug "checkboxmenuitem-radiomenuitem"}}<fieldset class="core-menu-static"><legend>View options</legend><label><input type="checkbox" checked> Sidebar</label><label><input type="checkbox"> Minimap</label><hr><label><input type="radio" name="core-density" checked> Comfortable</label><label><input type="radio" name="core-density"> Compact</label></fieldset>
+{{else if eq .Slug "dropdownmenu-splitbutton-overflowmenu"}}<div class="core-row"><div class="core-split-button"><button>Save</button><button data-core-menu="core-save-menu">⌄</button><div id="core-save-menu" class="core-menu" hidden><button>Save copy</button><button>Save as template</button></div></div><button data-core-menu="core-overflow-menu">···</button><div id="core-overflow-menu" class="core-menu" hidden><button>Rename</button><button>Archive</button></div></div>
+{{else if eq .Slug "contextmenu"}}<div class="core-context" data-core-context>Right-click or use the menu button.<button data-core-menu="core-context-menu">Open context menu</button><div id="core-context-menu" class="core-menu" hidden><button>Copy title</button><button>Move note</button></div></div>
+{{else if eq .Slug "menubar-menu"}}<div class="core-menubar"><button data-core-menu="core-menubar-file">File</button><button data-core-menu="core-menubar-edit">Edit</button><button>Help</button><div id="core-menubar-file" class="core-menu" hidden><button>New</button><button>Open</button></div><div id="core-menubar-edit" class="core-menu" hidden><button>Undo</button><button>Redo</button></div></div>
+{{else if eq .Slug "megamenu"}}<div class="core-megamenu"><strong>Templates</strong><div><section><h3>Research</h3><a href="#">Interview guide</a><a href="#">Survey plan</a></section><section><h3>Writing</h3><a href="#">Methods</a><a href="#">Results</a></section></div></div>
+{{else if eq .Slug "searchablemenu"}}<div class="core-searchable"><input class="demo-input" data-core-filter="core-menu-filter" placeholder="Filter actions" aria-label="Filter actions"><div id="core-menu-filter"><button>Archive selected</button><button>Create source note</button><button>Export local preview</button></div></div>
+{{else if eq .Slug "piemenu-radialmenu"}}<div class="core-radial"><button aria-label="New note">＋</button><button aria-label="Search">⌕</button><button aria-label="Share">↗</button><button aria-label="Settings">⚙</button><span>Actions</span></div>
+{{end}}</section>{{end}}
+
+{{define "ely-overlays"}}<section class="core-demo">{{template "ely-core-head" .}}
+{{if eq .Slug "popover-dropdownpanel-inlinepopup"}}<div class="core-popover"><button data-core-menu="core-profile-popover">Profile ▾</button><div id="core-profile-popover" class="core-menu core-profile" hidden><strong>Ada Lovelace</strong><span>Researcher</span><button>Account settings</button></div></div>
+{{else if eq .Slug "hovercard"}}<div class="core-hovercard"><a href="#core-person">Ada Lovelace</a><aside><strong>Ada Lovelace</strong><p>Maintains the local methods notes.</p></aside></div>
+{{else if eq .Slug "dialog-modal-alertdialog-confirmdialog-promptdialog-fullscreendialog"}}<div class="core-row"><button data-core-dialog-open="core-profile-dialog">Edit profile</button><button data-core-dialog-open="core-alert-dialog">Session note</button><button data-core-dialog-open="core-confirm-dialog">Delete sample</button><button data-core-dialog-open="core-prompt-dialog">Rename</button></div><dialog id="core-profile-dialog"><h3>Edit profile</h3><label>Name<input value="Ada Lovelace"></label><button data-core-dialog-close>Cancel</button><button data-core-dialog-close>Done</button></dialog><dialog id="core-alert-dialog"><h3>Session expired</h3><p>Sign in again to keep working. This catalogue stores nothing.</p><button data-core-dialog-close>Acknowledge</button></dialog><dialog id="core-confirm-dialog"><h3>Delete this sample?</h3><p>Only the visible local demonstration changes.</p><button data-core-dialog-close>Cancel</button><button data-core-dialog-close>Delete sample</button></dialog><dialog id="core-prompt-dialog"><h3>Rename</h3><input value="Roadmap" aria-label="입력 값"><button data-core-dialog-close>Rename</button></dialog>
+{{else if eq .Slug "lightbox"}}<button data-core-dialog-open="core-lightbox">Open evidence image</button><dialog id="core-lightbox" class="core-lightbox"><figure><div class="core-image__blank"></div><figcaption>Local image preview</figcaption></figure><button data-core-dialog-close>Close preview</button></dialog>
+{{else if eq .Slug "spotlight-coachmark-tour"}}<div class="core-coach"><button class="demo-button">Create note</button><aside><strong>Start here</strong><p>Create a local note to organize an observation.</p><button data-core-coach-close>Got it</button></aside></div>
+{{else if eq .Slug "floatingtoolbar"}}<div class="core-selection"><p>Select this editable text to reveal local formatting controls.</p><div contenteditable="true" aria-label="Editable local text">Evidence excerpt ready for annotation.</div><div class="core-floating-toolbar"><button aria-label="Bold">B</button><button aria-label="Italic"><em>I</em></button><button aria-label="Add link">⌁</button></div></div>
+{{else if eq .Slug "callout-peek"}}<div class="core-callout"><strong>Review tip</strong><p>Link a claim to an observable source before approving it.</p><button>Dismiss</button></div><details class="core-peek"><summary>Peek at related note</summary><p>Local related context appears here.</p></details>
+{{else if eq .Slug "tooltip-sheet-drawer-dropdownpanel-inlinepopup-toastviewport"}}<div class="core-row"><button class="core-tooltip">Help<span role="tooltip">Helpful label</span></button><button data-core-dialog-open="core-overlay-sheet">Open sheet</button><button data-core-toast="Local demonstration action noted.">Show toast</button></div><dialog id="core-overlay-sheet" class="core-sheet"><h3>Local sheet</h3><p>There is no persistent action behind this preview.</p><button data-core-dialog-close>Close</button></dialog><output class="core-toast" data-core-toast-output aria-live="polite"></output>
+{{end}}</section>{{end}}

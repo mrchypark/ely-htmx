@@ -1,0 +1,29 @@
+{{define "component-themes"}}<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>테마 제안 · Ely HTMX</title>{{template "brand-icon"}}{{template "font-preloads"}}
+<link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/components.css">{{template "ui-component-assets"}}<link rel="stylesheet" href="/assets/themes.css"><script src="/assets/theme.js"></script><script type="module" src="/assets/themes.js"></script>
+</head><body>
+{{template "gallery-header" "themes"}}
+<main class="shell page"><p class="eyebrow">ELY HTMX / COLOR THEMES</p><h1 class="theme-title">색으로 제안하는 테마.</h1><p class="lede">색상 역할 19개 · 라이트와 다크 한 쌍.<br>같은 설정을 모든 공통 컴포넌트에 적용합니다.</p>
+<div class="theme-layout">
+<section class="theme-editor" data-ui-component="theme-editor" aria-label="테마 색상 편집">
+<h2>테마 설정</h2>
+<label for="theme-preset">제안 시작점</label>{{template "select" (dict "ID" "theme-preset" "Value" "blue" "Options" (list (dict "Value" "blue" "Label" "Blue · 현재 기본") (dict "Value" "violet" "Label" "Dusty Violet · 차분한 보라") (dict "Value" "terracotta" "Label" "Oxide Terracotta · 따뜻한 적갈색")))}}
+<label for="theme-name">제안 이름</label>{{template "input" (dict "ID" "theme-name" "Required" true "MaxLength" 80)}}
+<label for="theme-mode">편집할 모드</label>{{template "select" (dict "ID" "theme-mode" "Value" "light" "Options" (list (dict "Value" "light" "Label" "라이트") (dict "Value" "dark" "Label" "다크")))}}
+<div class="theme-fields" data-theme-fields></div>
+<details class="theme-status-fields"><summary>상태 색상 8개</summary><div class="theme-fields" data-theme-status-fields></div></details>
+<p class="hint">버튼 글자·본문은 4.5:1, 입력 경계·포커스는 3:1 이상인지 확인합니다.</p>
+<output class="theme-check" data-theme-check aria-live="polite"></output>
+<div class="ely-control-row">{{template "button" (dict "Label" "이 제안 적용" "Attrs" (dict "data-theme-apply" ""))}}{{template "button" (dict "Label" "기본 테마 복원" "Variant" "outline" "Attrs" (dict "data-theme-reset" ""))}}</div>
+<output class="hint" data-theme-message aria-live="polite">미리보기에서 비교한 뒤 적용하세요. 적용한 설정은 이 브라우저에 저장됩니다.</output>
+</section>
+<section class="theme-examples" aria-label="라이트와 다크 미리보기">
+{{range $mode := list "light" "dark"}}<article class="theme-preview" data-theme-preview="{{$mode}}" data-ui-component="theme-preview" aria-label="{{$mode}} 테마 미리보기">
+<p class="eyebrow">{{if eq $mode "light"}}LIGHT{{else}}DARK{{end}} / PREVIEW</p><h2>설정 미리보기.</h2><p class="theme-muted">본문, 입력, 버튼과 상태 색상을 함께 비교하세요.</p>
+<div class="theme-preview-card"><label for="theme-preview-{{$mode}}-title">이름</label>{{template "input" (dict "ID" (printf "theme-preview-%s-title" $mode) "Value" "새 작업 공간")}}<div class="ely-control-row">{{template "button" (dict "Label" "저장")}}{{template "button" (dict "Label" "취소" "Variant" "outline")}}</div></div>
+<div class="ely-control-row"><span class="theme-state theme-state--draft">대기</span><span class="theme-state theme-state--approved">완료</span><span class="theme-state theme-state--warning">주의</span><span class="theme-state theme-state--error">오류</span></div>
+{{template "tag-input" (dict "ID" (printf "theme-preview-%s-tags" $mode) "Label" "분류" "Value" "디자인,개발" "Placeholder" "입력 후 Enter")}}
+{{template "tabs" (dict "ID" (printf "theme-preview-%s-tabs" $mode) "Label" "설정 패널" "Value" "overview" "Items" (list (dict "Value" "overview" "Label" "개요" "Content" "이름과 분류를 확인하고 설정을 저장하세요.") (dict "Value" "activity" "Label" "활동" "Content" "오늘 이름과 분류를 변경했습니다.")))}}
+</article>{{end}}
+<section class="theme-export" data-ui-component="theme-export"><h2>공유할 설정</h2><label for="theme-json">테마 JSON</label>{{template "textarea" (dict "ID" "theme-json" "Rows" 8 "MaxLength" 16384)}}<div class="ely-control-row">{{template "button" (dict "Label" "설정 복사" "Variant" "outline" "Attrs" (dict "data-theme-copy" ""))}}{{template "button" (dict "Label" "JSON 불러오기" "Variant" "outline" "Attrs" (dict "data-theme-import" ""))}}</div><p class="hint">JSON에는 라이트·다크 각각 19개 색상 역할이 포함됩니다. 수정한 JSON을 불러와 새 제안으로 비교할 수 있습니다.</p></section>
+</section></div></main>{{template "ui-client-templates"}}{{template "gallery-footer"}}</body></html>{{end}}

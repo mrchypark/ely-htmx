@@ -1,0 +1,5 @@
+.example-shell { max-width: 42rem; margin: 4rem auto; padding: 0 1rem; }
+.example-shell form { display: grid; gap: 1rem; }
+.example-shell form > label { display: grid; gap: .5rem; }
+.example-result { margin-top: 2rem; padding: 1rem; border: 1px solid var(--border, #d1d5db); border-radius: .5rem; }
+.example-result [role="alert"] { color: var(--error); }

@@ -1,0 +1,2 @@
+{{/* Adapted from shadcn-htmx progress: native progress keeps strict CSP without inline width styles. */}}
+{{define "progress"}}<progress data-slot="progress" {{if .ID}}id="{{.ID}}"{{end}} max="{{or .Max 100}}" {{if .Value}}value="{{deref .Value}}"{{end}} aria-label="{{or .AriaLabel "진행률"}}"></progress>{{end}}

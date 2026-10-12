@@ -1,0 +1,34 @@
+[data-ely-family='communication']{display:block;color:var(--color-ink,#18201c);font:inherit}
+[data-ely-family='communication'] :is(button,input,textarea,select){font:inherit}
+[data-ely-family='communication'] button:not([data-slot='button']){cursor:pointer;border:1px solid var(--color-line,#cfd6ce);border-radius:.4rem;background:var(--surface,#fff);padding:.45rem .7rem}
+[data-ely-family='communication'] button:disabled{cursor:not-allowed;opacity:.55}
+[data-ely-family='communication'] textarea,[data-ely-family='communication'] input,[data-ely-family='communication'] select{width:100%;box-sizing:border-box;border:1px solid var(--color-line,#cfd6ce);border-radius:.35rem;padding:.45rem;background:var(--surface,#fff)}
+[data-ely-family='communication'] .ely-communication-list{display:grid;gap:.45rem;padding:0;margin:.5rem 0;list-style:none}
+[data-ely-family='communication'] .ely-communication-list li{display:flex;gap:.5rem;align-items:baseline;border:1px solid var(--color-line,#cfd6ce);border-radius:.45rem;padding:.55rem}
+[data-ely-family='communication'] .ely-communication-list small{color:var(--color-muted,#5d675f)}
+[data-ely-family='communication'] .ely-communication-empty{color:var(--color-muted,#5d675f)}
+[data-ely-family='communication'] .ely-communication-form{display:grid;gap:.65rem;max-width:42rem}
+[data-ely-family='communication'] .ely-communication-form label{display:grid;gap:.3rem}
+[data-ely-family='communication'] .ely-communication-thread, [data-ely-family='communication'] article,[data-ely-family='communication'] section{max-width:52rem}
+[data-ely-family='communication'] .ely-communication-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.7rem}
+[data-ely-family='communication'] .ely-communication-board article{border:1px solid var(--color-line,#cfd6ce);padding:.7rem;border-radius:.45rem}
+[data-ely-family='communication'] .ely-communication-messages,[data-ely-family='communication'] .ely-communication-tree{display:grid;gap:.65rem;padding:0;list-style:none}
+[data-ely-family='communication'] .ely-communication-messages>li,[data-ely-family='communication'] .ely-communication-tool,[data-ely-family='communication'] .ely-project-task{border:1px solid var(--color-line,#cfd6ce);border-radius:.5rem;padding:.7rem}
+[data-ely-family='communication'] .ely-communication-messages header,[data-ely-family='communication'] .ely-kanban-lane header,[data-ely-family='communication'] .ely-calendar header{display:flex;justify-content:space-between;gap:.5rem;align-items:center}
+[data-ely-family='communication'] .ely-communication-chips{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.5rem}
+[data-ely-family='communication'] .ely-communication-timeline ol{display:grid;gap:.5rem;padding-left:1.5rem}
+[data-ely-family='communication'] .ely-communication-timeline li{display:grid;grid-template-columns:1fr auto;gap:.15rem .5rem}
+[data-ely-family='communication'] .ely-communication-timeline li small{grid-column:1/-1;color:var(--color-muted,#5d675f)}
+[data-ely-family='communication'] .ely-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(5rem,1fr));gap:.3rem;overflow:auto}
+[data-ely-family='communication'] .ely-calendar-grid article,.ely-calendar-week section{min-height:5rem;border:1px solid var(--color-line,#cfd6ce);padding:.35rem;display:grid;align-content:start;gap:.25rem}
+[data-ely-family='communication'] .ely-calendar-week{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:.4rem}
+[data-ely-family='communication'] .ely-calendar-agenda{display:grid;gap:.4rem;padding:0;list-style:none}.ely-calendar-agenda li{display:grid;grid-template-columns:auto 1fr;gap:.4rem}
+[data-ely-family='communication'] .ely-calendar-year>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:.4rem}
+[data-ely-family='communication'] .ely-kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(15rem,1fr);gap:.7rem;overflow:auto}
+[data-ely-family='communication'] .ely-kanban-lane{min-height:12rem;background:var(--surface,#fff);border:1px solid var(--color-line,#cfd6ce);border-radius:.5rem;padding:.55rem}
+[data-ely-family='communication'] .ely-kanban-lane article{margin:.5rem 0;padding:.55rem;border:1px solid var(--color-line,#cfd6ce);border-radius:.4rem;background:var(--surface,#fff)}
+[data-ely-family='communication'] .ely-kanban-lane footer,[data-ely-family='communication'] .ely-project-task footer{display:flex;gap:.45rem;align-items:center;justify-content:space-between;font-size:.85em}
+[data-ely-family='communication'] .ely-project-gantt article{display:grid;grid-template-columns:minmax(8rem,1fr) 2fr auto;gap:.5rem;align-items:center;padding:.35rem 0}
+[data-ely-family='communication'] .ely-project-workload{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.5rem}.ely-project-workload article{border:1px solid var(--color-line,#cfd6ce);padding:.5rem;border-radius:.4rem}
+@media(max-width:560px){[data-ely-family='communication'] .ely-calendar-grid{grid-template-columns:repeat(7,7rem)}[data-ely-family='communication'] .ely-project-gantt article{grid-template-columns:1fr}}
+@media(max-width:560px){[data-ely-family='communication'] .ely-calendar header{flex-wrap:wrap}[data-ely-family='communication'] .ely-calendar header h2{order:-1;flex-basis:100%;margin:0}}

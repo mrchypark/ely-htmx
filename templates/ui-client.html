@@ -1,0 +1,17 @@
+{{define "ui-client-templates"}}
+<template data-ui-control-template="input">{{template "input" (dict)}}</template>
+<template data-ui-control-template="textarea">{{template "textarea" (dict)}}</template>
+<template data-ui-control-template="select">{{template "select" (dict)}}</template>
+<template data-ui-control-template="checkbox">{{template "checkbox" (dict)}}</template>
+<template data-ui-control-template="button">{{template "button" (dict)}}</template>
+{{end}}
+{{define "ui-map-assets"}}
+<link rel="stylesheet" href="/assets/ely-map.css">
+<script src="/assets/ely-map.js" defer></script>
+{{end}}
+{{define "ui-component-assets"}}
+<link rel="stylesheet" href="/assets/ely-controls.css">
+<link rel="stylesheet" href="/assets/ely-patterns.css">
+<script src="/assets/ely-controls.js" defer></script>
+<script src="/assets/ely-patterns.js" defer></script>
+{{end}}

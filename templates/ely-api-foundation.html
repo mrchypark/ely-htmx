@@ -1,0 +1,110 @@
+{{/* Foundation's public Ely API. Props are caller-owned and protected keys are supplied by RenderComponent. */}}
+{{define "ely-api-foundation-header"}}<header class="ely-foundation__header"><p class="ely-foundation__kind">{{.Kind}}</p><h2>{{if .Title}}{{.Title}}{{else}}{{.Kind}}{{end}}</h2>{{if .Text}}<p>{{.Text}}</p>{{end}}</header>{{end}}
+
+{{define "ely-api-primitives"}}<section class="ely-foundation ely-foundation--primitives" data-foundation-kind="{{.Kind}}">{{template "ely-api-foundation-header" .}}
+{{if eq .Kind "Image"}}<figure><img src="{{.Src}}" alt="{{.Alt}}">{{if .Caption}}<figcaption>{{.Caption}}</figcaption>{{end}}</figure>
+{{else if eq .Kind "Svg"}}<svg viewBox="0 0 100 32" role="img" aria-label="{{.Alt}}"><path d="M2 27 L28 16 L54 23 L78 5 L98 12" fill="none" pathLength="1"/></svg>
+{{else if eq .Kind "Canvas"}}<canvas width="320" height="96" data-foundation-canvas="{{.Points}}" aria-label="{{.Alt}}">{{.Text}}</canvas>
+{{else if eq .Kind "Divider"}}<div class="ely-foundation__divider"><span>{{.Before}}</span><hr><span>{{.After}}</span></div>
+{{else if eq .Kind "Spacer"}}<div class="ely-foundation__spacer"><span>{{.Before}}</span><span></span><span>{{.After}}</span></div>
+{{else if eq .Kind "Show"}}<label>{{template "checkbox" (dict "ID" (print .ID "-show") "Name" .Name "Checked" .Checked "Disabled" .Disabled "Attrs" (dict "data-foundation-show" "true"))}} {{.Label}}</label><p data-foundation-conditional>{{.Text}}</p>
+{{else if eq .Kind "For"}}<ul>{{range .Items}}<li>{{.}}</li>{{end}}</ul>
+{{else if eq .Kind "VisuallyHidden"}}<button type="button">{{.Label}} <span class="ely-foundation__sr">{{.Text}}</span></button>
+{{else if eq .Kind "FocusScope"}}<button type="button" data-foundation-open="{{.ID}}-scope" aria-controls="{{.ID}}-scope" aria-expanded="false">{{.Label}}</button><section id="{{.ID}}-scope" data-foundation-scope hidden tabindex="-1"><label>{{.FieldLabel}}{{template "input" (dict "ID" (print .ID "-scope-input") "Name" .Name "Value" .Value "Required" .Required "Disabled" .Disabled)}}</label><button type="button" data-foundation-close>{{.CloseLabel}}</button></section>
+{{else if eq .Kind "ClickOutside"}}<div class="ely-foundation__menu"><button type="button" data-foundation-menu aria-expanded="false">{{.Label}}</button><div data-foundation-menu-panel hidden>{{range .Items}}<button type="button" data-ely-action="select" data-ely-value="{{.}}">{{.}}</button>{{end}}</div></div>
+{{else if eq .Kind "HoverArea"}}<div class="ely-foundation__hover" tabindex="0"><strong>{{.Label}}</strong><span>{{.Text}}</span></div>
+{{else if eq .Kind "Pressable"}}<button type="button" data-foundation-press>{{.Label}}</button><output data-foundation-output></output>
+{{else if eq .Kind "KeyboardHandler"}}<div tabindex="0" data-foundation-keys>{{.Text}} <output></output></div>
+{{else if eq .Kind "Clipboard"}}<div><code data-foundation-copy>{{.Value}}</code><button type="button" data-foundation-copy-button>{{.Label}}</button></div>
+{{else if eq .Kind "Tooltip Trigger"}}<button type="button" aria-describedby="{{.ID}}-tip">{{.Label}}</button><span id="{{.ID}}-tip" role="tooltip" class="ely-foundation__tooltip">{{.Text}}</span>
+{{else if eq .Kind "Overlay"}}<div class="ely-foundation__overlay"><strong>{{.Title}}</strong><p>{{.Text}}</p></div>
+{{else if eq .Kind "Icon"}}<span class="ely-foundation__icon" aria-label="{{.Alt}}" role="img">{{.Value}}</span>
+{{else if eq .Kind "IconSet"}}<div class="ely-foundation__icons">{{range .Items}}<button type="button" aria-label="{{.}}">{{.}}</button>{{end}}</div>
+{{else if eq .Kind "Box"}}<div class="ely-foundation__box">{{.Value}}</div>
+{{else if eq .Kind "Text"}}<span>{{.Value}}</span>
+{{else if eq .Kind "Portal"}}<div class="ely-foundation__portal"><p>{{.Text}}</p><aside>{{.Value}}</aside></div>
+{{else if eq .Kind "Slot"}}<article class="ely-foundation__surface"><header>{{.Title}}</header><p>{{.Text}}</p><footer>{{.Value}}</footer></article>
+{{else if eq .Kind "Fragment"}}<div class="ely-foundation__fragment"><span>{{.Before}}</span><strong>{{.Value}}</strong><span>{{.After}}</span></div>
+{{else if eq .Kind "FocusRing"}}<div class="ely-foundation__focus"><button type="button">{{.Label}}</button><a href="{{.Href}}">{{.Value}}</a></div>
+{{else if eq .Kind "Measure"}}<output data-foundation-measure aria-label="{{.Title}}">{{.Value}}</output>
+{{else if eq .Kind "IntersectionObserver"}}<div data-foundation-observe tabindex="0">{{.Text}}</div>
+{{end}}
+</section>{{end}}
+
+{{define "ely-api-typography"}}<section class="ely-foundation ely-foundation--typography" data-foundation-kind="{{.Kind}}">{{template "ely-api-foundation-header" .}}
+{{if eq .Kind "Heading"}}<h1>{{.Value}}</h1>
+{{else if eq .Kind "Title"}}<h2>{{.Value}}</h2><p>{{.Text}}</p>
+{{else if eq .Kind "Paragraph"}}<p class="ely-foundation__prose">{{.Value}}</p>
+{{else if eq .Kind "Label"}}<label for="{{.ID}}-input">{{.Label}}</label>{{template "input" (dict "ID" (print .ID "-input") "Name" .Name "Value" .Value "Required" .Required "Disabled" .Disabled)}}
+{{else if eq .Kind "Code"}}<code>{{.Value}}</code>
+{{else if eq .Kind "Kbd"}}<p>{{.Label}} <kbd>{{.Value}}</kbd></p>
+{{else if eq .Kind "KbdCombo"}}<p>{{.Label}} <kbd>{{.Value}}</kbd> + <kbd>{{.Key}}</kbd></p>
+{{else if eq .Kind "Blockquote"}}<blockquote>{{.Value}}{{if .Citation}}<cite>{{.Citation}}</cite>{{end}}</blockquote>
+{{else if eq .Kind "Highlight"}}<p>{{.Label}} <mark>{{.Value}}</mark></p>
+{{else if eq .Kind "Truncate"}}<p class="ely-foundation__truncate" title="{{.Value}}">{{.Value}}</p>
+{{else if eq .Kind "LineClamp"}}<p class="ely-foundation__clamp">{{.Value}}</p>
+{{else if eq .Kind "MiddleEllipsis"}}<code class="ely-foundation__middle">{{.Value}}</code>
+{{else if eq .Kind "EllipsisTooltip"}}<p class="ely-foundation__truncate" title="{{.Value}}">{{.Value}}</p>
+{{else if eq .Kind "Link"}}<a href="{{.Href}}">{{.Label}}</a>
+{{else if eq .Kind "ExternalLink"}}<a href="{{.Href}}" target="_blank" rel="noopener noreferrer">{{.Label}} <span aria-hidden="true">↗</span></a>
+{{else if eq .Kind "RelativeTime"}}<time data-foundation-format="relative" datetime="{{.DateTime}}" aria-label="{{.Title}}">{{.Value}}</time>
+{{else if eq .Kind "DateTimeText"}}<time data-foundation-format="datetime" datetime="{{.DateTime}}" aria-label="{{.Title}}">{{.Value}}</time>
+{{else if eq .Kind "CopyableText"}}<div><code data-foundation-copy>{{.Value}}</code><button type="button" data-foundation-copy-button>{{.Label}}</button></div>
+{{else if eq .Kind "SelectableText"}}<p class="ely-foundation__selectable">{{.Value}}</p>
+{{else if eq .Kind "Emoji"}}<p aria-label="{{.Alt}}">{{.Value}} <span>{{.Text}}</span></p>
+{{else if eq .Kind "Latex"}}<p class="ely-foundation__math">{{.Value}}</p>
+{{else if eq .Kind "AnimatedNumber"}}<output data-foundation-number="{{.Value}}" data-foundation-from="{{.From}}" data-foundation-duration="{{.Duration}}" aria-label="{{.Title}}"{{if .Disabled}} aria-disabled="true"{{end}}>{{.From}}</output>
+{{else if eq .Kind "Typewriter"}}<output data-foundation-typewriter="{{.Value}}" data-foundation-duration="{{.Duration}}" aria-label="{{.Title}}"{{if .Disabled}} aria-disabled="true"{{end}}></output>
+{{else if eq .Kind "GradientText"}}<h2 class="ely-foundation__gradient">{{.Value}}</h2>
+{{else if eq .Kind "ShimmerText"}}<p class="ely-foundation__shimmer">{{.Value}}</p>
+{{else if eq .Kind "Caption"}}<figure><div class="ely-foundation__figure">{{.Value}}</div><figcaption>{{.Text}}</figcaption></figure>
+{{else if eq .Kind "Overline"}}<p class="ely-foundation__overline">{{.Value}}</p>
+{{else if eq .Kind "NumberText"}}<output data-foundation-format="number" aria-label="{{.Title}}">{{.Value}}</output>
+{{else if eq .Kind "CurrencyText"}}<output data-foundation-format="currency" data-foundation-currency="{{.Currency}}" aria-label="{{.Title}}">{{.Value}}</output>
+{{else if eq .Kind "PercentText"}}<output data-foundation-format="percent" aria-label="{{.Title}}">{{.Value}}</output>
+{{else if eq .Kind "FileSizeText"}}<output data-foundation-format="filesize" aria-label="{{.Title}}">{{.Value}}</output>
+{{else if eq .Kind "DurationText"}}<time data-foundation-format="duration" datetime="{{.Value}}" aria-label="{{.Title}}">{{.Value}}</time>
+{{else if eq .Kind "PluralText"}}<output data-foundation-format="plural" data-foundation-unit="{{.Unit}}" aria-label="{{.Title}}">{{.Value}}</output>
+{{end}}
+</section>{{end}}
+
+{{define "ely-api-layout"}}<section class="ely-foundation ely-foundation--layout" data-foundation-kind="{{.Kind}}">{{template "ely-api-foundation-header" .}}
+{{if eq .Kind "Stack"}}<div class="ely-foundation__stack">{{range .Items}}<span>{{.}}</span>{{end}}</div>
+{{else if eq .Kind "Flex"}}<div class="ely-foundation__flex">{{range .Items}}<span>{{.}}</span>{{end}}</div>
+{{else if or (eq .Kind "Grid") (eq .Kind "SimpleGrid")}}<div class="ely-foundation__grid">{{range .Items}}<span>{{.}}</span>{{end}}</div>
+{{else if eq .Kind "Masonry"}}<div class="ely-foundation__masonry">{{range .Items}}<article>{{.}}</article>{{end}}</div>
+{{else if eq .Kind "Center"}}<div class="ely-foundation__center">{{.Value}}</div>
+{{else if eq .Kind "Container"}}<div class="ely-foundation__container">{{.Value}}</div>
+{{else if eq .Kind "AspectRatio"}}<div class="ely-foundation__aspect">{{.Value}}</div>
+{{else if eq .Kind "Inset"}}<div class="ely-foundation__inset">{{.Value}}</div>
+{{else if eq .Kind "Wrap"}}<div class="ely-foundation__wrap">{{range .Items}}<span>{{.}}</span>{{end}}</div>
+{{else if eq .Kind "ScrollArea"}}<div class="ely-foundation__scroll" tabindex="0">{{range .Items}}<p>{{.}}</p>{{end}}</div>
+{{else if eq .Kind "ScrollToTop"}}<div class="ely-foundation__scroll" data-foundation-scroll>{{range .Items}}<p>{{.}}</p>{{end}}<button type="button" data-foundation-scroll-top{{if .Disabled}} disabled{{end}}>{{.Label}}</button></div>
+{{else if eq .Kind "Collapsible"}}<details><summary>{{.Label}}</summary><p>{{.Text}}</p></details>
+{{else if eq .Kind "Accordion"}}<div data-foundation-accordion>{{range .Items}}<details><summary>{{.}}</summary><p>{{$.Text}}</p></details>{{end}}</div>
+{{else if eq .Kind "SplitPane"}}<div class="ely-foundation__split" data-foundation-split><section>{{.Before}}</section><input type="range" min="25" max="75" value="50" aria-label="{{.Label}}"{{if .Disabled}} disabled{{end}}><section>{{.After}}</section></div>
+{{else if eq .Kind "ResizeHandle"}}<div class="ely-foundation__split" data-foundation-split><section>{{.Before}}</section><input type="range" min="25" max="75" value="50" aria-label="{{.Label}}"{{if .Disabled}} disabled{{end}}><section>{{.After}}</section></div>
+{{else if or (eq .Kind "Drawer") (eq .Kind "Sheet")}}<button type="button" data-foundation-dialog-open="{{.ID}}-dialog">{{.Label}}</button><dialog id="{{.ID}}-dialog"><h3>{{.Title}}</h3><p>{{.Text}}</p><button type="button" data-foundation-dialog-close>{{.CloseLabel}}</button></dialog>
+{{else if eq .Kind "MasterDetail"}}<div class="ely-foundation__master" data-foundation-master><nav>{{range .Items}}<button type="button">{{.}}</button>{{end}}</nav><article data-foundation-detail>{{.Text}}</article></div>
+{{else if eq .Kind "Group"}}<fieldset><legend>{{.Label}}</legend>{{range .Items}}<label><input type="checkbox" name="{{$.Name}}" value="{{.}}"> {{.}}</label>{{end}}</fieldset>
+{{else if eq .Kind "Card"}}<article class="ely-foundation__card"><header>{{.Title}}</header><p>{{.Text}}</p><footer><button type="button" data-ely-action="inspect">{{.Label}}</button></footer></article>
+{{else if eq .Kind "Sidebar"}}<div class="ely-foundation__sidebar"><nav>{{range .Items}}<a href="{{$.Href}}">{{.}}</a>{{end}}</nav><main>{{.Text}}</main></div>
+{{else if eq .Kind "DockZone"}}<div class="ely-foundation__dropzone" tabindex="0" data-foundation-dropzone>{{.Text}}</div>
+{{else if eq .Kind "Absolute"}}<div class="ely-foundation__absolute"><span>{{.Before}}</span><b>{{.Value}}</b></div>
+{{else if eq .Kind "Layer"}}<div class="ely-foundation__layers">{{range .Items}}<i>{{.}}</i>{{end}}</div>
+{{else if eq .Kind "Scrollbar"}}<div class="ely-foundation__scroll ely-foundation__scrollbar">{{range .Items}}<p>{{.}}</p>{{end}}</div>
+{{else if eq .Kind "ScrollShadow"}}<div class="ely-foundation__scroll-shadow"><div class="ely-foundation__scroll">{{range .Items}}<p>{{.}}</p>{{end}}</div></div>
+{{else if eq .Kind "StickyHeader"}}<section class="ely-foundation__sticky"><header>{{.Title}}</header>{{range .Items}}<p>{{.}}</p>{{end}}</section>
+{{else if eq .Kind "Panel"}}<section class="ely-foundation__panel"><header><strong>{{.Title}}</strong><button type="button" data-ely-action="panel-menu">{{.Label}}</button></header><p>{{.Text}}</p></section>
+{{else if eq .Kind "Section"}}<section class="ely-foundation__section"><header><p>{{.Label}}</p><h3>{{.Title}}</h3></header><p>{{.Text}}</p></section>
+{{else if eq .Kind "Frame"}}<div class="ely-foundation__frame"><div>{{.Value}}</div></div>
+{{else if eq .Kind "Well"}}<aside class="ely-foundation__well">{{.Value}}</aside>
+{{else if eq .Kind "Page"}}<article class="ely-foundation__page"><header><h2>{{.Title}}</h2></header><main>{{.Text}}</main></article>
+{{else if eq .Kind "AppShell"}}<div class="ely-foundation__app-shell"><header>{{.Title}}</header><nav>{{range .Items}}<a href="{{$.Href}}">{{.}}</a>{{end}}</nav><main>{{.Text}}</main></div>
+{{else if eq .Kind "Dock"}}<div class="ely-foundation__dock"><aside>{{.Before}}</aside><main>{{.Text}}</main><footer>{{.After}}</footer></div>
+{{else if eq .Kind "FloatingPanel"}}<div class="ely-foundation__floating"><p>{{.Text}}</p><aside>{{.Value}}</aside></div>
+{{else if eq .Kind "Pane"}}<div class="ely-foundation__panes">{{range .Items}}<section>{{.}}</section>{{end}}</div>
+{{else if eq .Kind "Workspace"}}<div class="ely-foundation__workspace"><nav>{{.Label}}</nav><aside>{{.Before}}</aside><main>{{.Text}}</main></div>
+{{else if eq .Kind "Viewport"}}<div class="ely-foundation__viewport">{{.Value}}</div>
+{{end}}
+</section>{{end}}

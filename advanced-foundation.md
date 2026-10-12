@@ -1,0 +1,11 @@
+# Foundation component API
+
+Foundation serves the `primitives`, `typography`, and `layout` chapters through `ui.Component`. Use a primary story name or a catalogue alias with an instance ID. The shared wrapper supplies `ID`, `Chapter`, `Kind`, `Variant`, and `ComponentName`; callers must not rely on changing those values.
+
+All stories accept `Title`, `Text`, `Value`, and `Items`. `Items` is a `[]string` and replaces every displayed item. `Label`, `Name`, `Required`, and `Disabled` configure native controls. `Before`, `After`, `Alt`, `Caption`, `Citation`, `DateTime`, `Href`, `Src`, and `Key` supply the matching semantic content. `Canvas` accepts `Points` as comma- or space-separated x/y pairs. `AnimatedNumber` accepts numeric `Value`, optional numeric `From`, and `Duration` milliseconds. `Typewriter` accepts `Value` and `Duration` milliseconds. Motion ends immediately when `Disabled` is true or the user prefers reduced motion. `CurrencyText` accepts ISO `Currency`; `PluralText` accepts `Unit`. Numeric typography accepts a numeric `Value`; valid values format in the browser locale. `RelativeTime` and `DateTimeText` read ISO-8601 `DateTime`. Empty values remain empty; no specimen content is used as a fallback.
+
+Primitive actions: `Show` emits `ely:change`; `ClickOutside` emits `ely:change` when its menu changes; `Pressable` emits `press`; `KeyboardHandler` emits `key`; and `Clipboard` emits `copy` with the selected text. Clipboard only selects caller text and never writes to the system clipboard. `FocusScope` closes with Escape and keeps focus in the instance.
+
+Typography actions: `CopyableText` emits `copy` with the selected text. `AnimatedNumber` and `Typewriter` display their caller value without a background operation. Links use native anchors and preserve standard navigation.
+
+Layout actions: `Collapsible` and `Accordion` emit `ely:change`; `SplitPane` and `ResizeHandle` emit `ely:change` with the selected native range value; `ScrollToTop` emits `scroll-top`; `MasterDetail` emits `ely:change` with the selected item. `DockZone` handles keyboard focus and native drag events, and emits its data-transfer text as `drop`. Drawer and Sheet use native dialogs. `Card` exposes an `inspect` action. Provider work remains host-owned.

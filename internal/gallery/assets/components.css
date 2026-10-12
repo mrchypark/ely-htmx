@@ -1,0 +1,37 @@
+.component-index { padding: 6rem 0 8rem; }
+.component-index h1 { font-size: clamp(2.5rem, 6vw, 7rem); font-weight: 800; letter-spacing: -.045em; line-height: .95; margin: 0 0 2rem; }
+.component-index-intro { display: flex; justify-content: space-between; gap: 2rem; align-items: end; }
+.component-search { display: flex; gap: 1rem; border-bottom: 1px solid var(--color-line); margin: 3rem 0 2rem; }
+.component-search input[type='search'] { font: inherit; color: var(--color-ink); background: transparent; border: 0; border-radius: 0; padding: 1rem 0; width: 100%; min-width: 0; }
+.component-search input::placeholder { color: var(--color-muted); }
+.component-search button { border: 0; background: transparent; color: var(--color-accent); white-space: nowrap; cursor: pointer; padding: .5rem; }
+.component-chapters { list-style: none; margin: 0; padding: 0; }
+.component-chapters > li { display: grid; grid-template-columns: 4rem minmax(10rem, 1fr) 2fr; align-items: baseline; gap: 1.5rem; border-top: 1px solid var(--color-line); padding: 1.4rem 0; }
+.chapter-number { color: var(--color-muted); font: 400 .8rem/1.5 'Geist Mono', monospace; }
+.chapter-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.3; text-decoration: none; }
+.chapter-stories { display: flex; flex-wrap: wrap; gap: .3rem 1rem; color: var(--color-muted); font-size: .9rem; }
+.chapter-stories a { text-decoration: none; }
+.chapter-stories a:hover, .chapter-title:hover { color: var(--color-accent); }
+.component-chapters .component-no-results { display: block; padding: 3rem 0; color: var(--color-muted); }
+.component-layout { display: grid; grid-template-columns: 15.75rem minmax(0,1fr); gap: 4rem; padding: 3rem 0 5rem; }
+.component-sidebar { position: sticky; top: 2rem; align-self: start; max-height: calc(100svh - 4rem); overflow: auto; padding: 0 .5rem .5rem 0; scrollbar-width: thin; }
+.component-sidebar .component-search { margin: 0 0 1.5rem; font-size: .85rem; }
+.component-sidebar details { margin: 0; }
+.component-sidebar summary { color: var(--color-muted); font-weight: 400; font-size: .9rem; padding: .7rem 0; }
+.component-sidebar details[open] summary { color: var(--color-ink); }
+.component-sidebar ul { border-left: 1px solid var(--color-line); list-style: none; padding: 0 0 0 .9rem; margin: 0 0 .6rem; }
+.component-sidebar a { display: block; text-decoration: none; color: var(--color-muted); font-size: .82rem; padding: .35rem 0; }
+.component-sidebar a:hover, .component-sidebar a[aria-current] { color: var(--color-accent); }
+.component-story { min-width: 0; }
+.component-story h1 { font-size: 2.5rem; line-height: 1.15; letter-spacing: -.045em; margin: .5rem 0; }
+.component-aliases { color: var(--color-muted); font-size: .85rem; margin: 0 0 1.5rem; overflow-wrap: anywhere; }
+.component-runtime-note { margin: 1rem 0 2rem; }
+.component-paging { display: flex; justify-content: space-between; gap: 1.5rem; border-top: 1px solid var(--color-line); padding-top: 1.5rem; font-size: .9rem; }
+.component-paging a { text-decoration: none; color: var(--color-muted); }
+.component-paging a:hover { color: var(--color-accent); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 64rem) { .component-layout { grid-template-columns: 13rem minmax(0,1fr); gap: 2rem; } .component-chapters > li { grid-template-columns: 2rem minmax(8rem,1fr) 2fr; gap: 1rem; } .chapter-title { font-size: 1.4rem; } .component-index-intro { align-items: start; flex-direction: column; gap: 1rem; } }
+@media (max-width: 42rem) { .component-index { padding: 4rem 0; } .component-chapters > li { grid-template-columns: 2rem 1fr; gap: .75rem; } .chapter-stories { grid-column: 2; } .component-layout { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 0 3rem; } .component-sidebar { position: static; max-height: 14rem; border-bottom: 1px solid var(--color-line); padding-bottom: 1rem; } .component-sidebar nav { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 1rem; } .component-sidebar .component-search { margin-bottom: .5rem; } .component-story h1 { font-size: 2rem; } .component-paging { font-size: .8rem; } }
+.component-story>.lede{margin-block-end:1.5rem}
+
+.component-story>.section-rule{margin-block:2rem}.component-story>[data-ui-component]{margin-block:1rem}

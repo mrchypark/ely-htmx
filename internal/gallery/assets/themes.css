@@ -1,0 +1,22 @@
+.theme-layout{display:grid;grid-template-columns:minmax(19rem,1fr) minmax(0,1.4fr);gap:2rem;margin-block-start:2rem;align-items:start}
+.theme-title{font-size:clamp(2rem,4vw,3.5rem);line-height:1.1;margin-block:1rem}
+.theme-editor,.theme-preview,.theme-export{padding:1.25rem;border:1px solid var(--color-line);border-radius:.65rem;min-inline-size:0}
+.theme-editor,.theme-export{background:var(--surface)}
+.theme-editor h2,.theme-export h2{margin-block-end:.5rem}
+.theme-fields{display:grid;gap:.5rem;margin-block:.5rem}
+.theme-field{display:grid;grid-template-columns:minmax(0,1fr) 6rem 2.5rem;gap:.5rem;align-items:center}
+.theme-field label{min-inline-size:0}.theme-field code{display:block;color:var(--color-muted);font-size:.7rem}
+.theme-field input[data-slot][type=color]{inline-size:2.5rem;padding:.125rem}
+.theme-status-fields{margin-block:0}.theme-status-fields summary{font-size:.85rem}
+.theme-check{font-size:.85rem;color:var(--approved);white-space:pre-line}.theme-check[data-invalid=true]{color:var(--error)}
+.theme-examples{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;min-inline-size:0}
+.theme-export{grid-column:1/-1}
+.theme-preview{background:var(--color-paper);color:var(--color-ink);gap:1rem!important}
+.theme-preview h2,.theme-preview p{margin:0}.theme-preview h2{font-size:1.75rem}.theme-muted{color:var(--color-muted)}
+.theme-preview-card{display:grid;gap:.5rem;background:var(--surface);border:1px solid var(--color-line);border-radius:.5rem;padding:1rem}
+.theme-state{border-radius:999px;padding:.25rem .65rem;font-size:.75rem;font-weight:500;white-space:nowrap}
+.theme-state--draft{color:var(--draft);background:var(--draft-tint)}.theme-state--approved{color:var(--approved);background:var(--approved-tint)}.theme-state--warning{color:var(--warning);background:var(--warning-tint)}.theme-state--error{color:var(--error);background:var(--error-tint)}
+.theme-export textarea{font-family:'Geist Mono','Pretendard',monospace;font-size:.8rem;block-size:16rem;min-block-size:14rem;max-block-size:24rem;field-sizing:fixed;overflow:auto}
+@media(max-width:70rem){.theme-examples{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:56rem){.theme-layout{grid-template-columns:minmax(0,1fr);gap:1.25rem}}
+@media(max-width:24rem){.theme-field{grid-template-columns:minmax(0,1fr) 5.5rem 2rem;gap:.35rem}.theme-field input[data-slot][type=color]{inline-size:2rem}.theme-editor,.theme-preview,.theme-export{padding:1rem}}
