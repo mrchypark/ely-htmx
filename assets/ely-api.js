@@ -24,12 +24,12 @@ function start(scope = document) {
     const cleanups = [];
     const blockDisabled = event => {
       if (root.dataset.elyDisabled !== 'true' || !belongs(root, event.target)) return;
-      event.preventDefault();
+      if (event.type !== 'keydown' || event.key !== 'Tab') event.preventDefault();
       event.stopImmediatePropagation();
     };
-    root.addEventListener('click', blockDisabled, true);
-    root.addEventListener('pointerdown', blockDisabled, true);
-    cleanups.push(() => { root.removeEventListener('click', blockDisabled, true); root.removeEventListener('pointerdown', blockDisabled, true); });
+    const disabledEvents = ['click', 'pointerdown', 'keydown', 'input', 'change', 'submit'];
+    disabledEvents.forEach(type => root.addEventListener(type, blockDisabled, true));
+    cleanups.push(() => disabledEvents.forEach(type => root.removeEventListener(type, blockDisabled, true)));
     const click = event => {
       if (!belongs(root, event.target)) return;
       const button = event.target.closest('[data-ely-action]');

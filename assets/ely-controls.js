@@ -59,13 +59,21 @@
     const hidden = hiddenValue(component);
     if (input && hidden) input.setCustomValidity(input.required && !hidden.value ? 'Select an option.' : '');
   };
+  const openCombo = component => {
+    const input=component.querySelector('[data-ui-combobox-input]'),list=component.querySelector('[data-ui-combobox-list]');
+    if(!input||input.disabled||!list||!list.hidden)return false;
+    component.querySelectorAll('[data-ui-option]').forEach(option=>option.hidden=false);
+    list.hidden=false;input.setAttribute('aria-expanded','true');
+    setComboActive(component,component.querySelector('[data-ui-option][aria-selected="true"]')||visibleOptions(component)[0]);
+    return true;
+  };
   const selectCombo = (component, option) => {
     const input = component.querySelector('[data-ui-combobox-input]');
     const hidden = hiddenValue(component);
     const list = component.querySelector('[data-ui-combobox-list]');
     if (!input || !hidden || !option || option.getAttribute("aria-disabled") === "true") return;
     hidden.value = option.dataset.value || '';
-    input.value = option.textContent.trim();
+    input.value = option.dataset.uiLabel ?? option.textContent.trim();
     component.querySelectorAll('[data-ui-option]').forEach((item) => item.setAttribute('aria-selected', String(item === option)));
     setComboActive(component, option);
     list.hidden = true;
@@ -95,24 +103,18 @@
     const rules = input.accept.split(',').map(text).filter(Boolean);
     return !rules.length || rules.some((rule) => rule.startsWith('.') ? file.name.toLowerCase().endsWith(rule.toLowerCase()) : rule.endsWith('/*') ? file.type.startsWith(rule.slice(0, -1)) : file.type === rule);
   };
+  const fileError = (input, files) => !input.multiple && files.length > 1 ? 'Choose one file only.' : [...files].some(file=>!acceptFile(input,file)) ? 'This file type is not accepted.' : '';
+  const showFileError = (component, message) => {
+    const input=component.querySelector('[data-ui-file-input]'); input.setCustomValidity(message);input.setAttribute('aria-invalid',String(!!message));
+    const output=component.querySelector('[data-ui-file-error]');if(output)output.textContent=message;
+  };
   const setFiles = (component, files) => {
-    const input = component.querySelector('[data-ui-file-input]');
-    const output = component.querySelector('[data-ui-file-names]');
-    if (!input || input.disabled) return;
-    const accepted = [...files].filter((file) => acceptFile(input, file));
-    const transfer = new DataTransfer();
-    accepted.slice(0, input.multiple ? undefined : 1).forEach((file) => transfer.items.add(file));
-    input.files = transfer.files;
-    output.textContent = [...input.files].map((file) => file.name).join(', ');
-    input.dispatchEvent(new Event('change', { bubbles: true }));
+    const input=component.querySelector('[data-ui-file-input]');if(!input||input.disabled)return;
+    const error=fileError(input,files);showFileError(component,error);if(error)return;
+    const transfer=new DataTransfer();[...files].forEach(file=>transfer.items.add(file));input.files=transfer.files;
+    input.dispatchEvent(new Event('change',{bubbles:true}));
   };
-  const normalizeFiles = (input) => {
-    const accepted = [...input.files].filter((file) => acceptFile(input, file));
-    if (accepted.length === input.files.length) return;
-    const transfer = new DataTransfer();
-    accepted.slice(0, input.multiple ? undefined : 1).forEach((file) => transfer.items.add(file));
-    input.files = transfer.files;
-  };
+  const normalizeFiles = input => showFileError(root(input),fileError(input,input.files));
 
   const activateTab = (component, tab) => {
     const tabs = [...component.querySelectorAll('[data-ui-tab]')];
@@ -131,11 +133,22 @@
     const value = component.querySelector('[data-ui-signature-value]');
     if (!canvas || !fallback || !value) return;
     const required = fallback.required;
+    let strokes = 0;
+    const notify = () => {
+      const count = component.querySelector('[data-ui-signature-count]');
+      if (count) count.textContent = `${strokes} ${strokes === 1 ? 'stroke' : 'strokes'}`;
+      const guide = component.querySelector('.ui-signature-guide');
+      if (guide) guide.hidden = !!value.value;
+      value.dispatchEvent(new Event('change', {bubbles:true}));
+    };
+    fallback.addEventListener('invalid', () => { const details=fallback.closest('details'); if(details) details.open=true; });
     value.disabled = fallback.disabled;
     fallback.removeAttribute('name');
     fallback.required = false;
     const validate = () => fallback.setCustomValidity(required && !value.value ? 'Draw or type a signature.' : '');
     validate();
+    const guide = component.querySelector('.ui-signature-guide');
+    if (guide) guide.hidden = !!value.value;
     const rect = canvas.getBoundingClientRect();
     const scale = window.devicePixelRatio || 1;
     canvas.width = Math.max(1, Math.round(rect.width * scale));
@@ -150,13 +163,15 @@
     }
     fallback.addEventListener('input', () => {
       value.value = fallback.value;
+      strokes = 0; notify();
       context.clearRect(0, 0, canvas.width, canvas.height);
       validate();
     });
     component.querySelector('[data-ui-signature-clear]').addEventListener('click', () => {
       value.value = ''; fallback.value = '';
+      strokes = 0; notify();
       context.clearRect(0, 0, canvas.width, canvas.height);
-      validate(); fallback.focus();
+      validate(); component.querySelector('[data-ui-signature-clear]').focus();
     });
     const resizeObserver = new ResizeObserver(() => {
       const bounds = canvas.getBoundingClientRect();
@@ -176,8 +191,9 @@
     let drawing = false;
     const point = (event) => { const box = canvas.getBoundingClientRect(); return [event.clientX - box.left, event.clientY - box.top]; };
     canvas.addEventListener('pointerdown', (event) => {
-      if (fallback.disabled) return;
+      if (fallback.disabled || drawing || event.button !== 0) return;
       context.strokeStyle = getComputedStyle(canvas).color;
+      context.lineWidth = 2; context.lineCap = 'round'; context.lineJoin = 'round';
       drawing = true;
       canvas.setPointerCapture(event.pointerId);
       const [x, y] = point(event);
@@ -193,7 +209,13 @@
       fallback.value = '';
       validate();
     });
-    ['pointerup', 'pointercancel'].forEach((type) => canvas.addEventListener(type, () => { drawing = false; }));
+    const finish = () => {
+      if (!drawing) return;
+      drawing = false; strokes += 1;
+      value.value = canvas.toDataURL(); fallback.value = '';
+      validate(); notify();
+    };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => canvas.addEventListener(type, finish));
   };
 
   const initComponent = (component) => {
@@ -209,7 +231,7 @@
         if (!hidden || !input) break;
         if (!hidden.hasAttribute('data-ui-permanently-disabled')) hidden.disabled = false;
         const selected = component.querySelector('[data-ui-option][aria-selected="true"]');
-        if (selected) input.value = selected.textContent.trim();
+        if (selected) input.value = selected.dataset.uiLabel ?? selected.textContent.trim();
         setComboActive(component, selected || visibleOptions(component)[0]);
         validateCombo(component);
         break;
@@ -230,6 +252,7 @@
   };
 
   document.addEventListener('click', (event) => {
+    document.querySelectorAll('[data-ui-component=combobox]').forEach(combo=>{if(!combo.contains(event.target)){combo.querySelector('[data-ui-combobox-list]').hidden=true;combo.querySelector('[data-ui-combobox-input]').setAttribute('aria-expanded','false');}});
     const trigger = event.target.closest?.('[data-ui-dialog-open]');
     if (trigger && !isDisabled(trigger)) {
       const dialog = document.getElementById(trigger.dataset.uiDialogOpen);
@@ -244,13 +267,15 @@
     if (action === 'remove-tag') { const hidden = hiddenValue(component); hidden.value = hidden.value.split(',').map(text).filter((value) => value && value !== event.target.value).join(','); syncTags(component); component.querySelector('[data-ui-tag-entry]').focus(); }
     if (action === 'add-pair') addKeyValue(component);
     if (action === 'remove-pair') event.target.closest('[data-ui-key-value]')?.remove();
+    if(event.target.closest('[data-ui-file-browse]'))component.querySelector('[data-ui-file-input]')?.click();
+    if(event.target.matches('[data-ui-combobox-input]'))openCombo(component);
     const option = event.target.closest('[data-ui-option]'); if (option && !component.querySelector('[data-ui-combobox-input]')?.disabled) selectCombo(component, option);
     const tab = event.target.closest('[data-ui-tab]'); if (tab) activateTab(component, tab);
   });
 
   document.addEventListener('input', (event) => {
     const component = root(event.target);
-    if (!component) return;
+    if (!component || isDisabled(event.target)) return;
     if (event.target.matches('[data-ui-pin-slot]')) {
       const slots = [...component.querySelectorAll('[data-ui-pin-slot]')];
       const index = slots.indexOf(event.target);
@@ -261,11 +286,11 @@
     if (event.target.matches('[data-ui-combobox-input]')) {
       const query = event.target.value.toLowerCase();
       const list = component.querySelector('[data-ui-combobox-list]');
-      component.querySelectorAll('[data-ui-option]').forEach((option) => { option.hidden = !option.textContent.toLowerCase().includes(query); });
+      component.querySelectorAll('[data-ui-option]').forEach((option) => { option.hidden = ![option.textContent,option.dataset.value,option.dataset.uiSearch].join(' ').toLowerCase().includes(query); });
       list.hidden = false;
       event.target.setAttribute('aria-expanded', 'true');
       setComboActive(component, visibleOptions(component)[0]);
-      hiddenValue(component).value = '';
+      hiddenValue(component).value = component.hasAttribute('data-ui-combobox-free') ? event.target.value : '';
       validateCombo(component);
     }
   });
@@ -297,14 +322,18 @@
       if (event.key === 'Backspace' && !event.target.value && index) slots[index - 1].focus();
     }
     if (event.target.matches('[data-ui-combobox-input]')) {
+      if(['ArrowDown','ArrowUp'].includes(event.key)&&openCombo(component)){event.preventDefault();return;}
+      if(component.querySelector('[data-ui-combobox-list]').hidden)return;
       const options = visibleOptions(component);
       const active = options.findIndex((option) => option.dataset.uiActive === 'true');
       if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && options.length) {
         event.preventDefault();
         const next = (active + (event.key === 'ArrowDown' ? 1 : options.length - 1) + options.length) % options.length;
         setComboActive(component, options[next]);
+        options[next].scrollIntoView({block:'nearest'});
       }
       if (event.key === 'Enter' && options.length) { event.preventDefault(); selectCombo(component, options[Math.max(0, active)] || options[0]); }
+      else if (event.key === 'Enter' && component.hasAttribute('data-ui-combobox-free')) { event.preventDefault(); component.querySelector('[data-ui-combobox-list]').hidden = true; event.target.setAttribute('aria-expanded', 'false'); hiddenValue(component).dispatchEvent(new Event('change', {bubbles:true})); }
       if (event.key === 'Escape') { component.querySelector('[data-ui-combobox-list]').hidden = true; event.target.setAttribute('aria-expanded', 'false'); }
     }
     if (event.target.matches('[data-ui-tab]') && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
@@ -341,7 +370,7 @@
     if (event.target.matches('[data-slot="checkbox"]')) { syncMultiSelect(component); }
   });
   document.addEventListener('dragover', (event) => { const component = root(event.target); if (component?.dataset.uiComponent === 'file-dropzone' && !component.querySelector('[data-ui-file-input]')?.disabled) event.preventDefault(); });
-  document.addEventListener('drop', (event) => { const component = root(event.target); if (component?.dataset.uiComponent === 'file-dropzone' && !component.querySelector('[data-ui-file-input]')?.disabled) { event.preventDefault(); setFiles(component, event.dataTransfer.files); } });
+  document.addEventListener('drop', (event) => { const component = root(event.target); if (component?.dataset.uiComponent === 'file-dropzone' && !component.querySelector('[data-ui-file-input]')?.disabled) { event.preventDefault(); const directory=[...(event.dataTransfer?.items||[])].some(item=>item.webkitGetAsEntry?.()?.isDirectory);if(directory)showFileError(component,'Choose files, not folders.');else setFiles(component,event.dataTransfer.files); } });
 
   document.addEventListener('htmx:after:swap', (event) => init(event.detail?.target || event.target));
   init();

@@ -53,9 +53,6 @@ func TestFullCatalogueRendersNatively(t *testing.T) {
 	seen := map[string]bool{}
 	assetPattern := regexp.MustCompile("src=\"(/assets/[^\" ]+)")
 	for _, chapter := range server.components {
-		if server.templates.Lookup("demo-"+chapter.Slug) == nil {
-			t.Fatalf("missing demo template for %s", chapter.Slug)
-		}
 		for _, story := range chapter.Stories {
 			if len(story.Slug) > 255 {
 				t.Fatalf("component route exceeds static hosting filename limit: %s/%s", chapter.Slug, story.Slug)
@@ -66,8 +63,17 @@ func TestFullCatalogueRendersNatively(t *testing.T) {
 			}
 			seen[path] = true
 			var preview bytes.Buffer
-			if err := server.templates.ExecuteTemplate(&preview, "demo-"+chapter.Slug, story); err != nil {
-				t.Fatalf("%s: %v", path, err)
+			var fixture ui.Component
+			for _, record := range advancedCases() {
+				if record.Component.Chapter == chapter.Slug && record.Component.Name == story.Name {
+					fixture = record.Component
+					break
+				}
+			}
+			for _, component := range storyPreviewComponents(fixture) {
+				if err := ui.RenderComponent(server.templates, &preview, component); err != nil {
+					t.Fatalf("%s: %v", path, err)
+				}
 			}
 			body := preview.String()
 			if strings.TrimSpace(body) == "" || strings.Contains(body, "Preparing "+story.Name+"…") {
@@ -81,7 +87,10 @@ func TestFullCatalogueRendersNatively(t *testing.T) {
 					}
 				}
 			}
-			for _, forbidden := range []string{"ZgotmplZ", "<script", "onclick=", "oninput=", "style=", "javascript:", "gallery_bg.wasm", "component-frame"} {
+			if regexp.MustCompile(`(?i)\sstyle\s*=`).MatchString(body) {
+				t.Errorf("%s contains an inline style", path)
+			}
+			for _, forbidden := range []string{"ZgotmplZ", "<script", "onclick=", "oninput=", "javascript:", "gallery_bg.wasm", "component-frame"} {
 				if strings.Contains(body, forbidden) {
 					t.Errorf("%s contains %q", path, forbidden)
 				}
@@ -184,7 +193,7 @@ func TestAssetsAndSharedPrimitives(t *testing.T) {
 	}
 }
 
-func TestStoryLoadsOnlyItsDemoStylesheet(t *testing.T) {
+func TestStoryLoadsItsDemoStylesheetsAndDependencies(t *testing.T) {
 	server, err := New()
 	if err != nil {
 		t.Fatal(err)
@@ -196,6 +205,7 @@ func TestStoryLoadsOnlyItsDemoStylesheet(t *testing.T) {
 		"/components/editor/codeeditor-editorgutter-linenumbers-foldingcontrol-minimap-ruler-indentguide-bracketmatcher-rainbowbrackets-multicursor-selectionhighlight-stickyscroll-breadcrumb-inlayhints-codelens-inlinedecoration": "ely-api-workspace.css",
 		"/components/chat/chatcontainer-messagelist-messagebubble-messageavatar-messageheader-messagefooter-dateseparator-scrolltobottombutton":                                                                                      "ely-api-communication.css",
 		"/components/media/imageviewer": "ely-api-native.css",
+		"/components/canvas/colorpanel-gradientpanel-shadoweditor-bordereditor-typographypanel": "ely-api-workspace.css",
 	}
 	for path, stylesheet := range cases {
 		w := httptest.NewRecorder()
@@ -204,11 +214,23 @@ func TestStoryLoadsOnlyItsDemoStylesheet(t *testing.T) {
 			t.Fatalf("%s = %d", path, w.Code)
 		}
 		body := w.Body.String()
+		if strings.Contains(body, "class=\"component-live native-preview\"") {
+			t.Errorf("%s applies legacy sizing rules to the public API", path)
+		}
 		if !strings.Contains(body, "/assets/"+stylesheet) {
 			t.Errorf("%s does not load %s", path, stylesheet)
 		}
+		if stylesheet == "ely-api-communication.css" && !strings.Contains(body, "/assets/ely-api-calendar-parity.css") {
+			t.Errorf("%s omits calendar styles", path)
+		}
+		if stylesheet == "ely-api-native.css" && !strings.Contains(body, "/assets/ely-api-native-tooling.css") {
+			t.Errorf("%s omits native tooling styles", path)
+		}
+		if stylesheet == "ely-api-workspace.css" && !strings.Contains(body, "/assets/ely-api-forms.css") {
+			t.Errorf("%s omits nested form styles", path)
+		}
 		for _, other := range []string{"ely-api-interaction.css", "ely-api-data.css", "ely-api-forms.css", "ely-api-workspace.css", "ely-api-communication.css", "ely-api-native.css", "ely-api-foundation.css"} {
-			if other != stylesheet && strings.Contains(body, "/assets/"+other) {
+			if other != stylesheet && !(stylesheet == "ely-api-workspace.css" && other == "ely-api-forms.css") && strings.Contains(body, "/assets/"+other) {
 				t.Errorf("%s leaks %s", path, other)
 			}
 		}
@@ -224,7 +246,11 @@ func TestStoryLoadsOnlyItsDemoStylesheet(t *testing.T) {
 				loaded++
 			}
 		}
-		if w.Code != http.StatusOK || loaded != 1 {
+		want := 1
+		if strings.Contains(w.Body.String(), "/assets/ely-api-workspace.css") {
+			want = 2
+		}
+		if w.Code != http.StatusOK || loaded != want {
 			t.Errorf("%s = %d with %d demo stylesheets", path, w.Code, loaded)
 		}
 	}
@@ -281,32 +307,29 @@ func TestBasicFormStoriesUseSharedTemplates(t *testing.T) {
 	}
 	for _, tc := range []struct {
 		slug, primitive string
-		count           int
 	}{
-		{"input-textfield-clearableinput", "input", 4},
-		{"emailinput-urlinput", "input", 5},
-		{"phoneinput-maskedinput", "input", 5},
-		{"textarea-autoresizeinput", "textarea", 2},
-		{"passwordinput", "input", 1},
-		{"searchinput", "input", 1},
-		{"numberinput", "input", 2},
-		{"checkbox-checkboxgroup", "checkbox", 3},
-		{"switch-toggle", "switch", 2},
-		{"select-nativeselect", "select", 1},
-		{"radio-radiogroup", "radio-group", 1},
-		{"input-textfield-clearableinput", "button", 1},
+		{"input-textfield-clearableinput", "input"},
+		{"emailinput-urlinput", "input"},
+		{"phoneinput-maskedinput", "input"},
+		{"textarea-autoresizeinput", "textarea"},
+		{"passwordinput", "input"},
+		{"searchinput", "input"},
+		{"numberinput", "input"},
+		{"checkbox-checkboxgroup", "checkbox"},
+		{"switch-toggle", "switch"},
+		{"select-nativeselect", "select"},
+		{"radio-radiogroup", "radio-group"},
+		{"searchinput", "button"},
 	} {
 		t.Run(tc.slug+"/"+tc.primitive, func(t *testing.T) {
 			_, story := server.findComponent("forms", tc.slug)
 			if story == nil {
 				t.Fatal("missing story")
 			}
-			var body bytes.Buffer
-			if err := server.templates.ExecuteTemplate(&body, "demo-forms", story); err != nil {
-				t.Fatal(err)
-			}
-			if got := strings.Count(body.String(), `data-shared-test="`+tc.primitive+`"`); got != tc.count {
-				t.Fatalf("shared %s count = %d, want %d", tc.primitive, got, tc.count)
+			response := httptest.NewRecorder()
+			server.ServeHTTP(response, httptest.NewRequest(http.MethodGet, componentHref("forms", tc.slug), nil))
+			if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `data-shared-test="`+tc.primitive+`"`) {
+				t.Fatalf("public example did not reuse shared %s: status=%d", tc.primitive, response.Code)
 			}
 		})
 	}

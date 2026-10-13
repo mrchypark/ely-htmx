@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"golang.org/x/net/html"
 )
 
 func renderAdvancedForm(t *testing.T, chapter, name string, props map[string]any) string {
@@ -17,6 +19,46 @@ func renderAdvancedForm(t *testing.T, chapter, name string, props map[string]any
 		t.Fatal(err)
 	}
 	return out.String()
+}
+
+func TestFormPartsComposeWithoutNestedForms(t *testing.T) {
+	for _, name := range []string{"FormSection", "FormField", "FieldArray", "DirtyIndicator"} {
+		t.Run(name, func(t *testing.T) {
+			markup := renderAdvancedForm(t, "forms", name, map[string]any{
+				"Label": "Caller field", "Name": "links", "Value": "caller", "Dirty": true,
+				"Values": []string{"https://example.test", "<caller>"}, "Disabled": true,
+				"Fields": []map[string]any{{"Name": "title", "Label": "Title", "Value": "Caller title"}},
+			})
+			if strings.Contains(markup, "<form") {
+				t.Fatal("form part created a nested form")
+			}
+			if name == "FieldArray" && (!strings.Contains(markup, `name="links"`) || !strings.Contains(markup, `&lt;caller&gt;`) || !strings.Contains(markup, "disabled")) {
+				t.Fatal("field array lost caller values, name, escaping, or disabled state")
+			}
+			if name == "DirtyIndicator" && !strings.Contains(markup, "Unsaved changes") {
+				t.Fatal("dirty indicator lost its explicit state")
+			}
+		})
+	}
+}
+
+func TestAdvancedColorPickerPreservesZeroAlpha(t *testing.T) {
+	markup := renderAdvancedForm(t, "forms", "ColorPicker", map[string]any{"Name": "accent", "Value": "#3772bb", "Alpha": 0, "Disabled": true})
+	doc, err := html.Parse(strings.NewReader(markup))
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, input := range formNodes(doc, "input") {
+		if name, _ := formAttr(input, "name"); name == "accent_alpha" {
+			found = true
+			requireFormAttr(t, input, "value", "0")
+			requireFormAttr(t, input, "disabled", "")
+		}
+	}
+	if !found {
+		t.Fatal("alpha submission field is missing")
+	}
 }
 
 func TestAdvancedFormAliasesUseNativeControls(t *testing.T) {
@@ -90,4 +132,23 @@ func TestAdvancedFormsUseDedicatedSemanticVariants(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAdvancedDurationPartsKeepBoundsAndNames(t *testing.T) {
+	markup := renderAdvancedForm(t, "forms", "DurationPicker", map[string]any{"Name": "delay", "Disabled": true, "DurationParts": []map[string]any{{"Name": "minutes", "Label": "m", "Value": 0, "Max": 59}}})
+	doc, err := html.Parse(strings.NewReader(markup))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, input := range formNodes(doc, "input") {
+		if name, _ := formAttr(input, "name"); name == "delay_minutes" {
+			requireFormAttr(t, input, "type", "number")
+			requireFormAttr(t, input, "min", "0")
+			requireFormAttr(t, input, "max", "59")
+			requireFormAttr(t, input, "value", "0")
+			requireFormAttr(t, input, "disabled", "")
+			return
+		}
+	}
+	t.Fatal("duration part submission field is missing")
 }

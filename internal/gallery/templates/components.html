@@ -20,10 +20,8 @@
     </aside>
     <main id="main" class="component-story">
       <a class="note" href="/components">{{.Components.Chapter.Title}}</a>
-      <h1>{{.Components.Story.Name}}</h1>
-      <p class="component-aliases">{{range $i,$name:=.Components.Story.Components}}{{if $i}} · {{end}}{{$name}}{{end}}</p>
-      <section class="component-live native-preview" aria-label="{{.Components.Story.Name}} 예제" data-demo-story="{{.Components.Chapter.Slug}}/{{.Components.Story.Slug}}">{{.Components.Preview}}</section>
-      <p class="hint component-runtime-note">호출자 데이터로 구성한 공통 API 예제입니다.</p><output data-api-host-status aria-live="polite">외부 동작의 요청 데이터를 여기 표시합니다.</output>
+      <h1 title="{{range $i,$name:=.Components.Story.Components}}{{if $i}} · {{end}}{{$name}}{{end}}">{{.Components.Story.Name}}</h1>
+      <section class="component-live" aria-label="{{.Components.Story.Name}} 예제" data-demo-story="{{.Components.Chapter.Slug}}/{{.Components.Story.Slug}}"><p class="component-description">{{.Components.Description}}</p>{{.Components.Preview}}</section>
       <nav class="component-paging" aria-label="이전과 다음 예제" tabindex="-1" data-after-live>{{if .Components.Previous}}<a href="{{.Components.Previous.Href}}">← {{.Components.Previous.Name}}</a>{{else}}<span></span>{{end}}{{if .Components.Next}}<a href="{{.Components.Next.Href}}">{{.Components.Next.Name}} →</a>{{end}}</nav>
     </main>
   </div>
@@ -41,4 +39,4 @@
 </html>
 {{end}}
 
-{{define "component-demo-response"}}<div class="demo-stack" role="status"><strong>로컬 예제 응답</strong><p>{{if .Query}}입력: {{.Query}}{{else}}입력을 받았습니다. 실제 데이터는 저장하지 않았습니다.{{end}}</p>{{if .Matches}}<ul>{{range .Matches}}<li>{{.}}</li>{{end}}</ul>{{else}}<p class="demo-muted">외부 서비스 연결 없이 생성한 샘플 응답입니다.</p>{{end}}</div>{{end}}
+{{define "component-demo-response"}}<div class="component-demo-response" role="status"><strong>로컬 예제 응답</strong><p>{{if .Query}}입력: {{.Query}}{{else}}입력을 받았습니다. 실제 데이터는 저장하지 않았습니다.{{end}}</p>{{if .Matches}}<ul>{{range .Matches}}<li>{{.}}</li>{{end}}</ul>{{else}}<p class="component-description">외부 서비스 연결 없이 생성한 샘플 응답입니다.</p>{{end}}</div>{{end}}

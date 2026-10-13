@@ -7,7 +7,7 @@ export function assert(condition,message='Component assertion failed'){assertion
 export function registerChecks(family,definitions){for(const [key,check] of Object.entries(definitions)){if(checks.has(key))throw new Error(`Duplicate behavioral check: ${key}`);checks.set(key,{family,check});}}
 export async function waitFor(predicate,timeout=3000){const deadline=performance.now()+timeout;while(!predicate()){if(performance.now()>deadline)throw new Error('Timed out waiting for observable component state.');await new Promise(resolve=>setTimeout(resolve,10));}}
 function state(root){return JSON.stringify([...root.querySelectorAll('input,textarea,select,[aria-selected],[aria-pressed],dialog')].map(node=>[node.tagName,node.type,node.value,node.checked,node.open,node.getAttribute('aria-selected'),node.getAttribute('aria-pressed')]));}
-function identifiers(root){return [...root.querySelectorAll('[id]')].map(node=>node.id);}
+function identifiers(root){return [root.id,...Array.from(root.querySelectorAll('[id]'),node=>node.id)];}
 
 document.querySelector('[data-audit-run]')?.addEventListener('click',async event=>{
   event.currentTarget.disabled=true;
@@ -30,6 +30,12 @@ document.querySelector('[data-audit-run]')?.addEventListener('click',async event
       root.addEventListener('ely:action',capture);root.addEventListener('ely:error',captureError);
       window.addEventListener('error',captureRuntimeError);window.addEventListener('unhandledrejection',captureRuntimeError);
       assertionCount=0;
+      const componentStyle=getComputedStyle(root);assert(componentStyle.fontSize==='13px'&&componentStyle.lineHeight==='20px','Components must retain the 13px/20px baseline in a host page');
+      assert(componentStyle.getPropertyValue('--surface-muted').trim()===componentStyle.getPropertyValue('--color-paper').trim(),'Muted surfaces must follow their current theme');
+      assert(componentStyle.getPropertyValue('--muted-foreground').trim()===componentStyle.getPropertyValue('--color-muted').trim(),'Secondary text must follow its current theme');
+      if(!matchMedia('(forced-colors: active)').matches)root.querySelectorAll('select:not([multiple]):not([size])').forEach(node=>{const style=getComputedStyle(node);assert(style.appearance==='none'&&parseFloat(style.paddingInlineEnd)>=36&&style.backgroundPositionY==='50%, 50%','Dropdown arrow must be centered with reserved space after the text');});
+      root.querySelectorAll('.ely-tag-field').forEach(node=>{const children=[...node.children].map(child=>child.getBoundingClientRect()).filter(rect=>rect.height);if(children.every(rect=>rect.height<=24&&rect.top===children[0].top))assert(node.getBoundingClientRect().height===28,'Single-row tag fields must use the 28px default height');});
+      root.querySelectorAll('[data-ui-multi-option]').forEach(node=>{const height=node.getBoundingClientRect().height;if(height)assert(height===28,'Multiple-choice fixtures must use the 28px default height');});
       root.querySelectorAll('[data-ui-pin-slot]').forEach(input=>{const style=getComputedStyle(input),width=input.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight),rect=input.getBoundingClientRect();assert(width>=parseFloat(style.fontSize)&&rect.width===40&&rect.height===40,'PIN must show an unclipped digit in its 40px square');});
       root.querySelectorAll('.ui-calendar-days button').forEach(button=>{const style=getComputedStyle(button);assert(style.paddingLeft==='0px'&&style.paddingRight==='0px'&&style.whiteSpace==='nowrap','Calendar dates must fit narrow columns without wrapping');});
       root.querySelectorAll('[data-ui-tab][aria-selected="true"]').forEach(button=>assert(getComputedStyle(button).color===getComputedStyle(root).color,'Selected tab must keep a visible text color'));

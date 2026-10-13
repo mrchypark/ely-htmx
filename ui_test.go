@@ -11,7 +11,7 @@ func TestSharedAssetsRevalidateCachedContent(t *testing.T) {
 	if err := BindAssets(mux); err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/assets/pretendard.woff2", "/assets/geist.woff2", "/assets/app.css", "/assets/ely/LICENSE.txt", "/assets/ui-controls.js", "/assets/ely.js"} {
+	for _, path := range []string{"/assets/pretendard.woff2", "/assets/geist.woff2", "/assets/app.css", "/assets/ely/LICENSE.txt", "/assets/ui-controls.js", "/assets/ely-api.js"} {
 		w := httptest.NewRecorder()
 		// Service pages disable caching; shared assets must override that header.
 		w.Header().Set("Cache-Control", "no-store")

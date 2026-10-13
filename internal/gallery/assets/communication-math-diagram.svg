@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 128" role="img" aria-labelledby="title desc">
+  <title id="title">Color lift diagram</title>
+  <desc id="desc">A color flows through a lift value and becomes a lighter color.</desc>
+  <rect width="360" height="128" rx="12" fill="#f5f7f4"/>
+  <g fill="#ffffff" stroke="#6b746d" stroke-width="2">
+    <rect x="20" y="42" width="84" height="44" rx="8"/>
+    <rect x="138" y="42" width="84" height="44" rx="8"/>
+    <rect x="256" y="42" width="84" height="44" rx="8"/>
+  </g>
+  <g stroke="#306b43" stroke-width="3" fill="none"><path d="M104 64h26m-8-8 8 8-8 8M222 64h26m-8-8 8 8-8 8"/></g>
+  <g fill="#18201c" font-family="system-ui,sans-serif" font-size="14" text-anchor="middle"><text x="62" y="69">Color c</text><text x="180" y="69">Lift t</text><text x="298" y="69">Color c′</text></g>
+</svg>

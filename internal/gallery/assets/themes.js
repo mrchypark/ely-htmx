@@ -40,7 +40,7 @@ preset.addEventListener('change',()=>{choose(preset.value);notify('제안을 미
 mode.addEventListener('change',renderFields);
 name.addEventListener('input',()=>{draft.name=name.value;update();});
 apply.addEventListener('click',()=>{try {api.register(draft);api.apply(draft.id);notify('이 제안을 적용했습니다. 다른 화면과 새로고침 후에도 같은 설정을 사용합니다.');}catch(error){notify(error.message);}});
-document.querySelector('[data-theme-reset]').addEventListener('click',()=>{api.apply('blue');preset.value='blue';choose('blue');notify('기본 Blue 테마를 복원했습니다.');});
+document.querySelector('[data-theme-reset]').addEventListener('click',()=>{api.apply('ely');preset.value='ely';choose('ely');notify('기본 Ely Neutral 테마를 복원했습니다.');});
 document.querySelector('[data-theme-import]').addEventListener('click',()=>{
   try {const imported=JSON.parse(json.value);api.issues(imported);draft=imported;draft.id='custom';name.value=draft.name;renderFields();notify('JSON을 새 제안으로 불러왔습니다. 대비 확인 후 적용하세요.');}
   catch(error){notify('불러오기 실패: '+(error instanceof SyntaxError ? '올바른 JSON 형식인지 확인하세요.' : error.message));}

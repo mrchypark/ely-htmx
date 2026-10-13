@@ -16,7 +16,7 @@
 .theme-preview-card{display:grid;gap:.5rem;background:var(--surface);border:1px solid var(--color-line);border-radius:.5rem;padding:1rem}
 .theme-state{border-radius:999px;padding:.25rem .65rem;font-size:.75rem;font-weight:500;white-space:nowrap}
 .theme-state--draft{color:var(--draft);background:var(--draft-tint)}.theme-state--approved{color:var(--approved);background:var(--approved-tint)}.theme-state--warning{color:var(--warning);background:var(--warning-tint)}.theme-state--error{color:var(--error);background:var(--error-tint)}
-.theme-export textarea{font-family:'Geist Mono','Pretendard',monospace;font-size:.8rem;block-size:16rem;min-block-size:14rem;max-block-size:24rem;field-sizing:fixed;overflow:auto}
+.theme-export textarea{font-family:'JetBrains Mono','Pretendard',monospace;font-size:.8rem;block-size:16rem;min-block-size:14rem;max-block-size:24rem;field-sizing:fixed;overflow:auto}
 @media(max-width:70rem){.theme-examples{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:56rem){.theme-layout{grid-template-columns:minmax(0,1fr);gap:1.25rem}}
 @media(max-width:24rem){.theme-field{grid-template-columns:minmax(0,1fr) 5.5rem 2rem;gap:.35rem}.theme-field input[data-slot][type=color]{inline-size:2rem}.theme-editor,.theme-preview,.theme-export{padding:1rem}}

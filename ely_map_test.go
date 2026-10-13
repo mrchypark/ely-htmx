@@ -18,7 +18,7 @@ func TestMapViewRendersSafeGeometryAndFormValue(t *testing.T) {
 		t.Fatal(err)
 	}
 	body := out.String()
-	for _, want := range []string{`id="study-map"`, `data-map-mode="location"`, `name="place"`, `data-map-canvas`, `data-map-route`, `id="study-map-coordinate"`} {
+	for _, want := range []string{`id="study-map"`, `data-map-mode="location"`, `name="place"`, `data-map-canvas`, `data-map-route`, `id="study-map-coordinate"`, `data-map-legend`, `data-map-defs`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %s", want)
 		}
@@ -58,9 +58,21 @@ func TestMapAssetsContainLocalPanAndNaturalEarthSource(t *testing.T) {
 		}
 	}
 	data, _ := Files.ReadFile("assets/ely-map.js")
-	for _, want := range []string{"world-land.json", "pointercancel", "htmx:after:swap", "template[data-map-geojson]", ".content.textContent", "data-map-geojson-layer", "Map geometry is unavailable."} {
+	for _, want := range []string{"world-land.json", "pointercancel", "htmx:after:swap", "template[data-map-geojson]", ".content.textContent", "data-map-geojson-layer", "mapChoropleth", "data-map-heat-spot", "mapGeojsonFeature", "data-map-legend", "Map geometry is unavailable."} {
 		if !strings.Contains(string(data), want) {
 			t.Errorf("map script missing %s", want)
+		}
+	}
+}
+
+func TestMapAssetsCleanUpDetachedRootsAndReclusterOnZoom(t *testing.T) {
+	data, err := Files.ReadFile("assets/ely-map.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"new WeakMap", "new AbortController", "controller.abort()", "clearGenerated", "data-map-generated", "restoreMarkers", "root.dataset.mapReady = 'pending'", "root.dataset.mapReady = 'true'", "root.dataset.mapReady = 'error'", "delete root.dataset.mapReady", "root.isConnected", "new MutationObserver", "updateClusters();", "clusterKey(marker.dataset.lat, marker.dataset.lon, zoom)", "if (event.isTrusted) canvas.setPointerCapture?."} {
+		if !strings.Contains(string(data), want) {
+			t.Errorf("map lifecycle or zoom clustering missing %s", want)
 		}
 	}
 }

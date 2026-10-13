@@ -1,0 +1,6430 @@
+{
+  "editor/CodeEditor": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [
+      {
+        "ID": "references",
+        "Label": "3 references"
+      },
+      {
+        "ID": "run-test",
+        "Label": "Run test"
+      },
+      {
+        "ID": "debug",
+        "Label": "Debug"
+      }
+    ],
+    "Breadcrumbs": [
+      {
+        "Value": "src",
+        "Label": "src"
+      },
+      {
+        "Value": "palette.rs",
+        "Label": "palette.rs"
+      },
+      {
+        "Value": "impl Palette",
+        "Label": "impl Palette"
+      },
+      {
+        "Value": "lookup",
+        "Label": "lookup"
+      }
+    ],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "use std::collections::HashMap;\n\n/// A palette of named colors, looked up by the component that paints.\npub struct Palette {\n    colors: HashMap<String, Color>,\n    fallback: Color,\n}\n\n#[derive(Clone, Copy, Debug, PartialEq)]\npub struct Color {\n    pub red: f32,\n    pub green: f32,\n    pub blue: f32,\n}\n\nimpl Palette {\n    pub fn new(fallback: Color) -> Self {\n        Self {\n            colors: HashMap::new(),\n            fallback,\n        }\n    }\n\n    pub fn insert(&mut self, name: &str, color: Color) {\n        self.colors.insert(name.to_string(), color);\n    }\n\n    /// The color for `name`, blended toward white by `lift`.\n    pub fn lookup(&self, name: &str, lift: f32) -> Color {\n        let base = self.colors.get(name).copied().unwrap_or(self.fallback);\n        match lift {\n            lift if lift <= 0.0 => base,\n            lift if lift >= 1.0 => Color { red: 1.0, green: 1.0, blue: 1.0 },\n            lift => Color {\n                red: base.red + (1.0 - base.red) * lift,\n                green: base.green + (1.0 - base.green) * lift,\n                blue: base.blue + (1.0 - base.blue) * lift,\n            },\n        }\n    }\n}\n\nfn main() {\n    let mut palette = Palette::new(Color { red: 0.1, green: 0.1, blue: 0.1 });\n    palette.insert(\"accent\", Color { red: 0.21, green: 0.45, blue: 0.73 });\n    let tints: Vec<Color> = (0..5u8).map(|step| palette.lookup(\"accent\", step as f32 / 4.0)).collect();\n    let count: u32 = tints.len();\n    let spare = 12;\n    println!(\"{count} tints of accent, the last {:?}\", tints.last());\n}\n",
+    "Minimap": true,
+    "Lines": [
+      {
+        "Number": 1,
+        "Text": "use std::collections::HashMap;",
+        "Diagnostic": {
+          "Severity": "info",
+          "Message": "a BTreeMap keeps a steady order"
+        }
+      },
+      {
+        "Number": 2,
+        "Text": ""
+      },
+      {
+        "Number": 3,
+        "Text": "/// A palette of named colors, looked up by the component that paints."
+      },
+      {
+        "Number": 4,
+        "Text": "pub struct Palette {"
+      },
+      {
+        "Number": 5,
+        "Text": "    colors: HashMap<String, Color>,"
+      },
+      {
+        "Number": 6,
+        "Text": "    fallback: Color,"
+      },
+      {
+        "Number": 7,
+        "Text": "}"
+      },
+      {
+        "Number": 8,
+        "Text": ""
+      },
+      {
+        "Number": 9,
+        "Text": "#[derive(Clone, Copy, Debug, PartialEq)]"
+      },
+      {
+        "Number": 10,
+        "Text": "pub struct Color {"
+      },
+      {
+        "Number": 11,
+        "Text": "    pub red: f32,"
+      },
+      {
+        "Number": 12,
+        "Text": "    pub green: f32,"
+      },
+      {
+        "Number": 13,
+        "Text": "    pub blue: f32,"
+      },
+      {
+        "Number": 14,
+        "Text": "}"
+      },
+      {
+        "Number": 15,
+        "Text": ""
+      },
+      {
+        "Number": 16,
+        "Text": "impl Palette {"
+      },
+      {
+        "Number": 17,
+        "Text": "    pub fn new(fallback: Color) -> Self {"
+      },
+      {
+        "Number": 18,
+        "Text": "        Self {"
+      },
+      {
+        "Number": 19,
+        "Text": "            colors: HashMap::new(),"
+      },
+      {
+        "Number": 20,
+        "Text": "            fallback,"
+      },
+      {
+        "Number": 21,
+        "Text": "        }"
+      },
+      {
+        "Number": 22,
+        "Text": "    }"
+      },
+      {
+        "Number": 23,
+        "Text": ""
+      },
+      {
+        "Number": 24,
+        "Text": "    pub fn insert(&mut self, name: &str, color: Color) {"
+      },
+      {
+        "Number": 25,
+        "Text": "        self.colors.insert(name.to_string(), color);"
+      },
+      {
+        "Number": 26,
+        "Text": "    }"
+      },
+      {
+        "Number": 27,
+        "Text": ""
+      },
+      {
+        "Number": 28,
+        "Text": "    /// The color for `name`, blended toward white by `lift`."
+      },
+      {
+        "Number": 29,
+        "Text": "    pub fn lookup(&self, name: &str, lift: f32) -> Color {"
+      },
+      {
+        "Number": 30,
+        "Text": "        let base = self.colors.get(name).copied().unwrap_or(self.fallback);",
+        "Inlay": ": Color"
+      },
+      {
+        "Number": 31,
+        "Text": "        match lift {"
+      },
+      {
+        "Number": 32,
+        "Text": "            lift if lift <= 0.0 => base,"
+      },
+      {
+        "Number": 33,
+        "Text": "            lift if lift >= 1.0 => Color { red: 1.0, green: 1.0, blue: 1.0 },"
+      },
+      {
+        "Number": 34,
+        "Text": "            lift => Color {"
+      },
+      {
+        "Number": 35,
+        "Text": "                red: base.red + (1.0 - base.red) * lift,"
+      },
+      {
+        "Number": 36,
+        "Text": "                green: base.green + (1.0 - base.green) * lift,"
+      },
+      {
+        "Number": 37,
+        "Text": "                blue: base.blue + (1.0 - base.blue) * lift,"
+      },
+      {
+        "Number": 38,
+        "Text": "            },"
+      },
+      {
+        "Number": 39,
+        "Text": "        }"
+      },
+      {
+        "Number": 40,
+        "Text": "    }"
+      },
+      {
+        "Number": 41,
+        "Text": "}"
+      },
+      {
+        "Number": 42,
+        "Text": ""
+      },
+      {
+        "Number": 43,
+        "Text": "fn main() {"
+      },
+      {
+        "Number": 44,
+        "Text": "    let mut palette = Palette::new(Color { red: 0.1, green: 0.1, blue: 0.1 });"
+      },
+      {
+        "Number": 45,
+        "Text": "    palette.insert(\"accent\", Color { red: 0.21, green: 0.45, blue: 0.73 });"
+      },
+      {
+        "Number": 46,
+        "Text": "    let tints: Vec<Color> = (0..5u8).map(|step| palette.lookup(\"accent\", step as f32 / 4.0)).collect();"
+      },
+      {
+        "Number": 47,
+        "Text": "    let count: u32 = tints.len();",
+        "Diagnostic": {
+          "Severity": "error",
+          "Message": "expected u32, found usize"
+        }
+      },
+      {
+        "Number": 48,
+        "Text": "    let spare = 12;",
+        "Diagnostic": {
+          "Severity": "warning",
+          "Message": "unused variable: `spare`"
+        }
+      },
+      {
+        "Number": 49,
+        "Text": "    println!(\"{count} tints of accent, the last {:?}\", tints.last());"
+      },
+      {
+        "Number": 50,
+        "Text": "}"
+      }
+    ],
+    "Language": "Rust",
+    "Ruler": "Column 100"
+  },
+  "editor/WhitespaceRenderer": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "use std::collections::HashMap;\n\n/// A palette of named colors, looked up by the component that paints.\npub struct Palette {\n    colors: HashMap<String, Color>,\n    fallback: Color,\n}\n\n#[derive(Clone, Copy, Debug, PartialEq)]\npub struct Color {\n    pub red: f32,\n    pub green: f32,\n    pub blue: f32,\n}\n\n",
+    "Minimap": false,
+    "Lines": []
+  },
+  "editor/InlineDiff": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Path": "src/palette.rs",
+    "DiffLayout": "unified",
+    "DiffLayouts": [
+      {
+        "Value": "unified",
+        "Label": "Unified"
+      },
+      {
+        "Value": "split",
+        "Label": "Side by side"
+      }
+    ],
+    "Hunks": [
+      {
+        "Header": "@@ lookup @@",
+        "Lines": [
+          {
+            "Type": "context",
+            "Old": 1,
+            "New": 1,
+            "Prefix": " ",
+            "Text": "impl Palette {"
+          },
+          {
+            "Type": "context",
+            "Old": 2,
+            "New": 2,
+            "Prefix": " ",
+            "Text": "    pub fn new(fallback: Color) -> Self {"
+          },
+          {
+            "Type": "context",
+            "Old": 3,
+            "New": 3,
+            "Prefix": " ",
+            "Text": "        Self {"
+          },
+          {
+            "Type": "context",
+            "Old": 4,
+            "New": 4,
+            "Prefix": " ",
+            "Text": "            colors: HashMap::new(),"
+          },
+          {
+            "Type": "context",
+            "Old": 5,
+            "New": 5,
+            "Prefix": " ",
+            "Text": "            fallback,"
+          },
+          {
+            "Type": "context",
+            "Old": 6,
+            "New": 6,
+            "Prefix": " ",
+            "Text": "        }"
+          },
+          {
+            "Type": "context",
+            "Old": 7,
+            "New": 7,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 8,
+            "New": 8,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "context",
+            "Old": 9,
+            "New": 9,
+            "Prefix": " ",
+            "Text": "    pub fn insert(&mut self, name: &str, color: Color) {"
+          },
+          {
+            "Type": "context",
+            "Old": 10,
+            "New": 10,
+            "Prefix": " ",
+            "Text": "        self.colors.insert(name.to_string(), color);"
+          },
+          {
+            "Type": "context",
+            "Old": 11,
+            "New": 11,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 12,
+            "New": 12,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "context",
+            "Old": 13,
+            "New": 13,
+            "Prefix": " ",
+            "Text": "    /// The color for `name`, blended toward white by `lift`."
+          },
+          {
+            "Type": "context",
+            "Old": 14,
+            "New": 14,
+            "Prefix": " ",
+            "Text": "    pub fn lookup(&self, name: &str, lift: f32) -> Color {"
+          },
+          {
+            "Type": "remove",
+            "Old": 15,
+            "New": "",
+            "Prefix": "-",
+            "Text": "        let base = self.colors[name];"
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 15,
+            "Prefix": "+",
+            "Text": "        let base = self.colors.get(name).copied().unwrap_or(self.fallback);"
+          },
+          {
+            "Type": "context",
+            "Old": 16,
+            "New": 16,
+            "Prefix": " ",
+            "Text": "        match lift {"
+          },
+          {
+            "Type": "context",
+            "Old": 17,
+            "New": 17,
+            "Prefix": " ",
+            "Text": "            lift if lift <= 0.0 => base,"
+          },
+          {
+            "Type": "context",
+            "Old": 18,
+            "New": 18,
+            "Prefix": " ",
+            "Text": "            lift if lift >= 1.0 => Color { red: 1.0, green: 1.0, blue: 1.0 },"
+          },
+          {
+            "Type": "context",
+            "Old": 19,
+            "New": 19,
+            "Prefix": " ",
+            "Text": "            lift => Color {"
+          },
+          {
+            "Type": "context",
+            "Old": 20,
+            "New": 20,
+            "Prefix": " ",
+            "Text": "                red: base.red + (1.0 - base.red) * lift,"
+          },
+          {
+            "Type": "context",
+            "Old": 21,
+            "New": 21,
+            "Prefix": " ",
+            "Text": "                green: base.green + (1.0 - base.green) * lift,"
+          },
+          {
+            "Type": "context",
+            "Old": 22,
+            "New": 22,
+            "Prefix": " ",
+            "Text": "                blue: base.blue + (1.0 - base.blue) * lift,"
+          },
+          {
+            "Type": "context",
+            "Old": 23,
+            "New": 23,
+            "Prefix": " ",
+            "Text": "            },"
+          },
+          {
+            "Type": "context",
+            "Old": 24,
+            "New": 24,
+            "Prefix": " ",
+            "Text": "        }"
+          },
+          {
+            "Type": "context",
+            "Old": 25,
+            "New": 25,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 26,
+            "New": 26,
+            "Prefix": " ",
+            "Text": "}"
+          },
+          {
+            "Type": "context",
+            "Old": 27,
+            "New": 27,
+            "Prefix": " ",
+            "Text": ""
+          }
+        ]
+      }
+    ],
+    "GhostText": "        // a lift past one stays white",
+    "ReadonlyCode": "use std::collections::HashMap;\n\n/// A palette of named colors, looked up by the component that paints.\npub struct Palette {\n    colors: HashMap<String, Color>,\n    fallback: Color,\n}\n\n#[derive(Clone, Copy, Debug, PartialEq)]\npub struct Color {\n    pub red: f32,\n    pub green: f32,\n    pub blue: f32,\n}\n\n"
+  },
+  "editor/CompletionMenu": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "lo",
+    "Minimap": false,
+    "Lines": [],
+    "CodeContext": "",
+    "SelectedCandidate": "lookup",
+    "Candidates": [
+      {
+        "ID": "loop",
+        "Label": "loop",
+        "InsertText": "loop()",
+        "Detail": "keyword",
+        "Documentation": "keyword"
+      },
+      {
+        "ID": "lookup",
+        "Label": "lookup",
+        "InsertText": "lookup()",
+        "Detail": "fn(&self, &str, f32) → Color",
+        "Documentation": "The color for a name, blended toward white by lift."
+      },
+      {
+        "ID": "colors",
+        "Label": "colors",
+        "InsertText": "colors()",
+        "Detail": "HashMap<String, Color>",
+        "Documentation": "HashMap<String, Color>"
+      }
+    ],
+    "Signature": "fn lookup(&self, name: &str, lift: f32) → Color",
+    "Hover": "`lift` outside 0..=1 is clamped",
+    "HoverDocs": "The color for `name`, blended toward white by `lift`.\nUnknown names read as the fallback color."
+  },
+  "editor/CodeActionMenu": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Path": "src/palette.rs",
+    "CodeContext": "",
+    "CodeActions": [
+      {
+        "ID": "0",
+        "Label": "Change type of count to usize",
+        "Command": "quickfix.type"
+      },
+      {
+        "ID": "1",
+        "Label": "Convert with u32::try_from",
+        "Command": "quickfix.convert"
+      },
+      {
+        "ID": "2",
+        "Label": "Extract function",
+        "Command": "refactor.extract"
+      }
+    ],
+    "Symbols": [
+      {
+        "Label": "Palette",
+        "Detail": "struct",
+        "Value": "Palette"
+      },
+      {
+        "Label": "  colors",
+        "Detail": "HashMap<String, Color>",
+        "Value": "  colors"
+      },
+      {
+        "Label": "  fallback",
+        "Detail": "Color",
+        "Value": "  fallback"
+      },
+      {
+        "Label": "Color",
+        "Detail": "struct",
+        "Value": "Color"
+      },
+      {
+        "Label": "impl Palette",
+        "Detail": "module",
+        "Value": "impl Palette"
+      },
+      {
+        "Label": "  new",
+        "Detail": "fn(Color) → Self",
+        "Value": "  new"
+      },
+      {
+        "Label": "  insert",
+        "Detail": "method",
+        "Value": "  insert"
+      },
+      {
+        "Label": "  lookup",
+        "Detail": "fn(&self, &str, f32) → Color",
+        "Value": "  lookup"
+      },
+      {
+        "Label": "main",
+        "Detail": "fn()",
+        "Value": "main"
+      }
+    ],
+    "Calls": [
+      {
+        "Label": "lookup",
+        "Detail": "palette.rs:28"
+      },
+      {
+        "Label": "  main",
+        "Detail": "main.rs:44"
+      },
+      {
+        "Label": "  paint_theme",
+        "Detail": "theme.rs:12"
+      },
+      {
+        "Label": "    render",
+        "Detail": "app.rs:88"
+      }
+    ],
+    "References": [
+      {
+        "Label": "src/palette.rs:28",
+        "Detail": "pub fn lookup(&self, name: &str, lift: f32) → Color"
+      },
+      {
+        "Label": "src/main.rs:45",
+        "Detail": "palette.lookup(\"accent\", step as f32 / 4.0)"
+      },
+      {
+        "Label": "src/main.rs:52",
+        "Detail": "palette.lookup(\"fg\", 0.0)"
+      }
+    ]
+  },
+  "editor/FindWidget": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "lift",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [
+      {
+        "Number": 1,
+        "Text": ""
+      },
+      {
+        "Number": 2,
+        "Text": "    pub fn insert(&mut self, name: &str, color: Color) {"
+      },
+      {
+        "Number": 3,
+        "Text": "        self.colors.insert(name.to_string(), color);"
+      },
+      {
+        "Number": 4,
+        "Text": "    }"
+      },
+      {
+        "Number": 5,
+        "Text": ""
+      },
+      {
+        "Number": 6,
+        "Text": "    /// The color for `name`, blended toward white by `lift`."
+      },
+      {
+        "Number": 7,
+        "Text": "    pub fn lookup(&self, name: &str, lift: f32) -> Color {"
+      },
+      {
+        "Number": 8,
+        "Text": "        let base = self.colors.get(name).copied().unwrap_or(self.fallback);"
+      },
+      {
+        "Number": 9,
+        "Text": "        match lift {"
+      },
+      {
+        "Number": 10,
+        "Text": "            lift if lift <= 0.0 => base,"
+      },
+      {
+        "Number": 11,
+        "Text": "            lift if lift >= 1.0 => Color { red: 1.0, green: 1.0, blue: 1.0 },"
+      },
+      {
+        "Number": 12,
+        "Text": "            lift => Color {"
+      },
+      {
+        "Number": 13,
+        "Text": "                red: base.red + (1.0 - base.red) * lift,"
+      },
+      {
+        "Number": 14,
+        "Text": "                green: base.green + (1.0 - base.green) * lift,"
+      },
+      {
+        "Number": 15,
+        "Text": "                blue: base.blue + (1.0 - base.blue) * lift,"
+      },
+      {
+        "Number": 16,
+        "Text": "            },"
+      },
+      {
+        "Number": 17,
+        "Text": "        }"
+      },
+      {
+        "Number": 18,
+        "Text": "    }"
+      }
+    ],
+    "Replacement": "blend"
+  },
+  "editor/SearchPanel": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Include": "src/**",
+    "SearchGroups": [
+      {
+        "Path": "src/palette.rs",
+        "Hits": [
+          {
+            "Line": 28,
+            "Text": "/// The color for `name`, blended toward white by `lift`."
+          },
+          {
+            "Line": 29,
+            "Text": "pub fn lookup(&self, name: &str, lift: f32) → Color {"
+          },
+          {
+            "Line": 31,
+            "Text": "match lift {"
+          }
+        ]
+      },
+      {
+        "Path": "src/theme/tokens.rs",
+        "Hits": [
+          {
+            "Line": 113,
+            "Text": "pub fn surface_lift(&self, level: u8) → f32 {"
+          }
+        ]
+      }
+    ]
+  },
+  "editor/ProblemsPanel": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Problems": [
+      {
+        "ID": "0",
+        "Severity": "error",
+        "Message": "mismatched types: expected `u32`, found `usize`",
+        "File": "src/main.rs",
+        "Line": 46,
+        "Column": 22
+      },
+      {
+        "ID": "1",
+        "Severity": "warning",
+        "Message": "unused variable: `spare`",
+        "File": "src/main.rs",
+        "Line": 47,
+        "Column": 9
+      },
+      {
+        "ID": "2",
+        "Severity": "warning",
+        "Message": "this function has too many arguments (8/7)",
+        "File": "src/theme/tokens.rs",
+        "Line": 113,
+        "Column": 5
+      },
+      {
+        "ID": "3",
+        "Severity": "info",
+        "Message": "a BTreeMap keeps a steady order",
+        "File": "src/palette.rs",
+        "Line": 1,
+        "Column": 24
+      }
+    ],
+    "Output": "   Compiling ely-gpui-component v0.1.0\nwarning: unused variable: `spare`\nerror[E0308]: mismatched types\n   --> src/main.rs:46:22\nerror: could not compile `palette` due to 1 previous error"
+  },
+  "editor/DebugConsole": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Expression": "",
+    "Output": "",
+    "ConsoleEntries": [
+      {
+        "Kind": "input",
+        "Text": "tints.len()",
+        "Type": "",
+        "Severity": "output"
+      },
+      {
+        "Kind": "value",
+        "Text": "5",
+        "Type": "usize",
+        "Severity": "output"
+      },
+      {
+        "Kind": "input",
+        "Text": "palette.lookup(\"accent\", 0.5).red",
+        "Type": "",
+        "Severity": "output"
+      },
+      {
+        "Kind": "value",
+        "Text": "0.605",
+        "Type": "f32",
+        "Severity": "output"
+      },
+      {
+        "Kind": "input",
+        "Text": "spare + missing",
+        "Type": "",
+        "Severity": "output"
+      },
+      {
+        "Kind": "error",
+        "Text": "cannot find value `missing` in this scope",
+        "Type": "",
+        "Severity": "error"
+      }
+    ],
+    "Extensions": [
+      {
+        "Name": "Rust",
+        "Author": "Rust Language",
+        "Description": "Syntax, completions and checks for Rust.",
+        "Version": "0.3.2145",
+        "Downloads": "12.8M",
+        "Rating": "4.8",
+        "Action": "Update"
+      },
+      {
+        "Name": "Even Better TOML",
+        "Author": "TOML Tools",
+        "Description": "TOML with schemas and formatting.",
+        "Version": "0.21.2",
+        "Downloads": "4.2M",
+        "Rating": "4.6",
+        "Action": "Disable"
+      },
+      {
+        "Name": "Git Lens",
+        "Author": "Line Labs",
+        "Description": "Who changed each line, and when.",
+        "Version": "14.1.0",
+        "Downloads": "5.9M",
+        "Rating": "4.4",
+        "Action": "Install"
+      },
+      {
+        "Name": "Vim",
+        "Author": "Modal Folk",
+        "Description": "Modal editing with the keys you know.",
+        "Version": "1.27.3",
+        "Downloads": "1.2M",
+        "Rating": "4.2",
+        "Action": "Enable"
+      }
+    ]
+  },
+  "editor/SettingsEditor": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Groups": [
+      {
+        "Label": "Editor",
+        "Settings": [
+          {
+            "Key": "editor.fontSize",
+            "Label": "Font size",
+            "Description": "Code text size in pixels.",
+            "Type": "number",
+            "Value": 14,
+            "Min": 8,
+            "Max": 32
+          },
+          {
+            "Key": "editor.minimap",
+            "Label": "Minimap",
+            "Description": "A narrow map of the file beside the code.",
+            "Type": "checkbox",
+            "Value": true
+          },
+          {
+            "Key": "editor.cursorStyle",
+            "Label": "Cursor style",
+            "Description": "How the cursor draws.",
+            "Value": "line",
+            "Choices": [
+              "line",
+              "block",
+              "underline"
+            ]
+          }
+        ]
+      },
+      {
+        "Label": "Files",
+        "Settings": [
+          {
+            "Key": "files.autoSave",
+            "Label": "Auto save",
+            "Value": "afterDelay",
+            "Choices": [
+              "off",
+              "afterDelay",
+              "onFocusChange"
+            ]
+          },
+          {
+            "Key": "files.trimTrailingWhitespace",
+            "Label": "Trim trailing whitespace",
+            "Type": "checkbox",
+            "Value": false
+          }
+        ]
+      }
+    ],
+    "Keybindings": [
+      {
+        "Command": "Save",
+        "Keys": "⌘ S",
+        "When": "",
+        "Source": "Default"
+      },
+      {
+        "Command": "Sort lines",
+        "Keys": "⌘ S",
+        "When": "",
+        "Source": "User"
+      },
+      {
+        "Command": "Toggle comment",
+        "Keys": "⌘ /",
+        "When": "editorFocus",
+        "Source": "Default"
+      },
+      {
+        "Command": "Select next match",
+        "Keys": "⌘ D",
+        "When": "editorFocus",
+        "Source": "Default"
+      },
+      {
+        "Command": "Split terminal",
+        "Keys": "⌘ S",
+        "When": "terminalFocus",
+        "Source": "User"
+      },
+      {
+        "Command": "Fold",
+        "Keys": "",
+        "When": "editorFocus",
+        "Source": "Default"
+      }
+    ]
+  },
+  "editor/WelcomePage": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "WelcomeTitle": "Ely Editor",
+    "WelcomeSubtitle": "Quiet tools for careful code.",
+    "ShowAtStart": true,
+    "Projects": [
+      {
+        "Name": "ely-gpui-component",
+        "Path": "~/Documents/GitHub/Ely-GPUI-Components",
+        "Branch": "main",
+        "Opened": "now"
+      },
+      {
+        "Name": "palette",
+        "Path": "~/Code/palette",
+        "Branch": "feature/lift",
+        "Opened": "2 h ago"
+      },
+      {
+        "Name": "notes",
+        "Path": "~/Code/notes",
+        "Branch": "",
+        "Opened": "yesterday"
+      },
+      {
+        "Name": "zed",
+        "Path": "~/Code/zed",
+        "Branch": "main",
+        "Opened": "3 days ago"
+      }
+    ],
+    "Tasks": [
+      {
+        "ID": "check",
+        "Label": "check",
+        "Command": "cargo check --all-targets",
+        "Status": "Passed · 14s"
+      },
+      {
+        "ID": "gallery",
+        "Label": "gallery",
+        "Command": "cargo run --example gallery",
+        "Status": "Running"
+      },
+      {
+        "ID": "test",
+        "Label": "test",
+        "Command": "cargo test --lib --features test-support",
+        "Status": "Failed · 101"
+      },
+      {
+        "ID": "clippy",
+        "Label": "clippy",
+        "Command": "cargo clippy --all-targets -- -D warnings",
+        "Status": "Idle"
+      }
+    ],
+    "Help": []
+  },
+  "editor/CursorPosition": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "StatusItems": [
+      {
+        "Label": "⑂ feature/editor* ↑2 ↓1",
+        "Action": "sync-branch"
+      },
+      {
+        "Label": "rust-analyzer · indexing 214 files",
+        "Action": "language-server"
+      },
+      {
+        "Label": "Ln 48, Col 27 (6 selected)",
+        "Action": "go-to-line"
+      },
+      {
+        "Label": "Spaces: 4",
+        "Action": "indent-settings"
+      },
+      {
+        "Label": "UTF-8",
+        "Action": "encoding"
+      },
+      {
+        "Label": "LF",
+        "Action": "line-ending"
+      },
+      {
+        "Label": "Rust",
+        "Action": "language"
+      },
+      {
+        "Label": "♧ 3",
+        "Action": "notifications"
+      }
+    ]
+  },
+  "terminal/Terminal": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "TerminalTabs": [
+      {
+        "ID": "shell",
+        "Label": "bash",
+        "Output": "Ely-GPUI-Components › "
+      },
+      {
+        "ID": "build",
+        "Label": "cargo run",
+        "Output": "   Compiling ely-gpui-component v0.1.0\nwarning: unused variable: `spare`\n  --> src/main.rs:47:9\nwarning: field `hint` is never read\n  --> src/palette.rs:12:5\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.21s\n     Running `target/debug/palette`\n◆ 5 tints of accent, the last ██ #e8f3fc\ndocs: https://github.com/leidianyayi/Ely-GPUI-Components"
+      }
+    ],
+    "Status": "bash — Ely-GPUI-Components",
+    "Entries": [],
+    "Command": "",
+    "History": [
+      "cargo run",
+      "cargo test --lib palette",
+      "git status --short"
+    ]
+  },
+  "terminal/CommandBlock": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Command": "cargo test --lib palette",
+    "CWD": "~/palette",
+    "Status": "Exited 0",
+    "State": "done",
+    "Duration": "3s",
+    "Output": "running 5 tests\ntest palette::lookup_blends_toward_white ... ok\ntest palette::unknown_names_fall_back ... ok\n\ntest result: ok. 5 passed; 0 failed; finished in 0.02s",
+    "CommandBlocks": [
+      {
+        "Command": "cargo build",
+        "CWD": "~/palette",
+        "Status": "Exited 101",
+        "State": "failed",
+        "Duration": "9s",
+        "Output": "error[E0308]: mismatched types\n  --> src/main.rs:66:21\n   |\n66 |     let count: u32 = tints.len();\n   |                ---   ^^^^^^^^^^^ expected `u32`, found `usize`"
+      },
+      {
+        "Command": "cargo run --example gallery",
+        "CWD": "~/Ely-GPUI-Components",
+        "Status": "Running",
+        "State": "running",
+        "Output": ""
+      }
+    ],
+    "History": [
+      "cargo test --lib palette",
+      "cargo build",
+      "git status --short",
+      "rg lookup src",
+      "cargo run --example gallery",
+      "git log --oneline -5"
+    ]
+  },
+  "terminal/AnsiText": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "AnsiSpans": [
+      {
+        "Tone": "0",
+        "Text": "■"
+      },
+      {
+        "Tone": "1",
+        "Text": "■"
+      },
+      {
+        "Tone": "2",
+        "Text": "■"
+      },
+      {
+        "Tone": "3",
+        "Text": "■"
+      },
+      {
+        "Tone": "4",
+        "Text": "■"
+      },
+      {
+        "Tone": "5",
+        "Text": "■"
+      },
+      {
+        "Tone": "6",
+        "Text": "■"
+      },
+      {
+        "Tone": "7",
+        "Text": "■"
+      },
+      {
+        "Tone": "8",
+        "Text": "■"
+      },
+      {
+        "Tone": "9",
+        "Text": "■"
+      },
+      {
+        "Tone": "10",
+        "Text": "■"
+      },
+      {
+        "Tone": "11",
+        "Text": "■"
+      },
+      {
+        "Tone": "12",
+        "Text": "■"
+      },
+      {
+        "Tone": "13",
+        "Text": "■"
+      },
+      {
+        "Tone": "14",
+        "Text": "■"
+      },
+      {
+        "Tone": "15",
+        "Text": "■"
+      },
+      {
+        "Text": "  the sixteen, dark and bright\n"
+      },
+      {
+        "Tone": "bold",
+        "Text": "bold  "
+      },
+      {
+        "Tone": "dim",
+        "Text": "dim  "
+      },
+      {
+        "Tone": "italic",
+        "Text": "italic  "
+      },
+      {
+        "Tone": "underline",
+        "Text": "underline  "
+      },
+      {
+        "Tone": "struck",
+        "Text": "struck  "
+      },
+      {
+        "Tone": "inverse",
+        "Text": "inverse  "
+      },
+      {
+        "Text": "\n"
+      },
+      {
+        "Color": "#005f87",
+        "Text": "██"
+      },
+      {
+        "Color": "#008787",
+        "Text": "██"
+      },
+      {
+        "Color": "#00af87",
+        "Text": "██"
+      },
+      {
+        "Color": "#5faf87",
+        "Text": "██"
+      },
+      {
+        "Color": "#87af87",
+        "Text": "██"
+      },
+      {
+        "Color": "#afaf87",
+        "Text": "██"
+      },
+      {
+        "Color": "#d7af87",
+        "Text": "██"
+      },
+      {
+        "Color": "#ffaf87",
+        "Text": "██"
+      },
+      {
+        "Text": "  the cube  "
+      },
+      {
+        "Color": "#5182c1",
+        "Text": "██"
+      },
+      {
+        "Color": "#009589",
+        "Text": "██"
+      },
+      {
+        "Color": "#aa732b",
+        "Text": "██"
+      },
+      {
+        "Text": "  true color\n"
+      },
+      {
+        "Tone": "pass",
+        "Text": " PASS "
+      },
+      {
+        "Text": " palette  "
+      },
+      {
+        "Tone": "fail",
+        "Text": " FAIL "
+      },
+      {
+        "Text": " tokens  "
+      },
+      {
+        "Tone": "skip",
+        "Text": " SKIP "
+      },
+      {
+        "Text": " motion"
+      }
+    ]
+  },
+  "terminal/LogViewer": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "LogLevel": "debug",
+    "Entries": [
+      {
+        "Time": "09:00:00.000",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:00:01.037",
+        "Level": "error",
+        "Target": "ely::store",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:00:02.074",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:00:03.111",
+        "Level": "warning",
+        "Target": "net::http",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:00:04.148",
+        "Level": "trace",
+        "Target": "gpui::window",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:00:05.185",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:00:06.222",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:00:07.259",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:00:08.296",
+        "Level": "warning",
+        "Target": "net::http",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:00:09.333",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:00:10.370",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:00:11.407",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:00:12.444",
+        "Level": "error",
+        "Target": "ely::pty",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:00:13.481",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:00:14.518",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:00:15.555",
+        "Level": "trace",
+        "Target": "ely::shell",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:00:16.592",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:00:17.629",
+        "Level": "error",
+        "Target": "ely::pty",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:00:18.666",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:00:19.703",
+        "Level": "warning",
+        "Target": "gpui::window",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:00:20.740",
+        "Level": "trace",
+        "Target": "ely::shell",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:00:21.777",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:00:22.814",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:00:23.851",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:00:24.888",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:00:25.925",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:00:26.962",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:00:27.999",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:00:28.036",
+        "Level": "error",
+        "Target": "net::http",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:00:29.073",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:00:30.110",
+        "Level": "warning",
+        "Target": "ely::shell",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:00:31.147",
+        "Level": "trace",
+        "Target": "ely::store",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:00:32.184",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:00:33.221",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:00:34.258",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:00:35.295",
+        "Level": "warning",
+        "Target": "ely::shell",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:00:36.332",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:00:37.369",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:00:38.406",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:00:39.443",
+        "Level": "error",
+        "Target": "gpui::window",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:00:40.480",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:00:41.517",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:00:42.554",
+        "Level": "trace",
+        "Target": "ely::pty",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:00:43.591",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:00:44.628",
+        "Level": "error",
+        "Target": "gpui::window",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:00:45.665",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:00:46.702",
+        "Level": "warning",
+        "Target": "ely::store",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:00:47.739",
+        "Level": "trace",
+        "Target": "ely::pty",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:00:48.776",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:00:49.813",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:00:50.850",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:00:51.887",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:00:52.924",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:00:53.961",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:00:54.998",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:00:55.035",
+        "Level": "error",
+        "Target": "ely::shell",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:00:56.072",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:00:57.109",
+        "Level": "warning",
+        "Target": "ely::pty",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:00:58.146",
+        "Level": "trace",
+        "Target": "net::http",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:00:59.183",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:01:00.220",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:01:01.257",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:01:02.294",
+        "Level": "warning",
+        "Target": "ely::pty",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:01:03.331",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:01:04.368",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:01:05.405",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:01:06.442",
+        "Level": "error",
+        "Target": "ely::store",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:01:07.479",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:01:08.516",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:01:09.553",
+        "Level": "trace",
+        "Target": "gpui::window",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:01:10.590",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:01:11.627",
+        "Level": "error",
+        "Target": "ely::store",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:01:12.664",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:01:13.701",
+        "Level": "warning",
+        "Target": "net::http",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:01:14.738",
+        "Level": "trace",
+        "Target": "gpui::window",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:01:15.775",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:01:16.812",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:01:17.849",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:01:18.886",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:01:19.923",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:01:20.960",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:01:21.997",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:01:22.034",
+        "Level": "error",
+        "Target": "ely::pty",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:01:23.071",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:01:24.108",
+        "Level": "warning",
+        "Target": "gpui::window",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:01:25.145",
+        "Level": "trace",
+        "Target": "ely::shell",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:01:26.182",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:01:27.219",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:01:28.256",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:01:29.293",
+        "Level": "warning",
+        "Target": "gpui::window",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:01:30.330",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:01:31.367",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:01:32.404",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:01:33.441",
+        "Level": "error",
+        "Target": "net::http",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:01:34.478",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:01:35.515",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:01:36.552",
+        "Level": "trace",
+        "Target": "ely::store",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:01:37.589",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:01:38.626",
+        "Level": "error",
+        "Target": "net::http",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:01:39.663",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:01:40.700",
+        "Level": "warning",
+        "Target": "ely::shell",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:01:41.737",
+        "Level": "trace",
+        "Target": "ely::store",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:01:42.774",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:01:43.811",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:01:44.848",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:01:45.885",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:01:46.922",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:01:47.959",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:01:48.996",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:01:49.033",
+        "Level": "error",
+        "Target": "gpui::window",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:01:50.070",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:01:51.107",
+        "Level": "warning",
+        "Target": "ely::store",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:01:52.144",
+        "Level": "trace",
+        "Target": "ely::pty",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:01:53.181",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:01:54.218",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:01:55.255",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:01:56.292",
+        "Level": "warning",
+        "Target": "ely::store",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:01:57.329",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:01:58.366",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:01:59.403",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:02:00.440",
+        "Level": "error",
+        "Target": "ely::shell",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:02:01.477",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:02:02.514",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:02:03.551",
+        "Level": "trace",
+        "Target": "net::http",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:02:04.588",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:02:05.625",
+        "Level": "error",
+        "Target": "ely::shell",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:02:06.662",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:02:07.699",
+        "Level": "warning",
+        "Target": "ely::pty",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:02:08.736",
+        "Level": "trace",
+        "Target": "net::http",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:02:09.773",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:02:10.810",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:02:11.847",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:02:12.884",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:02:13.921",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:02:14.958",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:02:15.995",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:02:16.032",
+        "Level": "error",
+        "Target": "ely::store",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:02:17.069",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:02:18.106",
+        "Level": "warning",
+        "Target": "net::http",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:02:19.143",
+        "Level": "trace",
+        "Target": "gpui::window",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:02:20.180",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:02:21.217",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:02:22.254",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:02:23.291",
+        "Level": "warning",
+        "Target": "net::http",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:02:24.328",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:02:25.365",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:02:26.402",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:02:27.439",
+        "Level": "error",
+        "Target": "ely::pty",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:02:28.476",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:02:29.513",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:02:30.550",
+        "Level": "trace",
+        "Target": "ely::shell",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:02:31.587",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:02:32.624",
+        "Level": "error",
+        "Target": "ely::pty",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:02:33.661",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:02:34.698",
+        "Level": "warning",
+        "Target": "gpui::window",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:02:35.735",
+        "Level": "trace",
+        "Target": "ely::shell",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:02:36.772",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:02:37.809",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:02:38.846",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:02:39.883",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:02:40.920",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:02:41.957",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:02:42.994",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:02:43.031",
+        "Level": "error",
+        "Target": "net::http",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:02:44.068",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:02:45.105",
+        "Level": "warning",
+        "Target": "ely::shell",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:02:46.142",
+        "Level": "trace",
+        "Target": "ely::store",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:02:47.179",
+        "Level": "debug",
+        "Target": "ely::pty",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:02:48.216",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:02:49.253",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:02:50.290",
+        "Level": "warning",
+        "Target": "ely::shell",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:02:51.327",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:02:52.364",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:02:53.401",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:02:54.438",
+        "Level": "error",
+        "Target": "gpui::window",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:02:55.475",
+        "Level": "debug",
+        "Target": "ely::shell",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:02:56.512",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:02:57.549",
+        "Level": "trace",
+        "Target": "ely::pty",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:02:58.586",
+        "Level": "debug",
+        "Target": "net::http",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:02:59.623",
+        "Level": "error",
+        "Target": "gpui::window",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:03:00.660",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:03:01.697",
+        "Level": "warning",
+        "Target": "ely::store",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:03:02.734",
+        "Level": "trace",
+        "Target": "ely::pty",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:03:03.771",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:03:04.808",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:03:05.845",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:03:06.882",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:03:07.919",
+        "Level": "info",
+        "Target": "ely::pty",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:03:08.956",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "window opened at 1280×820"
+      },
+      {
+        "Time": "09:03:09.993",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:03:10.030",
+        "Level": "error",
+        "Target": "ely::shell",
+        "Text": "GET /api/orders 503 retry in 2 s"
+      },
+      {
+        "Time": "09:03:11.067",
+        "Level": "debug",
+        "Target": "ely::store",
+        "Text": "layout cached: 212 nodes"
+      },
+      {
+        "Time": "09:03:12.104",
+        "Level": "warning",
+        "Target": "ely::pty",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:03:13.141",
+        "Level": "trace",
+        "Target": "net::http",
+        "Text": "key down: cmd-k"
+      },
+      {
+        "Time": "09:03:14.178",
+        "Level": "debug",
+        "Target": "gpui::window",
+        "Text": "frame drawn in 4.1 ms"
+      },
+      {
+        "Time": "09:03:15.215",
+        "Level": "info",
+        "Target": "ely::shell",
+        "Text": "saved workspace, 3 panes"
+      },
+      {
+        "Time": "09:03:16.252",
+        "Level": "info",
+        "Target": "ely::store",
+        "Text": "GET /api/quotes 200 18 ms"
+      },
+      {
+        "Time": "09:03:17.289",
+        "Level": "warning",
+        "Target": "ely::pty",
+        "Text": "slow frame: 38 ms, over budget"
+      },
+      {
+        "Time": "09:03:18.326",
+        "Level": "info",
+        "Target": "net::http",
+        "Text": "zsh started, pid 4821"
+      },
+      {
+        "Time": "09:03:19.363",
+        "Level": "info",
+        "Target": "gpui::window",
+        "Text": "window opened at 1280×820"
+      }
+    ]
+  },
+  "terminal/ProcessList": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Processes": [
+      {
+        "PID": 733,
+        "Name": "rust-analyzer",
+        "User": "ely",
+        "CPU": 41.8,
+        "Memory": "1240.0 MB"
+      },
+      {
+        "PID": 9001,
+        "Name": "gallery",
+        "User": "ely",
+        "CPU": 23.4,
+        "Memory": "188.0 MB"
+      },
+      {
+        "PID": 512,
+        "Name": "WindowServer",
+        "User": "_windowserver",
+        "CPU": 14.6,
+        "Memory": "412.0 MB"
+      },
+      {
+        "PID": 3302,
+        "Name": "Safari",
+        "User": "ely",
+        "CPU": 8.9,
+        "Memory": "734.0 MB"
+      },
+      {
+        "PID": 2210,
+        "Name": "cargo",
+        "User": "ely",
+        "CPU": 6.3,
+        "Memory": "96.0 MB"
+      },
+      {
+        "PID": 401,
+        "Name": "mds_stores",
+        "User": "root",
+        "CPU": 3.2,
+        "Memory": "140.0 MB"
+      },
+      {
+        "PID": 6120,
+        "Name": "codex",
+        "User": "ely",
+        "CPU": 2.7,
+        "Memory": "310.0 MB"
+      },
+      {
+        "PID": 3303,
+        "Name": "Safari Networking",
+        "User": "ely",
+        "CPU": 1.4,
+        "Memory": "88.0 MB"
+      },
+      {
+        "PID": 4821,
+        "Name": "zsh",
+        "User": "ely",
+        "CPU": 0.2,
+        "Memory": "6.0 MB"
+      },
+      {
+        "PID": 88,
+        "Name": "launchd",
+        "User": "root",
+        "CPU": 0.1,
+        "Memory": "12.0 MB"
+      }
+    ]
+  },
+  "git/DiffViewer": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Path": "src/palette.rs",
+    "DiffLayout": "unified",
+    "DiffLayouts": [
+      {
+        "Value": "unified",
+        "Label": "Unified"
+      },
+      {
+        "Value": "split",
+        "Label": "Side by side"
+      }
+    ],
+    "Hunks": [
+      {
+        "Header": "@@ -1,30 +1,31 @@",
+        "Lines": [
+          {
+            "Type": "remove",
+            "Old": 1,
+            "New": "",
+            "Prefix": "-",
+            "Text": "use std::collections::HashMap;"
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 1,
+            "Prefix": "+",
+            "Text": "use std::collections::BTreeMap;"
+          },
+          {
+            "Type": "context",
+            "Old": 2,
+            "New": 2,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "remove",
+            "Old": 3,
+            "New": "",
+            "Prefix": "-",
+            "Text": "/// A palette of named colors."
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 3,
+            "Prefix": "+",
+            "Text": "/// A palette of named colors, in a steady order."
+          },
+          {
+            "Type": "context",
+            "Old": 4,
+            "New": 4,
+            "Prefix": " ",
+            "Text": "pub struct Palette {"
+          },
+          {
+            "Type": "remove",
+            "Old": 5,
+            "New": "",
+            "Prefix": "-",
+            "Text": "    colors: HashMap<String, Color>,"
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 5,
+            "Prefix": "+",
+            "Text": "    colors: BTreeMap<String, Color>,"
+          },
+          {
+            "Type": "context",
+            "Old": 6,
+            "New": 6,
+            "Prefix": " ",
+            "Text": "    fallback: Color,"
+          },
+          {
+            "Type": "context",
+            "Old": 7,
+            "New": 7,
+            "Prefix": " ",
+            "Text": "}"
+          },
+          {
+            "Type": "context",
+            "Old": 8,
+            "New": 8,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "context",
+            "Old": 9,
+            "New": 9,
+            "Prefix": " ",
+            "Text": "impl Palette {"
+          },
+          {
+            "Type": "context",
+            "Old": 10,
+            "New": 10,
+            "Prefix": " ",
+            "Text": "    pub fn new(fallback: Color) -> Self {"
+          },
+          {
+            "Type": "remove",
+            "Old": 11,
+            "New": "",
+            "Prefix": "-",
+            "Text": "        Self { colors: HashMap::new(), fallback }"
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 11,
+            "Prefix": "+",
+            "Text": "        Self { colors: BTreeMap::new(), fallback }"
+          },
+          {
+            "Type": "context",
+            "Old": 12,
+            "New": 12,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 13,
+            "New": 13,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "context",
+            "Old": 14,
+            "New": 14,
+            "Prefix": " ",
+            "Text": "    pub fn insert(&mut self, name: &str, color: Color) {"
+          },
+          {
+            "Type": "context",
+            "Old": 15,
+            "New": 15,
+            "Prefix": " ",
+            "Text": "        self.colors.insert(name.to_string(), color);"
+          },
+          {
+            "Type": "context",
+            "Old": 16,
+            "New": 16,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 17,
+            "New": 17,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "context",
+            "Old": 18,
+            "New": 18,
+            "Prefix": " ",
+            "Text": "    pub fn len(&self) -> usize {"
+          },
+          {
+            "Type": "context",
+            "Old": 19,
+            "New": 19,
+            "Prefix": " ",
+            "Text": "        self.colors.len()"
+          },
+          {
+            "Type": "context",
+            "Old": 20,
+            "New": 20,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 21,
+            "New": 21,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "context",
+            "Old": 22,
+            "New": 22,
+            "Prefix": " ",
+            "Text": "    pub fn is_empty(&self) -> bool {"
+          },
+          {
+            "Type": "context",
+            "Old": 23,
+            "New": 23,
+            "Prefix": " ",
+            "Text": "        self.colors.is_empty()"
+          },
+          {
+            "Type": "context",
+            "Old": 24,
+            "New": 24,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 25,
+            "New": 25,
+            "Prefix": " ",
+            "Text": ""
+          },
+          {
+            "Type": "remove",
+            "Old": 26,
+            "New": "",
+            "Prefix": "-",
+            "Text": "    /// The color for `name`."
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 26,
+            "Prefix": "+",
+            "Text": "    /// The color for `name`, blended toward white by `lift`."
+          },
+          {
+            "Type": "remove",
+            "Old": 27,
+            "New": "",
+            "Prefix": "-",
+            "Text": "    pub fn lookup(&self, name: &str) -> Color {"
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 27,
+            "Prefix": "+",
+            "Text": "    pub fn lookup(&self, name: &str, lift: f32) -> Color {"
+          },
+          {
+            "Type": "remove",
+            "Old": 28,
+            "New": "",
+            "Prefix": "-",
+            "Text": "        self.colors[name]"
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 28,
+            "Prefix": "+",
+            "Text": "        let base = self.colors.get(name).copied().unwrap_or(self.fallback);"
+          },
+          {
+            "Type": "add",
+            "Old": "",
+            "New": 29,
+            "Prefix": "+",
+            "Text": "        base.lift(lift)"
+          },
+          {
+            "Type": "context",
+            "Old": 29,
+            "New": 30,
+            "Prefix": " ",
+            "Text": "    }"
+          },
+          {
+            "Type": "context",
+            "Old": 30,
+            "New": 31,
+            "Prefix": " ",
+            "Text": "}"
+          }
+        ]
+      }
+    ]
+  },
+  "git/ThreeWayMerge": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Ours": "fn lift(color: Color) → Color {\n    color.mix(WHITE, 0.6)\n}\n\nfn keep() {}",
+    "Base": "fn lift(color: Color) → Color {\n    color.mix(WHITE, 0.5)\n}\n\nfn keep() {}",
+    "Theirs": "fn lift(color: Color) → Color {\n    color.mix(WHITE, LIFT)\n}\n\nfn keep() { log::info!(\"kept\") }",
+    "Merged": "fn lift(color: Color) → Color {\n    color.mix(WHITE, 0.6)\n}\n\nfn keep() {}",
+    "MergeSides": [
+      {
+        "ID": "ours",
+        "Label": "main",
+        "Content": "fn lift(color: Color) → Color {\n    color.mix(WHITE, 0.6)\n}\n\nfn keep() {}"
+      },
+      {
+        "ID": "base",
+        "Label": "base",
+        "Content": "fn lift(color: Color) → Color {\n    color.mix(WHITE, 0.5)\n}\n\nfn keep() {}"
+      },
+      {
+        "ID": "theirs",
+        "Label": "feature/lift",
+        "Content": "fn lift(color: Color) → Color {\n    color.mix(WHITE, LIFT)\n}\n\nfn keep() { log::info!(\"kept\") }"
+      }
+    ]
+  },
+  "git/ChangesList": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "ShowCommit": true,
+    "StagedChanges": [
+      {
+        "Path": "src/palette.rs",
+        "Status": "M",
+        "Added": 12,
+        "Removed": 4
+      }
+    ],
+    "Changes": [
+      {
+        "Path": "src/theme/tokens.rs",
+        "Status": "M",
+        "Added": 3,
+        "Removed": 1
+      },
+      {
+        "Path": "src/lift.rs",
+        "Status": "A",
+        "Added": 48,
+        "Removed": 0
+      },
+      {
+        "Path": "docs/old-palette.md",
+        "Status": "D",
+        "Added": 0,
+        "Removed": 31
+      },
+      {
+        "Path": "tests/palette.rs",
+        "Status": "U",
+        "Added": 22,
+        "Removed": 0
+      }
+    ]
+  },
+  "git/CommitGraph": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Commits": [
+      {
+        "ID": "f4c1",
+        "Parents": [
+          "e9a2",
+          "d3b7"
+        ],
+        "Label": "Merge branch 'feature/lift'",
+        "Author": "Mei Lin",
+        "Time": "just now",
+        "Refs": [
+          "main",
+          "origin/main"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 16
+      },
+      {
+        "ID": "e9a2",
+        "Parents": [
+          "c8d0"
+        ],
+        "Label": "Keep palette order with a BTreeMap",
+        "Author": "Ada Park",
+        "Time": "1 h ago",
+        "Refs": [],
+        "Lane": 0,
+        "X": 12,
+        "Y": 48
+      },
+      {
+        "ID": "d3b7",
+        "Parents": [
+          "b21e"
+        ],
+        "Label": "Blend toward white by lift",
+        "Author": "Mei Lin",
+        "Time": "3 h ago",
+        "Refs": [
+          "feature/lift"
+        ],
+        "Lane": 1,
+        "X": 28,
+        "Y": 80
+      },
+      {
+        "ID": "b21e",
+        "Parents": [
+          "c8d0"
+        ],
+        "Label": "Add Color::lift",
+        "Author": "Mei Lin",
+        "Time": "5 h ago",
+        "Refs": [],
+        "Lane": 1,
+        "X": 28,
+        "Y": 112
+      },
+      {
+        "ID": "c8d0",
+        "Parents": [
+          "a6f3"
+        ],
+        "Label": "Count tints in the palette",
+        "Author": "Ada Park",
+        "Time": "yesterday",
+        "Refs": [
+          "v0.2.0"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 144
+      },
+      {
+        "ID": "a6f3",
+        "Parents": [],
+        "Label": "First palette",
+        "Author": "Sam Ortiz",
+        "Time": "3 days ago",
+        "Refs": [
+          "v0.1.0"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 176
+      }
+    ],
+    "Nodes": [
+      {
+        "ID": "f4c1",
+        "Parents": [
+          "e9a2",
+          "d3b7"
+        ],
+        "Label": "Merge branch 'feature/lift'",
+        "Author": "Mei Lin",
+        "Time": "just now",
+        "Refs": [
+          "main",
+          "origin/main"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 16
+      },
+      {
+        "ID": "e9a2",
+        "Parents": [
+          "c8d0"
+        ],
+        "Label": "Keep palette order with a BTreeMap",
+        "Author": "Ada Park",
+        "Time": "1 h ago",
+        "Refs": [],
+        "Lane": 0,
+        "X": 12,
+        "Y": 48
+      },
+      {
+        "ID": "d3b7",
+        "Parents": [
+          "b21e"
+        ],
+        "Label": "Blend toward white by lift",
+        "Author": "Mei Lin",
+        "Time": "3 h ago",
+        "Refs": [
+          "feature/lift"
+        ],
+        "Lane": 1,
+        "X": 28,
+        "Y": 80
+      },
+      {
+        "ID": "b21e",
+        "Parents": [
+          "c8d0"
+        ],
+        "Label": "Add Color::lift",
+        "Author": "Mei Lin",
+        "Time": "5 h ago",
+        "Refs": [],
+        "Lane": 1,
+        "X": 28,
+        "Y": 112
+      },
+      {
+        "ID": "c8d0",
+        "Parents": [
+          "a6f3"
+        ],
+        "Label": "Count tints in the palette",
+        "Author": "Ada Park",
+        "Time": "yesterday",
+        "Refs": [
+          "v0.2.0"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 144
+      },
+      {
+        "ID": "a6f3",
+        "Parents": [],
+        "Label": "First palette",
+        "Author": "Sam Ortiz",
+        "Time": "3 days ago",
+        "Refs": [
+          "v0.1.0"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 176
+      }
+    ],
+    "Edges": [
+      {
+        "FromX": 12,
+        "FromY": 16,
+        "ToX": 12,
+        "ToY": 48
+      },
+      {
+        "FromX": 12,
+        "FromY": 16,
+        "ToX": 28,
+        "ToY": 80
+      },
+      {
+        "FromX": 12,
+        "FromY": 48,
+        "ToX": 12,
+        "ToY": 144
+      },
+      {
+        "FromX": 28,
+        "FromY": 80,
+        "ToX": 28,
+        "ToY": 112
+      },
+      {
+        "FromX": 28,
+        "FromY": 112,
+        "ToX": 12,
+        "ToY": 144
+      },
+      {
+        "FromX": 12,
+        "FromY": 144,
+        "ToX": 12,
+        "ToY": 176
+      }
+    ],
+    "GraphLayouts": null
+  },
+  "git/BranchSelector": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Selected": "main",
+    "Branches": [
+      {
+        "Value": "main",
+        "Label": "main",
+        "Remote": false,
+        "Ahead": 2,
+        "Behind": 0,
+        "Subject": "Merge branch 'feature/lift'",
+        "Time": "just now"
+      },
+      {
+        "Value": "feature/lift",
+        "Label": "feature/lift",
+        "Remote": false,
+        "Ahead": 0,
+        "Behind": 1,
+        "Subject": "Blend toward white by lift",
+        "Time": "3 h ago"
+      },
+      {
+        "Value": "fix/order",
+        "Label": "fix/order",
+        "Remote": false,
+        "Ahead": 1,
+        "Behind": 3,
+        "Subject": "Sort names before hashing",
+        "Time": "2 days ago"
+      },
+      {
+        "Value": "origin/main",
+        "Label": "origin/main",
+        "Remote": true,
+        "Ahead": 0,
+        "Behind": 0,
+        "Subject": "Keep palette order with a BTreeMap",
+        "Time": "1 h ago"
+      },
+      {
+        "Value": "origin/release",
+        "Label": "origin/release",
+        "Remote": true,
+        "Ahead": 0,
+        "Behind": 0,
+        "Subject": "Count tints in the palette",
+        "Time": "yesterday"
+      }
+    ],
+    "Tags": [
+      {
+        "Label": "v0.2.0",
+        "Detail": "Tints and counts · yesterday"
+      },
+      {
+        "Label": "v0.1.0",
+        "Detail": "3 days ago"
+      }
+    ],
+    "Stashes": [
+      {
+        "Label": "stash{0}",
+        "Detail": "WIP on lift: try gamma · feature/lift · 2 h ago"
+      },
+      {
+        "Label": "stash{1}",
+        "Detail": "half a theme toggle · main · yesterday"
+      }
+    ]
+  },
+  "git/BlameView": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Path": "src/palette.rs",
+    "Rows": [
+      {
+        "Author": "Sam Ortiz",
+        "Revision": "a6f3",
+        "Line": 1,
+        "Text": "impl Palette {",
+        "Current": false
+      },
+      {
+        "Author": "Mei Lin",
+        "Revision": "d3b7",
+        "Line": 2,
+        "Text": "    pub fn lookup(&self, name: &str, lift: f32) -> Color {",
+        "Current": false
+      },
+      {
+        "Author": "Mei Lin",
+        "Revision": "d3b7",
+        "Line": 3,
+        "Text": "        let base = self.colors.get(name).copied().unwrap_or(self.fallback);",
+        "Current": true
+      },
+      {
+        "Author": "Mei Lin",
+        "Revision": "d3b7",
+        "Line": 4,
+        "Text": "        base.lift(lift)",
+        "Current": false
+      },
+      {
+        "Author": "Sam Ortiz",
+        "Revision": "a6f3",
+        "Line": 5,
+        "Text": "    }",
+        "Current": false
+      },
+      {
+        "Author": "Sam Ortiz",
+        "Revision": "a6f3",
+        "Line": 6,
+        "Text": "",
+        "Current": false
+      },
+      {
+        "Author": "Ada Park",
+        "Revision": "e9a2",
+        "Line": 7,
+        "Text": "    pub fn len(&self) -> usize {",
+        "Current": false
+      },
+      {
+        "Author": "Ada Park",
+        "Revision": "e9a2",
+        "Line": 8,
+        "Text": "        self.colors.len()",
+        "Current": false
+      },
+      {
+        "Author": "Sam Ortiz",
+        "Revision": "a6f3",
+        "Line": 9,
+        "Text": "    }",
+        "Current": false
+      },
+      {
+        "Author": "Sam Ortiz",
+        "Revision": "a6f3",
+        "Line": 10,
+        "Text": "}",
+        "Current": false
+      }
+    ],
+    "Commits": [
+      {
+        "ID": "f4c1",
+        "Parents": [
+          "e9a2",
+          "d3b7"
+        ],
+        "Label": "Merge branch 'feature/lift'",
+        "Author": "Mei Lin",
+        "Time": "just now",
+        "Refs": [
+          "main",
+          "origin/main"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 16
+      },
+      {
+        "ID": "e9a2",
+        "Parents": [
+          "c8d0"
+        ],
+        "Label": "Keep palette order with a BTreeMap",
+        "Author": "Ada Park",
+        "Time": "1 h ago",
+        "Refs": [],
+        "Lane": 0,
+        "X": 12,
+        "Y": 48
+      },
+      {
+        "ID": "d3b7",
+        "Parents": [
+          "b21e"
+        ],
+        "Label": "Blend toward white by lift",
+        "Author": "Mei Lin",
+        "Time": "3 h ago",
+        "Refs": [
+          "feature/lift"
+        ],
+        "Lane": 1,
+        "X": 28,
+        "Y": 80
+      },
+      {
+        "ID": "b21e",
+        "Parents": [
+          "c8d0"
+        ],
+        "Label": "Add Color::lift",
+        "Author": "Mei Lin",
+        "Time": "5 h ago",
+        "Refs": [],
+        "Lane": 1,
+        "X": 28,
+        "Y": 112
+      },
+      {
+        "ID": "c8d0",
+        "Parents": [
+          "a6f3"
+        ],
+        "Label": "Count tints in the palette",
+        "Author": "Ada Park",
+        "Time": "yesterday",
+        "Refs": [
+          "v0.2.0"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 144
+      },
+      {
+        "ID": "a6f3",
+        "Parents": [],
+        "Label": "First palette",
+        "Author": "Sam Ortiz",
+        "Time": "3 days ago",
+        "Refs": [
+          "v0.1.0"
+        ],
+        "Lane": 0,
+        "X": 12,
+        "Y": 176
+      }
+    ]
+  },
+  "git/PullRequestCard": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Number": 128,
+    "Subject": "Blend palette colors toward white by lift",
+    "PullRequestID": "128",
+    "Author": "Mei Lin",
+    "Updated": "2 h ago",
+    "Status": "Open",
+    "SourceBranch": "feature/lift",
+    "TargetBranch": "main",
+    "Added": 120,
+    "Removed": 45,
+    "CommentCount": 4,
+    "Checks": [
+      {
+        "Name": "11 passed",
+        "Status": "Passed"
+      },
+      {
+        "Name": "1 failed",
+        "Status": "Failed"
+      }
+    ],
+    "Reviewers": [
+      {
+        "Name": "Ada Park",
+        "Status": "Approved"
+      },
+      {
+        "Name": "Sam Ortiz",
+        "Status": "Pending"
+      }
+    ],
+    "ReviewNotes": [
+      {
+        "Author": "Ada Park",
+        "Time": "2 h ago",
+        "Text": "Should a lift past one clamp, or panic? The docs say clamp."
+      },
+      {
+        "Author": "Mei Lin",
+        "Time": "1 h ago",
+        "Text": "Clamp. I added a test for 1.5 and for -0.2."
+      }
+    ],
+    "DraftPR": {
+      "Number": 131,
+      "Subject": "Try a gamma-aware lift",
+      "Status": "Draft",
+      "Author": "Mei Lin",
+      "Updated": "20 min ago",
+      "SourceBranch": "feature/lift",
+      "TargetBranch": "main",
+      "Added": 36,
+      "Removed": 8,
+      "CommentCount": 4,
+      "PullRequestID": "131"
+    }
+  },
+  "debug/DebugToolbar": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Status": "Paused",
+    "Session": "palette"
+  },
+  "debug/BreakpointList": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Breakpoints": [
+      {
+        "ID": "0",
+        "File": "src/palette.rs",
+        "Line": 48,
+        "Enabled": true,
+        "Condition": "",
+        "Hits": 3
+      },
+      {
+        "ID": "1",
+        "File": "src/main.rs",
+        "Line": 65,
+        "Enabled": true,
+        "Condition": "step > 2",
+        "Hits": 1
+      },
+      {
+        "ID": "2",
+        "File": "src/theme/tokens.rs",
+        "Line": 112,
+        "Enabled": false,
+        "Condition": "",
+        "Hits": 0
+      }
+    ],
+    "Stack": [
+      {
+        "ID": "0",
+        "Function": "palette::Palette::lookup",
+        "File": "src/palette.rs",
+        "Line": 48,
+        "Library": false
+      },
+      {
+        "ID": "1",
+        "Function": "palette::tints::{{closure}}",
+        "File": "src/main.rs",
+        "Line": 65,
+        "Library": false
+      },
+      {
+        "ID": "2",
+        "Function": "core::iter::adapters::map::map_fold",
+        "File": "core/src/iter/adapters/map.rs",
+        "Line": 88,
+        "Library": true
+      },
+      {
+        "ID": "3",
+        "Function": "core::iter::traits::iterator::Iterator::fold",
+        "File": "core/src/iter/traits/iterator.rs",
+        "Line": 2587,
+        "Library": true
+      },
+      {
+        "ID": "4",
+        "Function": "alloc::vec::Vec::extend_trusted",
+        "File": "alloc/src/vec/mod.rs",
+        "Line": 3301,
+        "Library": true
+      },
+      {
+        "ID": "5",
+        "Function": "palette::main",
+        "File": "src/main.rs",
+        "Line": 65,
+        "Library": false
+      },
+      {
+        "ID": "6",
+        "Function": "std::rt::lang_start",
+        "File": "std/src/rt.rs",
+        "Line": 206,
+        "Library": true
+      }
+    ],
+    "Threads": [
+      {
+        "Label": "main",
+        "Detail": "#1 · stopped"
+      },
+      {
+        "Label": "renderer",
+        "Detail": "#2 · paused"
+      },
+      {
+        "Label": "io-worker",
+        "Detail": "#3 · paused"
+      }
+    ]
+  },
+  "debug/VariablesPanel": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Scopes": [
+      {
+        "Name": "Locals",
+        "Open": true,
+        "Variables": [
+          {
+            "Name": "self",
+            "Key": "self",
+            "Value": "&Palette { colors: {…}, fallback: Color }",
+            "Type": "&Palette",
+            "Open": true,
+            "Children": [
+              {
+                "Name": "colors",
+                "Key": "colors",
+                "Value": "{\"accent\": Color, \"fg\": Color}",
+                "Type": "BTreeMap<String, Color>"
+              },
+              {
+                "Name": "fallback",
+                "Key": "fallback",
+                "Value": "Color { red: 0.1, green: 0.1, blue: 0.1 }",
+                "Type": "Color",
+                "Children": [
+                  {
+                    "Name": "red",
+                    "Key": "red",
+                    "Value": "0.1",
+                    "Type": "f32"
+                  },
+                  {
+                    "Name": "green",
+                    "Key": "green",
+                    "Value": "0.1",
+                    "Type": "f32"
+                  },
+                  {
+                    "Name": "blue",
+                    "Key": "blue",
+                    "Value": "0.1",
+                    "Type": "f32"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Name": "name",
+            "Key": "name",
+            "Value": "\"accent\"",
+            "Type": "&str"
+          },
+          {
+            "Name": "lift",
+            "Key": "lift",
+            "Value": "0.75",
+            "Type": "f32",
+            "Changed": true
+          },
+          {
+            "Name": "clamped",
+            "Key": "clamped",
+            "Value": "false",
+            "Type": "bool"
+          }
+        ]
+      },
+      {
+        "Name": "Statics",
+        "Variables": [
+          {
+            "Name": "WHITE",
+            "Key": "WHITE",
+            "Value": "Color { red: 1.0, green: 1.0, blue: 1.0 }",
+            "Type": "Color"
+          }
+        ]
+      }
+    ],
+    "Watches": [
+      {
+        "Expression": "lift * 2.0",
+        "Value": "1.5",
+        "Kind": "number"
+      },
+      {
+        "Expression": "self.colors.len()",
+        "Value": "2",
+        "Kind": "number"
+      },
+      {
+        "Expression": "missing",
+        "Error": "cannot find value `missing` in this scope"
+      }
+    ]
+  },
+  "debug/MemoryViewer": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "HexRows": [
+      {
+        "Address": "00007ffd5a201000",
+        "Text": ".ELF....palette.",
+        "Cells": [
+          {
+            "Index": 0,
+            "Hex": "7F",
+            "Reading": "127",
+            "Selected": false
+          },
+          {
+            "Index": 1,
+            "Hex": "45",
+            "Reading": "69",
+            "Selected": false
+          },
+          {
+            "Index": 2,
+            "Hex": "4C",
+            "Reading": "76",
+            "Selected": false
+          },
+          {
+            "Index": 3,
+            "Hex": "46",
+            "Reading": "70",
+            "Selected": false
+          },
+          {
+            "Index": 4,
+            "Hex": "02",
+            "Reading": "2",
+            "Selected": false
+          },
+          {
+            "Index": 5,
+            "Hex": "01",
+            "Reading": "1",
+            "Selected": false
+          },
+          {
+            "Index": 6,
+            "Hex": "01",
+            "Reading": "1",
+            "Selected": false
+          },
+          {
+            "Index": 7,
+            "Hex": "00",
+            "Reading": "0",
+            "Selected": false
+          },
+          {
+            "Index": 8,
+            "Hex": "70",
+            "Reading": "112",
+            "Selected": true
+          },
+          {
+            "Index": 9,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": true
+          },
+          {
+            "Index": 10,
+            "Hex": "6C",
+            "Reading": "108",
+            "Selected": true
+          },
+          {
+            "Index": 11,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": true
+          },
+          {
+            "Index": 12,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 13,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 14,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 15,
+            "Hex": "00",
+            "Reading": "0",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201010",
+        "Text": "accent.fallback.",
+        "Cells": [
+          {
+            "Index": 16,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": false
+          },
+          {
+            "Index": 17,
+            "Hex": "63",
+            "Reading": "99",
+            "Selected": false
+          },
+          {
+            "Index": 18,
+            "Hex": "63",
+            "Reading": "99",
+            "Selected": false
+          },
+          {
+            "Index": 19,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 20,
+            "Hex": "6E",
+            "Reading": "110",
+            "Selected": false
+          },
+          {
+            "Index": 21,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 22,
+            "Hex": "00",
+            "Reading": "0",
+            "Selected": false
+          },
+          {
+            "Index": 23,
+            "Hex": "66",
+            "Reading": "102",
+            "Selected": false
+          },
+          {
+            "Index": 24,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": false
+          },
+          {
+            "Index": 25,
+            "Hex": "6C",
+            "Reading": "108",
+            "Selected": false
+          },
+          {
+            "Index": 26,
+            "Hex": "6C",
+            "Reading": "108",
+            "Selected": false
+          },
+          {
+            "Index": 27,
+            "Hex": "62",
+            "Reading": "98",
+            "Selected": false
+          },
+          {
+            "Index": 28,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": false
+          },
+          {
+            "Index": 29,
+            "Hex": "63",
+            "Reading": "99",
+            "Selected": false
+          },
+          {
+            "Index": 30,
+            "Hex": "6B",
+            "Reading": "107",
+            "Selected": false
+          },
+          {
+            "Index": 31,
+            "Hex": "00",
+            "Reading": "0",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201020",
+        "Text": ".%Jo....)Ls....*",
+        "Cells": [
+          {
+            "Index": 32,
+            "Hex": "00",
+            "Reading": "0",
+            "Selected": false
+          },
+          {
+            "Index": 33,
+            "Hex": "25",
+            "Reading": "37",
+            "Selected": false
+          },
+          {
+            "Index": 34,
+            "Hex": "4A",
+            "Reading": "74",
+            "Selected": false
+          },
+          {
+            "Index": 35,
+            "Hex": "6F",
+            "Reading": "111",
+            "Selected": false
+          },
+          {
+            "Index": 36,
+            "Hex": "94",
+            "Reading": "148",
+            "Selected": false
+          },
+          {
+            "Index": 37,
+            "Hex": "B9",
+            "Reading": "185",
+            "Selected": false
+          },
+          {
+            "Index": 38,
+            "Hex": "DE",
+            "Reading": "222",
+            "Selected": false
+          },
+          {
+            "Index": 39,
+            "Hex": "03",
+            "Reading": "3",
+            "Selected": false
+          },
+          {
+            "Index": 40,
+            "Hex": "29",
+            "Reading": "41",
+            "Selected": false
+          },
+          {
+            "Index": 41,
+            "Hex": "4C",
+            "Reading": "76",
+            "Selected": false
+          },
+          {
+            "Index": 42,
+            "Hex": "73",
+            "Reading": "115",
+            "Selected": false
+          },
+          {
+            "Index": 43,
+            "Hex": "96",
+            "Reading": "150",
+            "Selected": false
+          },
+          {
+            "Index": 44,
+            "Hex": "BD",
+            "Reading": "189",
+            "Selected": false
+          },
+          {
+            "Index": 45,
+            "Hex": "E0",
+            "Reading": "224",
+            "Selected": false
+          },
+          {
+            "Index": 46,
+            "Hex": "07",
+            "Reading": "7",
+            "Selected": false
+          },
+          {
+            "Index": 47,
+            "Hex": "2A",
+            "Reading": "42",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201030",
+        "Text": "Rw....,Q{....2Ux",
+        "Cells": [
+          {
+            "Index": 48,
+            "Hex": "52",
+            "Reading": "82",
+            "Selected": false
+          },
+          {
+            "Index": 49,
+            "Hex": "77",
+            "Reading": "119",
+            "Selected": false
+          },
+          {
+            "Index": 50,
+            "Hex": "98",
+            "Reading": "152",
+            "Selected": false
+          },
+          {
+            "Index": 51,
+            "Hex": "BD",
+            "Reading": "189",
+            "Selected": false
+          },
+          {
+            "Index": 52,
+            "Hex": "E6",
+            "Reading": "230",
+            "Selected": false
+          },
+          {
+            "Index": 53,
+            "Hex": "0B",
+            "Reading": "11",
+            "Selected": false
+          },
+          {
+            "Index": 54,
+            "Hex": "2C",
+            "Reading": "44",
+            "Selected": false
+          },
+          {
+            "Index": 55,
+            "Hex": "51",
+            "Reading": "81",
+            "Selected": false
+          },
+          {
+            "Index": 56,
+            "Hex": "7B",
+            "Reading": "123",
+            "Selected": false
+          },
+          {
+            "Index": 57,
+            "Hex": "9E",
+            "Reading": "158",
+            "Selected": false
+          },
+          {
+            "Index": 58,
+            "Hex": "C1",
+            "Reading": "193",
+            "Selected": false
+          },
+          {
+            "Index": 59,
+            "Hex": "E4",
+            "Reading": "228",
+            "Selected": false
+          },
+          {
+            "Index": 60,
+            "Hex": "0F",
+            "Reading": "15",
+            "Selected": false
+          },
+          {
+            "Index": 61,
+            "Hex": "32",
+            "Reading": "50",
+            "Selected": false
+          },
+          {
+            "Index": 62,
+            "Hex": "55",
+            "Reading": "85",
+            "Selected": false
+          },
+          {
+            "Index": 63,
+            "Hex": "78",
+            "Reading": "120",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201040",
+        "Text": "....0]z....2Y...",
+        "Cells": [
+          {
+            "Index": 64,
+            "Hex": "A4",
+            "Reading": "164",
+            "Selected": false
+          },
+          {
+            "Index": 65,
+            "Hex": "C1",
+            "Reading": "193",
+            "Selected": false
+          },
+          {
+            "Index": 66,
+            "Hex": "EE",
+            "Reading": "238",
+            "Selected": false
+          },
+          {
+            "Index": 67,
+            "Hex": "0B",
+            "Reading": "11",
+            "Selected": false
+          },
+          {
+            "Index": 68,
+            "Hex": "30",
+            "Reading": "48",
+            "Selected": false
+          },
+          {
+            "Index": 69,
+            "Hex": "5D",
+            "Reading": "93",
+            "Selected": false
+          },
+          {
+            "Index": 70,
+            "Hex": "7A",
+            "Reading": "122",
+            "Selected": false
+          },
+          {
+            "Index": 71,
+            "Hex": "A7",
+            "Reading": "167",
+            "Selected": false
+          },
+          {
+            "Index": 72,
+            "Hex": "CD",
+            "Reading": "205",
+            "Selected": false
+          },
+          {
+            "Index": 73,
+            "Hex": "E8",
+            "Reading": "232",
+            "Selected": false
+          },
+          {
+            "Index": 74,
+            "Hex": "17",
+            "Reading": "23",
+            "Selected": false
+          },
+          {
+            "Index": 75,
+            "Hex": "32",
+            "Reading": "50",
+            "Selected": false
+          },
+          {
+            "Index": 76,
+            "Hex": "59",
+            "Reading": "89",
+            "Selected": false
+          },
+          {
+            "Index": 77,
+            "Hex": "84",
+            "Reading": "132",
+            "Selected": false
+          },
+          {
+            "Index": 78,
+            "Hex": "A3",
+            "Reading": "163",
+            "Selected": false
+          },
+          {
+            "Index": 79,
+            "Hex": "CE",
+            "Reading": "206",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201050",
+        "Text": "..<Y.....:e.....",
+        "Cells": [
+          {
+            "Index": 80,
+            "Hex": "F6",
+            "Reading": "246",
+            "Selected": false
+          },
+          {
+            "Index": 81,
+            "Hex": "13",
+            "Reading": "19",
+            "Selected": false
+          },
+          {
+            "Index": 82,
+            "Hex": "3C",
+            "Reading": "60",
+            "Selected": false
+          },
+          {
+            "Index": 83,
+            "Hex": "59",
+            "Reading": "89",
+            "Selected": false
+          },
+          {
+            "Index": 84,
+            "Hex": "82",
+            "Reading": "130",
+            "Selected": false
+          },
+          {
+            "Index": 85,
+            "Hex": "AF",
+            "Reading": "175",
+            "Selected": false
+          },
+          {
+            "Index": 86,
+            "Hex": "C8",
+            "Reading": "200",
+            "Selected": false
+          },
+          {
+            "Index": 87,
+            "Hex": "F5",
+            "Reading": "245",
+            "Selected": false
+          },
+          {
+            "Index": 88,
+            "Hex": "1F",
+            "Reading": "31",
+            "Selected": false
+          },
+          {
+            "Index": 89,
+            "Hex": "3A",
+            "Reading": "58",
+            "Selected": false
+          },
+          {
+            "Index": 90,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 91,
+            "Hex": "80",
+            "Reading": "128",
+            "Selected": false
+          },
+          {
+            "Index": 92,
+            "Hex": "AB",
+            "Reading": "171",
+            "Selected": false
+          },
+          {
+            "Index": 93,
+            "Hex": "D6",
+            "Reading": "214",
+            "Selected": false
+          },
+          {
+            "Index": 94,
+            "Hex": "F1",
+            "Reading": "241",
+            "Selected": false
+          },
+          {
+            "Index": 95,
+            "Hex": "1C",
+            "Reading": "28",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201060",
+        "Text": "Hm.....Ka....(Ob",
+        "Cells": [
+          {
+            "Index": 96,
+            "Hex": "48",
+            "Reading": "72",
+            "Selected": false
+          },
+          {
+            "Index": 97,
+            "Hex": "6D",
+            "Reading": "109",
+            "Selected": false
+          },
+          {
+            "Index": 98,
+            "Hex": "82",
+            "Reading": "130",
+            "Selected": false
+          },
+          {
+            "Index": 99,
+            "Hex": "A7",
+            "Reading": "167",
+            "Selected": false
+          },
+          {
+            "Index": 100,
+            "Hex": "DC",
+            "Reading": "220",
+            "Selected": false
+          },
+          {
+            "Index": 101,
+            "Hex": "F1",
+            "Reading": "241",
+            "Selected": false
+          },
+          {
+            "Index": 102,
+            "Hex": "16",
+            "Reading": "22",
+            "Selected": false
+          },
+          {
+            "Index": 103,
+            "Hex": "4B",
+            "Reading": "75",
+            "Selected": false
+          },
+          {
+            "Index": 104,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": false
+          },
+          {
+            "Index": 105,
+            "Hex": "84",
+            "Reading": "132",
+            "Selected": false
+          },
+          {
+            "Index": 106,
+            "Hex": "BB",
+            "Reading": "187",
+            "Selected": false
+          },
+          {
+            "Index": 107,
+            "Hex": "DE",
+            "Reading": "222",
+            "Selected": false
+          },
+          {
+            "Index": 108,
+            "Hex": "F5",
+            "Reading": "245",
+            "Selected": false
+          },
+          {
+            "Index": 109,
+            "Hex": "28",
+            "Reading": "40",
+            "Selected": false
+          },
+          {
+            "Index": 110,
+            "Hex": "4F",
+            "Reading": "79",
+            "Selected": false
+          },
+          {
+            "Index": 111,
+            "Hex": "62",
+            "Reading": "98",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201070",
+        "Text": ".....Cd....,Gz..",
+        "Cells": [
+          {
+            "Index": 112,
+            "Hex": "9A",
+            "Reading": "154",
+            "Selected": false
+          },
+          {
+            "Index": 113,
+            "Hex": "BF",
+            "Reading": "191",
+            "Selected": false
+          },
+          {
+            "Index": 114,
+            "Hex": "D0",
+            "Reading": "208",
+            "Selected": false
+          },
+          {
+            "Index": 115,
+            "Hex": "F5",
+            "Reading": "245",
+            "Selected": false
+          },
+          {
+            "Index": 116,
+            "Hex": "2E",
+            "Reading": "46",
+            "Selected": false
+          },
+          {
+            "Index": 117,
+            "Hex": "43",
+            "Reading": "67",
+            "Selected": false
+          },
+          {
+            "Index": 118,
+            "Hex": "64",
+            "Reading": "100",
+            "Selected": false
+          },
+          {
+            "Index": 119,
+            "Hex": "99",
+            "Reading": "153",
+            "Selected": false
+          },
+          {
+            "Index": 120,
+            "Hex": "B3",
+            "Reading": "179",
+            "Selected": false
+          },
+          {
+            "Index": 121,
+            "Hex": "D6",
+            "Reading": "214",
+            "Selected": false
+          },
+          {
+            "Index": 122,
+            "Hex": "09",
+            "Reading": "9",
+            "Selected": false
+          },
+          {
+            "Index": 123,
+            "Hex": "2C",
+            "Reading": "44",
+            "Selected": false
+          },
+          {
+            "Index": 124,
+            "Hex": "47",
+            "Reading": "71",
+            "Selected": false
+          },
+          {
+            "Index": 125,
+            "Hex": "7A",
+            "Reading": "122",
+            "Selected": false
+          },
+          {
+            "Index": 126,
+            "Hex": "9D",
+            "Reading": "157",
+            "Selected": false
+          },
+          {
+            "Index": 127,
+            "Hex": "B0",
+            "Reading": "176",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201080",
+        "Text": "..&Cx.... _z....",
+        "Cells": [
+          {
+            "Index": 128,
+            "Hex": "EC",
+            "Reading": "236",
+            "Selected": false
+          },
+          {
+            "Index": 129,
+            "Hex": "09",
+            "Reading": "9",
+            "Selected": false
+          },
+          {
+            "Index": 130,
+            "Hex": "26",
+            "Reading": "38",
+            "Selected": false
+          },
+          {
+            "Index": 131,
+            "Hex": "43",
+            "Reading": "67",
+            "Selected": false
+          },
+          {
+            "Index": 132,
+            "Hex": "78",
+            "Reading": "120",
+            "Selected": false
+          },
+          {
+            "Index": 133,
+            "Hex": "95",
+            "Reading": "149",
+            "Selected": false
+          },
+          {
+            "Index": 134,
+            "Hex": "B2",
+            "Reading": "178",
+            "Selected": false
+          },
+          {
+            "Index": 135,
+            "Hex": "EF",
+            "Reading": "239",
+            "Selected": false
+          },
+          {
+            "Index": 136,
+            "Hex": "05",
+            "Reading": "5",
+            "Selected": false
+          },
+          {
+            "Index": 137,
+            "Hex": "20",
+            "Reading": "32",
+            "Selected": false
+          },
+          {
+            "Index": 138,
+            "Hex": "5F",
+            "Reading": "95",
+            "Selected": false
+          },
+          {
+            "Index": 139,
+            "Hex": "7A",
+            "Reading": "122",
+            "Selected": false
+          },
+          {
+            "Index": 140,
+            "Hex": "91",
+            "Reading": "145",
+            "Selected": false
+          },
+          {
+            "Index": 141,
+            "Hex": "CC",
+            "Reading": "204",
+            "Selected": false
+          },
+          {
+            "Index": 142,
+            "Hex": "EB",
+            "Reading": "235",
+            "Selected": false
+          },
+          {
+            "Index": 143,
+            "Hex": "06",
+            "Reading": "6",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201090",
+        "Text": ">[t....=Wr....9T",
+        "Cells": [
+          {
+            "Index": 144,
+            "Hex": "3E",
+            "Reading": "62",
+            "Selected": false
+          },
+          {
+            "Index": 145,
+            "Hex": "5B",
+            "Reading": "91",
+            "Selected": false
+          },
+          {
+            "Index": 146,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 147,
+            "Hex": "91",
+            "Reading": "145",
+            "Selected": false
+          },
+          {
+            "Index": 148,
+            "Hex": "CA",
+            "Reading": "202",
+            "Selected": false
+          },
+          {
+            "Index": 149,
+            "Hex": "E7",
+            "Reading": "231",
+            "Selected": false
+          },
+          {
+            "Index": 150,
+            "Hex": "00",
+            "Reading": "0",
+            "Selected": false
+          },
+          {
+            "Index": 151,
+            "Hex": "3D",
+            "Reading": "61",
+            "Selected": false
+          },
+          {
+            "Index": 152,
+            "Hex": "57",
+            "Reading": "87",
+            "Selected": false
+          },
+          {
+            "Index": 153,
+            "Hex": "72",
+            "Reading": "114",
+            "Selected": false
+          },
+          {
+            "Index": 154,
+            "Hex": "AD",
+            "Reading": "173",
+            "Selected": false
+          },
+          {
+            "Index": 155,
+            "Hex": "C8",
+            "Reading": "200",
+            "Selected": false
+          },
+          {
+            "Index": 156,
+            "Hex": "E3",
+            "Reading": "227",
+            "Selected": false
+          },
+          {
+            "Index": 157,
+            "Hex": "1E",
+            "Reading": "30",
+            "Selected": false
+          },
+          {
+            "Index": 158,
+            "Hex": "39",
+            "Reading": "57",
+            "Selected": false
+          },
+          {
+            "Index": 159,
+            "Hex": "54",
+            "Reading": "84",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a2010a0",
+        "Text": ".....)N.....-p..",
+        "Cells": [
+          {
+            "Index": 160,
+            "Hex": "90",
+            "Reading": "144",
+            "Selected": false
+          },
+          {
+            "Index": 161,
+            "Hex": "B5",
+            "Reading": "181",
+            "Selected": false
+          },
+          {
+            "Index": 162,
+            "Hex": "DA",
+            "Reading": "218",
+            "Selected": false
+          },
+          {
+            "Index": 163,
+            "Hex": "FF",
+            "Reading": "255",
+            "Selected": false
+          },
+          {
+            "Index": 164,
+            "Hex": "04",
+            "Reading": "4",
+            "Selected": false
+          },
+          {
+            "Index": 165,
+            "Hex": "29",
+            "Reading": "41",
+            "Selected": false
+          },
+          {
+            "Index": 166,
+            "Hex": "4E",
+            "Reading": "78",
+            "Selected": false
+          },
+          {
+            "Index": 167,
+            "Hex": "93",
+            "Reading": "147",
+            "Selected": false
+          },
+          {
+            "Index": 168,
+            "Hex": "B9",
+            "Reading": "185",
+            "Selected": false
+          },
+          {
+            "Index": 169,
+            "Hex": "DC",
+            "Reading": "220",
+            "Selected": false
+          },
+          {
+            "Index": 170,
+            "Hex": "E3",
+            "Reading": "227",
+            "Selected": false
+          },
+          {
+            "Index": 171,
+            "Hex": "06",
+            "Reading": "6",
+            "Selected": false
+          },
+          {
+            "Index": 172,
+            "Hex": "2D",
+            "Reading": "45",
+            "Selected": false
+          },
+          {
+            "Index": 173,
+            "Hex": "70",
+            "Reading": "112",
+            "Selected": false
+          },
+          {
+            "Index": 174,
+            "Hex": "97",
+            "Reading": "151",
+            "Selected": false
+          },
+          {
+            "Index": 175,
+            "Hex": "BA",
+            "Reading": "186",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a2010b0",
+        "Text": "...-v.....Qt....",
+        "Cells": [
+          {
+            "Index": 176,
+            "Hex": "C2",
+            "Reading": "194",
+            "Selected": false
+          },
+          {
+            "Index": 177,
+            "Hex": "E7",
+            "Reading": "231",
+            "Selected": false
+          },
+          {
+            "Index": 178,
+            "Hex": "08",
+            "Reading": "8",
+            "Selected": false
+          },
+          {
+            "Index": 179,
+            "Hex": "2D",
+            "Reading": "45",
+            "Selected": false
+          },
+          {
+            "Index": 180,
+            "Hex": "76",
+            "Reading": "118",
+            "Selected": false
+          },
+          {
+            "Index": 181,
+            "Hex": "9B",
+            "Reading": "155",
+            "Selected": false
+          },
+          {
+            "Index": 182,
+            "Hex": "BC",
+            "Reading": "188",
+            "Selected": false
+          },
+          {
+            "Index": 183,
+            "Hex": "C1",
+            "Reading": "193",
+            "Selected": false
+          },
+          {
+            "Index": 184,
+            "Hex": "EB",
+            "Reading": "235",
+            "Selected": false
+          },
+          {
+            "Index": 185,
+            "Hex": "0E",
+            "Reading": "14",
+            "Selected": false
+          },
+          {
+            "Index": 186,
+            "Hex": "51",
+            "Reading": "81",
+            "Selected": false
+          },
+          {
+            "Index": 187,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 188,
+            "Hex": "9F",
+            "Reading": "159",
+            "Selected": false
+          },
+          {
+            "Index": 189,
+            "Hex": "A2",
+            "Reading": "162",
+            "Selected": false
+          },
+          {
+            "Index": 190,
+            "Hex": "C5",
+            "Reading": "197",
+            "Selected": false
+          },
+          {
+            "Index": 191,
+            "Hex": "E8",
+            "Reading": "232",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a2010c0",
+        "Text": "4Q~....7]x....3^",
+        "Cells": [
+          {
+            "Index": 192,
+            "Hex": "34",
+            "Reading": "52",
+            "Selected": false
+          },
+          {
+            "Index": 193,
+            "Hex": "51",
+            "Reading": "81",
+            "Selected": false
+          },
+          {
+            "Index": 194,
+            "Hex": "7E",
+            "Reading": "126",
+            "Selected": false
+          },
+          {
+            "Index": 195,
+            "Hex": "9B",
+            "Reading": "155",
+            "Selected": false
+          },
+          {
+            "Index": 196,
+            "Hex": "A0",
+            "Reading": "160",
+            "Selected": false
+          },
+          {
+            "Index": 197,
+            "Hex": "CD",
+            "Reading": "205",
+            "Selected": false
+          },
+          {
+            "Index": 198,
+            "Hex": "EA",
+            "Reading": "234",
+            "Selected": false
+          },
+          {
+            "Index": 199,
+            "Hex": "37",
+            "Reading": "55",
+            "Selected": false
+          },
+          {
+            "Index": 200,
+            "Hex": "5D",
+            "Reading": "93",
+            "Selected": false
+          },
+          {
+            "Index": 201,
+            "Hex": "78",
+            "Reading": "120",
+            "Selected": false
+          },
+          {
+            "Index": 202,
+            "Hex": "87",
+            "Reading": "135",
+            "Selected": false
+          },
+          {
+            "Index": 203,
+            "Hex": "A2",
+            "Reading": "162",
+            "Selected": false
+          },
+          {
+            "Index": 204,
+            "Hex": "C9",
+            "Reading": "201",
+            "Selected": false
+          },
+          {
+            "Index": 205,
+            "Hex": "14",
+            "Reading": "20",
+            "Selected": false
+          },
+          {
+            "Index": 206,
+            "Hex": "33",
+            "Reading": "51",
+            "Selected": false
+          },
+          {
+            "Index": 207,
+            "Hex": "5E",
+            "Reading": "94",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a2010d0",
+        "Text": "f....?Xe....;Fa.",
+        "Cells": [
+          {
+            "Index": 208,
+            "Hex": "66",
+            "Reading": "102",
+            "Selected": false
+          },
+          {
+            "Index": 209,
+            "Hex": "83",
+            "Reading": "131",
+            "Selected": false
+          },
+          {
+            "Index": 210,
+            "Hex": "AC",
+            "Reading": "172",
+            "Selected": false
+          },
+          {
+            "Index": 211,
+            "Hex": "C9",
+            "Reading": "201",
+            "Selected": false
+          },
+          {
+            "Index": 212,
+            "Hex": "12",
+            "Reading": "18",
+            "Selected": false
+          },
+          {
+            "Index": 213,
+            "Hex": "3F",
+            "Reading": "63",
+            "Selected": false
+          },
+          {
+            "Index": 214,
+            "Hex": "58",
+            "Reading": "88",
+            "Selected": false
+          },
+          {
+            "Index": 215,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 216,
+            "Hex": "8F",
+            "Reading": "143",
+            "Selected": false
+          },
+          {
+            "Index": 217,
+            "Hex": "AA",
+            "Reading": "170",
+            "Selected": false
+          },
+          {
+            "Index": 218,
+            "Hex": "F5",
+            "Reading": "245",
+            "Selected": false
+          },
+          {
+            "Index": 219,
+            "Hex": "10",
+            "Reading": "16",
+            "Selected": false
+          },
+          {
+            "Index": 220,
+            "Hex": "3B",
+            "Reading": "59",
+            "Selected": false
+          },
+          {
+            "Index": 221,
+            "Hex": "46",
+            "Reading": "70",
+            "Selected": false
+          },
+          {
+            "Index": 222,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": false
+          },
+          {
+            "Index": 223,
+            "Hex": "8C",
+            "Reading": "140",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a2010e0",
+        "Text": "...7La....+Ne...",
+        "Cells": [
+          {
+            "Index": 224,
+            "Hex": "D8",
+            "Reading": "216",
+            "Selected": false
+          },
+          {
+            "Index": 225,
+            "Hex": "FD",
+            "Reading": "253",
+            "Selected": false
+          },
+          {
+            "Index": 226,
+            "Hex": "12",
+            "Reading": "18",
+            "Selected": false
+          },
+          {
+            "Index": 227,
+            "Hex": "37",
+            "Reading": "55",
+            "Selected": false
+          },
+          {
+            "Index": 228,
+            "Hex": "4C",
+            "Reading": "76",
+            "Selected": false
+          },
+          {
+            "Index": 229,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": false
+          },
+          {
+            "Index": 230,
+            "Hex": "86",
+            "Reading": "134",
+            "Selected": false
+          },
+          {
+            "Index": 231,
+            "Hex": "DB",
+            "Reading": "219",
+            "Selected": false
+          },
+          {
+            "Index": 232,
+            "Hex": "F1",
+            "Reading": "241",
+            "Selected": false
+          },
+          {
+            "Index": 233,
+            "Hex": "14",
+            "Reading": "20",
+            "Selected": false
+          },
+          {
+            "Index": 234,
+            "Hex": "2B",
+            "Reading": "43",
+            "Selected": false
+          },
+          {
+            "Index": 235,
+            "Hex": "4E",
+            "Reading": "78",
+            "Selected": false
+          },
+          {
+            "Index": 236,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 237,
+            "Hex": "B8",
+            "Reading": "184",
+            "Selected": false
+          },
+          {
+            "Index": 238,
+            "Hex": "DF",
+            "Reading": "223",
+            "Selected": false
+          },
+          {
+            "Index": 239,
+            "Hex": "F2",
+            "Reading": "242",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a2010f0",
+        "Text": "./@e....#F..... ",
+        "Cells": [
+          {
+            "Index": 240,
+            "Hex": "0A",
+            "Reading": "10",
+            "Selected": false
+          },
+          {
+            "Index": 241,
+            "Hex": "2F",
+            "Reading": "47",
+            "Selected": false
+          },
+          {
+            "Index": 242,
+            "Hex": "40",
+            "Reading": "64",
+            "Selected": false
+          },
+          {
+            "Index": 243,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 244,
+            "Hex": "BE",
+            "Reading": "190",
+            "Selected": false
+          },
+          {
+            "Index": 245,
+            "Hex": "D3",
+            "Reading": "211",
+            "Selected": false
+          },
+          {
+            "Index": 246,
+            "Hex": "F4",
+            "Reading": "244",
+            "Selected": false
+          },
+          {
+            "Index": 247,
+            "Hex": "09",
+            "Reading": "9",
+            "Selected": false
+          },
+          {
+            "Index": 248,
+            "Hex": "23",
+            "Reading": "35",
+            "Selected": false
+          },
+          {
+            "Index": 249,
+            "Hex": "46",
+            "Reading": "70",
+            "Selected": false
+          },
+          {
+            "Index": 250,
+            "Hex": "99",
+            "Reading": "153",
+            "Selected": false
+          },
+          {
+            "Index": 251,
+            "Hex": "BC",
+            "Reading": "188",
+            "Selected": false
+          },
+          {
+            "Index": 252,
+            "Hex": "D7",
+            "Reading": "215",
+            "Selected": false
+          },
+          {
+            "Index": 253,
+            "Hex": "EA",
+            "Reading": "234",
+            "Selected": false
+          },
+          {
+            "Index": 254,
+            "Hex": "0D",
+            "Reading": "13",
+            "Selected": false
+          },
+          {
+            "Index": 255,
+            "Hex": "20",
+            "Reading": "32",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201100",
+        "Text": "|.....\"......\\{.",
+        "Cells": [
+          {
+            "Index": 256,
+            "Hex": "7C",
+            "Reading": "124",
+            "Selected": false
+          },
+          {
+            "Index": 257,
+            "Hex": "99",
+            "Reading": "153",
+            "Selected": false
+          },
+          {
+            "Index": 258,
+            "Hex": "B6",
+            "Reading": "182",
+            "Selected": false
+          },
+          {
+            "Index": 259,
+            "Hex": "D3",
+            "Reading": "211",
+            "Selected": false
+          },
+          {
+            "Index": 260,
+            "Hex": "E8",
+            "Reading": "232",
+            "Selected": false
+          },
+          {
+            "Index": 261,
+            "Hex": "05",
+            "Reading": "5",
+            "Selected": false
+          },
+          {
+            "Index": 262,
+            "Hex": "22",
+            "Reading": "34",
+            "Selected": false
+          },
+          {
+            "Index": 263,
+            "Hex": "7F",
+            "Reading": "127",
+            "Selected": false
+          },
+          {
+            "Index": 264,
+            "Hex": "95",
+            "Reading": "149",
+            "Selected": false
+          },
+          {
+            "Index": 265,
+            "Hex": "B0",
+            "Reading": "176",
+            "Selected": false
+          },
+          {
+            "Index": 266,
+            "Hex": "CF",
+            "Reading": "207",
+            "Selected": false
+          },
+          {
+            "Index": 267,
+            "Hex": "EA",
+            "Reading": "234",
+            "Selected": false
+          },
+          {
+            "Index": 268,
+            "Hex": "01",
+            "Reading": "1",
+            "Selected": false
+          },
+          {
+            "Index": 269,
+            "Hex": "5C",
+            "Reading": "92",
+            "Selected": false
+          },
+          {
+            "Index": 270,
+            "Hex": "7B",
+            "Reading": "123",
+            "Selected": false
+          },
+          {
+            "Index": 271,
+            "Hex": "96",
+            "Reading": "150",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201110",
+        "Text": "....Zw....=Xs...",
+        "Cells": [
+          {
+            "Index": 272,
+            "Hex": "AE",
+            "Reading": "174",
+            "Selected": false
+          },
+          {
+            "Index": 273,
+            "Hex": "CB",
+            "Reading": "203",
+            "Selected": false
+          },
+          {
+            "Index": 274,
+            "Hex": "E4",
+            "Reading": "228",
+            "Selected": false
+          },
+          {
+            "Index": 275,
+            "Hex": "01",
+            "Reading": "1",
+            "Selected": false
+          },
+          {
+            "Index": 276,
+            "Hex": "5A",
+            "Reading": "90",
+            "Selected": false
+          },
+          {
+            "Index": 277,
+            "Hex": "77",
+            "Reading": "119",
+            "Selected": false
+          },
+          {
+            "Index": 278,
+            "Hex": "90",
+            "Reading": "144",
+            "Selected": false
+          },
+          {
+            "Index": 279,
+            "Hex": "AD",
+            "Reading": "173",
+            "Selected": false
+          },
+          {
+            "Index": 280,
+            "Hex": "C7",
+            "Reading": "199",
+            "Selected": false
+          },
+          {
+            "Index": 281,
+            "Hex": "E2",
+            "Reading": "226",
+            "Selected": false
+          },
+          {
+            "Index": 282,
+            "Hex": "3D",
+            "Reading": "61",
+            "Selected": false
+          },
+          {
+            "Index": 283,
+            "Hex": "58",
+            "Reading": "88",
+            "Selected": false
+          },
+          {
+            "Index": 284,
+            "Hex": "73",
+            "Reading": "115",
+            "Selected": false
+          },
+          {
+            "Index": 285,
+            "Hex": "8E",
+            "Reading": "142",
+            "Selected": false
+          },
+          {
+            "Index": 286,
+            "Hex": "A9",
+            "Reading": "169",
+            "Selected": false
+          },
+          {
+            "Index": 287,
+            "Hex": "C4",
+            "Reading": "196",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201120",
+        "Text": "Blend toward whi",
+        "Cells": [
+          {
+            "Index": 288,
+            "Hex": "42",
+            "Reading": "66",
+            "Selected": false
+          },
+          {
+            "Index": 289,
+            "Hex": "6C",
+            "Reading": "108",
+            "Selected": false
+          },
+          {
+            "Index": 290,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 291,
+            "Hex": "6E",
+            "Reading": "110",
+            "Selected": false
+          },
+          {
+            "Index": 292,
+            "Hex": "64",
+            "Reading": "100",
+            "Selected": false
+          },
+          {
+            "Index": 293,
+            "Hex": "20",
+            "Reading": "32",
+            "Selected": false
+          },
+          {
+            "Index": 294,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 295,
+            "Hex": "6F",
+            "Reading": "111",
+            "Selected": false
+          },
+          {
+            "Index": 296,
+            "Hex": "77",
+            "Reading": "119",
+            "Selected": false
+          },
+          {
+            "Index": 297,
+            "Hex": "61",
+            "Reading": "97",
+            "Selected": false
+          },
+          {
+            "Index": 298,
+            "Hex": "72",
+            "Reading": "114",
+            "Selected": false
+          },
+          {
+            "Index": 299,
+            "Hex": "64",
+            "Reading": "100",
+            "Selected": false
+          },
+          {
+            "Index": 300,
+            "Hex": "20",
+            "Reading": "32",
+            "Selected": false
+          },
+          {
+            "Index": 301,
+            "Hex": "77",
+            "Reading": "119",
+            "Selected": false
+          },
+          {
+            "Index": 302,
+            "Hex": "68",
+            "Reading": "104",
+            "Selected": false
+          },
+          {
+            "Index": 303,
+            "Hex": "69",
+            "Reading": "105",
+            "Selected": false
+          }
+        ]
+      },
+      {
+        "Address": "00007ffd5a201130",
+        "Text": "te by lift.",
+        "Cells": [
+          {
+            "Index": 304,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 305,
+            "Hex": "65",
+            "Reading": "101",
+            "Selected": false
+          },
+          {
+            "Index": 306,
+            "Hex": "20",
+            "Reading": "32",
+            "Selected": false
+          },
+          {
+            "Index": 307,
+            "Hex": "62",
+            "Reading": "98",
+            "Selected": false
+          },
+          {
+            "Index": 308,
+            "Hex": "79",
+            "Reading": "121",
+            "Selected": false
+          },
+          {
+            "Index": 309,
+            "Hex": "20",
+            "Reading": "32",
+            "Selected": false
+          },
+          {
+            "Index": 310,
+            "Hex": "6C",
+            "Reading": "108",
+            "Selected": false
+          },
+          {
+            "Index": 311,
+            "Hex": "69",
+            "Reading": "105",
+            "Selected": false
+          },
+          {
+            "Index": 312,
+            "Hex": "66",
+            "Reading": "102",
+            "Selected": false
+          },
+          {
+            "Index": 313,
+            "Hex": "74",
+            "Reading": "116",
+            "Selected": false
+          },
+          {
+            "Index": 314,
+            "Hex": "00",
+            "Reading": "0",
+            "Selected": false
+          }
+        ]
+      }
+    ],
+    "Reading": "0x7FFD5A201008 · u8 112 · i8 112",
+    "Instructions": [
+      {
+        "Address": "10004a20",
+        "Bytes": "55",
+        "Opcode": "push",
+        "Source": "rbp",
+        "Current": false
+      },
+      {
+        "Address": "10004a21",
+        "Bytes": "48 89 e5",
+        "Opcode": "mov",
+        "Source": "rbp, rsp",
+        "Current": false
+      },
+      {
+        "Address": "10004a24",
+        "Bytes": "48 83 ec 30",
+        "Opcode": "sub",
+        "Source": "rsp, 0x30",
+        "Current": false
+      },
+      {
+        "Address": "10004a28",
+        "Bytes": "48 89 7d e8",
+        "Opcode": "mov",
+        "Source": "qword ptr [rbp - 0x18], rdi",
+        "Current": false
+      },
+      {
+        "Address": "10004a2c",
+        "Bytes": "f3 0f 11 45 e4",
+        "Opcode": "movss",
+        "Source": "dword ptr [rbp - 0x1c], xmm0",
+        "Current": false
+      },
+      {
+        "Address": "10004a31",
+        "Bytes": "e8 9a 01 00 00",
+        "Opcode": "call",
+        "Source": "0x100004bd0 ; BTreeMap::get",
+        "Current": false
+      },
+      {
+        "Address": "10004a36",
+        "Bytes": "48 85 c0",
+        "Opcode": "test",
+        "Source": "rax, rax",
+        "Current": false
+      },
+      {
+        "Address": "10004a39",
+        "Bytes": "74 12",
+        "Opcode": "je",
+        "Source": "0x100004a4d",
+        "Current": false
+      },
+      {
+        "Address": "10004a3b",
+        "Bytes": "f3 0f 10 45 e4",
+        "Opcode": "movss",
+        "Source": "xmm0, dword ptr [rbp - 0x1c]",
+        "Current": true
+      },
+      {
+        "Address": "10004a40",
+        "Bytes": "e8 4b 02 00 00",
+        "Opcode": "call",
+        "Source": "0x100004c90 ; Color::lift",
+        "Current": false
+      },
+      {
+        "Address": "10004a45",
+        "Bytes": "48 83 c4 30",
+        "Opcode": "add",
+        "Source": "rsp, 0x30",
+        "Current": false
+      },
+      {
+        "Address": "10004a49",
+        "Bytes": "5d",
+        "Opcode": "pop",
+        "Source": "rbp",
+        "Current": false
+      },
+      {
+        "Address": "10004a4a",
+        "Bytes": "c3",
+        "Opcode": "ret",
+        "Source": "",
+        "Current": false
+      }
+    ],
+    "ShowDisassembly": true
+  },
+  "debug/PerformanceProfiler": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Duration": 225,
+    "ProfileReading": "225 samples total · press a frame to zoom in",
+    "ProfileFrames": [
+      {
+        "ID": "main",
+        "Name": "main",
+        "Samples": 225,
+        "Start": 0,
+        "End": 225,
+        "Depth": 0
+      },
+      {
+        "ID": "run_loop",
+        "Name": "run_loop",
+        "Samples": 185,
+        "Start": 0,
+        "End": 185,
+        "Depth": 1
+      },
+      {
+        "ID": "draw",
+        "Name": "draw",
+        "Samples": 156,
+        "Start": 0,
+        "End": 156,
+        "Depth": 2
+      },
+      {
+        "ID": "layout",
+        "Name": "layout",
+        "Samples": 90,
+        "Start": 0,
+        "End": 90,
+        "Depth": 3
+      },
+      {
+        "ID": "measure_text",
+        "Name": "measure_text",
+        "Samples": 22,
+        "Start": 0,
+        "End": 22,
+        "Depth": 4
+      },
+      {
+        "ID": "taffy::compute",
+        "Name": "taffy::compute",
+        "Samples": 30,
+        "Start": 22,
+        "End": 52,
+        "Depth": 4
+      },
+      {
+        "ID": "paint",
+        "Name": "paint",
+        "Samples": 56,
+        "Start": 90,
+        "End": 146,
+        "Depth": 3
+      },
+      {
+        "ID": "shape_line",
+        "Name": "shape_line",
+        "Samples": 18,
+        "Start": 90,
+        "End": 108,
+        "Depth": 4
+      },
+      {
+        "ID": "rasterize",
+        "Name": "rasterize",
+        "Samples": 12,
+        "Start": 108,
+        "End": 120,
+        "Depth": 4
+      },
+      {
+        "ID": "dispatch_event",
+        "Name": "dispatch_event",
+        "Samples": 23,
+        "Start": 156,
+        "End": 179,
+        "Depth": 2
+      },
+      {
+        "ID": "on_click",
+        "Name": "on_click",
+        "Samples": 9,
+        "Start": 156,
+        "End": 165,
+        "Depth": 3
+      },
+      {
+        "ID": "io_thread",
+        "Name": "io_thread",
+        "Samples": 36,
+        "Start": 185,
+        "End": 221,
+        "Depth": 1
+      },
+      {
+        "ID": "read",
+        "Name": "read",
+        "Samples": 16,
+        "Start": 185,
+        "End": 201,
+        "Depth": 2
+      }
+    ],
+    "TimelineRange": "0–25 ms",
+    "TimelineTracks": [
+      {
+        "Name": "Main",
+        "Spans": [
+          {
+            "ID": "Main-0",
+            "Name": "event",
+            "Start": 0,
+            "End": 1.2
+          },
+          {
+            "ID": "Main-1",
+            "Name": "layout",
+            "Start": 1.2,
+            "End": 5.6
+          },
+          {
+            "ID": "Main-2",
+            "Name": "paint",
+            "Start": 5.6,
+            "End": 9.1
+          },
+          {
+            "ID": "Main-3",
+            "Name": "event",
+            "Start": 16.6,
+            "End": 17.3
+          },
+          {
+            "ID": "Main-4",
+            "Name": "layout",
+            "Start": 17.3,
+            "End": 20.4
+          },
+          {
+            "ID": "Main-5",
+            "Name": "paint",
+            "Start": 20.4,
+            "End": 23
+          }
+        ]
+      },
+      {
+        "Name": "Text",
+        "Spans": [
+          {
+            "ID": "Text-0",
+            "Name": "shape",
+            "Start": 2,
+            "End": 4.8
+          },
+          {
+            "ID": "Text-1",
+            "Name": "shape",
+            "Start": 18,
+            "End": 19.6
+          }
+        ]
+      },
+      {
+        "Name": "Memory",
+        "Spans": [
+          {
+            "ID": "Memory-0",
+            "Name": "gc",
+            "Start": 9.5,
+            "End": 12
+          }
+        ]
+      },
+      {
+        "Name": "IO",
+        "Spans": [
+          {
+            "ID": "IO-0",
+            "Name": "read",
+            "Start": 0.5,
+            "End": 14
+          },
+          {
+            "ID": "IO-1",
+            "Name": "parse",
+            "Start": 14,
+            "End": 15.2
+          }
+        ]
+      }
+    ]
+  },
+  "debug/NetworkInspector": {
+    "SourceLayout": true,
+    "Title": "",
+    "Description": "",
+    "Items": [],
+    "PreviewExamples": null,
+    "EditorTools": [],
+    "CodeLenses": [],
+    "Breadcrumbs": [],
+    "Required": false,
+    "ActionLabel": "Save with host",
+    "Query": "",
+    "Value": "",
+    "Minimap": false,
+    "Lines": [],
+    "Requests": [
+      {
+        "Method": "GET",
+        "URL": "https://ely.dev/",
+        "Name": "ely.dev",
+        "Status": 200,
+        "Kind": "document",
+        "Size": "18.4 KB",
+        "Start": 0,
+        "Duration": 120,
+        "Body": "",
+        "Selected": false,
+        "Headers": [
+          {
+            "Name": "content-type",
+            "Value": "text/html"
+          },
+          {
+            "Name": "cache-control",
+            "Value": "no-store"
+          }
+        ]
+      },
+      {
+        "Method": "GET",
+        "URL": "https://ely.dev/static/app.js",
+        "Name": "app.js",
+        "Status": 200,
+        "Kind": "script",
+        "Size": "212 KB",
+        "Start": 130,
+        "Duration": 240,
+        "Body": "",
+        "Selected": false,
+        "Headers": [
+          {
+            "Name": "content-type",
+            "Value": "text/html"
+          },
+          {
+            "Name": "cache-control",
+            "Value": "no-store"
+          }
+        ]
+      },
+      {
+        "Method": "GET",
+        "URL": "https://ely.dev/static/inter.woff2",
+        "Name": "inter.woff2",
+        "Status": 304,
+        "Kind": "font",
+        "Size": "0 B",
+        "Start": 140,
+        "Duration": 60,
+        "Body": "",
+        "Selected": false,
+        "Headers": [
+          {
+            "Name": "content-type",
+            "Value": "text/html"
+          },
+          {
+            "Name": "cache-control",
+            "Value": "no-store"
+          }
+        ]
+      },
+      {
+        "Method": "GET",
+        "URL": "https://api.ely.dev/v1/quotes?symbol=ELY",
+        "Name": "quotes?symbol=ELY",
+        "Status": 200,
+        "Kind": "fetch",
+        "Size": "2.3 KB",
+        "Start": 380,
+        "Duration": 95,
+        "Body": "{ \"symbol\": \"ELY\", \"price\": 128.4, \"change\": 0.012 }",
+        "Selected": false,
+        "Headers": [
+          {
+            "Name": "content-type",
+            "Value": "application/json"
+          },
+          {
+            "Name": "cache-control",
+            "Value": "no-store"
+          }
+        ]
+      },
+      {
+        "Method": "POST",
+        "URL": "https://api.ely.dev/v1/orders",
+        "Name": "orders",
+        "Status": 503,
+        "Kind": "fetch",
+        "Size": "180 B",
+        "Start": 420,
+        "Duration": 310,
+        "Body": "{ \"error\": \"orders are paused\" }",
+        "Selected": true,
+        "Headers": [
+          {
+            "Name": "content-type",
+            "Value": "application/json"
+          },
+          {
+            "Name": "cache-control",
+            "Value": "no-store"
+          }
+        ]
+      },
+      {
+        "Method": "GET",
+        "URL": "https://api.ely.dev/v1/stream",
+        "Name": "stream",
+        "Status": null,
+        "Kind": "fetch",
+        "Size": "0 B",
+        "Start": 500,
+        "Duration": 400,
+        "Body": "",
+        "Selected": false,
+        "Headers": [
+          {
+            "Name": "content-type",
+            "Value": "application/json"
+          },
+          {
+            "Name": "cache-control",
+            "Value": "no-store"
+          }
+        ]
+      }
+    ]
+  }
+}

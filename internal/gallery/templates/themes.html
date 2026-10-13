@@ -7,7 +7,7 @@
 <div class="theme-layout">
 <section class="theme-editor" data-ui-component="theme-editor" aria-label="테마 색상 편집">
 <h2>테마 설정</h2>
-<label for="theme-preset">제안 시작점</label>{{template "select" (dict "ID" "theme-preset" "Value" "blue" "Options" (list (dict "Value" "blue" "Label" "Blue · 현재 기본") (dict "Value" "violet" "Label" "Dusty Violet · 차분한 보라") (dict "Value" "terracotta" "Label" "Oxide Terracotta · 따뜻한 적갈색")))}}
+<label for="theme-preset">제안 시작점</label>{{template "select" (dict "ID" "theme-preset" "Value" "ely" "Options" (list (dict "Value" "ely" "Label" "Ely Neutral · 기본") (dict "Value" "blue" "Label" "Blue · 파랑") (dict "Value" "violet" "Label" "Dusty Violet · 차분한 보라") (dict "Value" "terracotta" "Label" "Oxide Terracotta · 따뜻한 적갈색")))}}
 <label for="theme-name">제안 이름</label>{{template "input" (dict "ID" "theme-name" "Required" true "MaxLength" 80)}}
 <label for="theme-mode">편집할 모드</label>{{template "select" (dict "ID" "theme-mode" "Value" "light" "Options" (list (dict "Value" "light" "Label" "라이트") (dict "Value" "dark" "Label" "다크")))}}
 <div class="theme-fields" data-theme-fields></div>

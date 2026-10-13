@@ -2,15 +2,17 @@
   const initialize = () => {
     document.querySelectorAll('[data-ui-component="data-table"]').forEach(root => {
       if (root.dataset.uiPatternsReady) return;
-      root.dataset.uiPatternsReady = 'true';
       const body = root.querySelector('tbody'), filter = root.querySelector('[data-ui-table-filter]');
+      if (!body) return;
+      root.dataset.uiPatternsReady = 'true';
       const update = () => {
-        const query = filter.value.trim().toLocaleLowerCase();
+        const query = (filter?.value || '').trim().toLocaleLowerCase();
         let count = 0;
         for (const row of body.rows) { row.hidden = !row.textContent.toLocaleLowerCase().includes(query); if (!row.hidden) count++; }
-        root.querySelector('[data-ui-table-summary]').textContent = `${count} / ${body.rows.length} rows`;
+        const summary = root.querySelector('[data-ui-table-summary]');
+        if (summary) summary.textContent = `${count} / ${body.rows.length} rows`;
       };
-      filter.addEventListener('input', update);
+      filter?.addEventListener('input', update);
       root.addEventListener('click', event => {
         const button = event.target.closest('button'); if (!button) return;
         if (button.hasAttribute('data-ui-table-density')) root.dataset.density = root.dataset.density === 'compact' ? 'default' : 'compact';

@@ -14,7 +14,9 @@ function boot(saved={}, denied=false) {
 }
 const runtime=boot(), {api}=runtime;
 assert.equal(api.tokens.length,19);
-assert.equal(api.list().length,3);
+assert.equal(api.list().length,4);
+assert.equal(api.current().id,'ely');
+assert.equal(boot({'ely-palette':'blue'}).api.current().id,'blue','saved choices must survive the new default');
 for(const {id} of api.list())assert.equal(api.issues(api.get(id)).length,0,id+' contrast');
 api.apply('violet','dark');
 assert.equal(runtime.root.dataset.palette,'violet');
@@ -52,9 +54,14 @@ const unreadable=api.get('blue');unreadable.id='unreadable';unreadable.light['co
 assert.ok(api.issues(unreadable).length);assert.throws(()=>api.register(unreadable));assert.throws(()=>api.apply('unreadable'));
 assert.equal(api.current().id,'custom','failed apply must leave the current palette intact');
 unreadable.id='custom';assert.throws(()=>api.register(unreadable));assert.equal(api.get('custom').light['color-accent'],'#96523E','failed replacement must preserve the registered theme');
-assert.equal(boot({'ely-palette':'unreadable','ely-custom-theme':JSON.stringify(unreadable)}).api.current().id,'blue');
-assert.equal(boot({'ely-palette':'missing','ely-custom-theme':'{bad json'}).api.current().id,'blue');
-assert.equal(boot({},true).api.current().id,'blue');
+assert.equal(boot({'ely-palette':'unreadable','ely-custom-theme':JSON.stringify(unreadable)}).api.current().id,'ely');
+assert.equal(boot({'ely-palette':'missing','ely-custom-theme':'{bad json'}).api.current().id,'ely');
+assert.equal(boot({},true).api.current().id,'ely');
+const unreadableDanger=api.get('ely');unreadableDanger.id='unreadable-danger';
+unreadableDanger.light.error=unreadableDanger.light['on-accent'];
+unreadableDanger.light['error-tint']=unreadableDanger.light['color-ink'];
+assert.ok(api.issues(unreadableDanger).some(issue=>issue.foreground==='on-accent'&&issue.background==='error'));
+assert.throws(()=>api.register(unreadableDanger),'danger buttons must keep readable labels');
 
 // The CSS fallback preserves the default palette when JavaScript is unavailable.
 const css=readFileSync(new URL('./assets/input.css',import.meta.url),'utf8');
@@ -62,6 +69,6 @@ const lightCSS=css.match(/@theme\s*\{([\s\S]*?)\n\}/)[1]+css.match(/:root\s*\{([
 const darkCSS=css.match(/:root\[data-theme='dark'\]\s*\{([\s\S]*?)\n\s*\}/)[1];
 for(const [mode,text] of [['light',lightCSS],['dark',darkCSS]])for(const key of api.tokens){
   const value=text.match(new RegExp('--'+key+':\\s*(#[0-9a-f]{6})','i'))?.[1].toUpperCase();
-  assert.equal(value,api.get('blue')[mode][key],mode+' CSS fallback '+key);
+  assert.equal(value,api.get('ely')[mode][key],mode+' CSS fallback '+key);
 }
 console.log('Theme presets, contrast, aliases, scope, storage, validation, and CSS fallback passed.');

@@ -17,8 +17,9 @@ type advancedRenderedCase struct {
 }
 
 type advancedPage struct {
-	Cases []advancedRenderedCase
-	Error string
+	Cases  []advancedRenderedCase
+	Error  string
+	Family string
 }
 
 func advancedCases() []AdvancedCase {
@@ -56,7 +57,7 @@ func (s *Server) advancedAudit(w http.ResponseWriter, r *http.Request) {
 	}
 	family, aliases := r.URL.Query().Get("family"), r.URL.Query().Get("aliases") == "1"
 	seen := map[string]bool{}
-	p := advancedPage{}
+	p := advancedPage{Family: family}
 	for _, definition := range definitions {
 		if family != "" && family != definition.Family {
 			continue
@@ -122,6 +123,10 @@ func aliasFixtureProps(source map[string]any, name string) map[string]any {
 		props[key] = value
 	}
 	switch name {
+	case "EAN13":
+		props["Value"], props["Format"] = "4006381333931", "ean13"
+	case "Barcode", "Code128":
+		props["Value"], props["Format"] = "ELY-2026", "code128"
 	case "JsonInput", "ImportExportSettings":
 		props["Value"] = `{"caller":"source"}`
 	case "DateTimePicker":

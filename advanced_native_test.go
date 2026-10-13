@@ -9,7 +9,7 @@ import (
 
 func nativeTemplates(t *testing.T) *template.Template {
 	t.Helper()
-	tpl, err := template.New("").Funcs(Funcs()).ParseFS(Files, "templates/ely-api.html", "templates/ely-api-native.html")
+	tpl, err := template.New("").Funcs(Funcs()).ParseFS(Files, "templates/ely-api.html", "templates/ely-api-native.html", "templates/ely-api-native-tooling.html", "templates/shadcn-select.html", "templates/shadcn-switch.html")
 	if err != nil {
 		t.Fatal(err)
 	}

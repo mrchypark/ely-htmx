@@ -57,6 +57,8 @@ A screen owns its form action and htmx endpoint:
 
 Your handler validates native form values and renders a fragment for `HX-Request: true`, or a full page otherwise. The library does not register application routes, authorize users, or persist data. `BindAssets` registers individual `GET /assets/...` paths. Keep those paths available and do not register another handler for the same exact asset; other application assets can use the `/assets/` fallback or their own paths. The current release assumes a root-mounted application and `/assets/` URLs.
 
+The gallery renders the same `ui.Component` APIs used by applications. Example data belongs to the gallery; component markup, styling and behavior belong to the shared library.
+
 For catalogue components:
 
 ```go
@@ -90,7 +92,9 @@ Do not convert untrusted strings into `template.HTML`. Normal properties and val
 
 ## Themes
 
-Three presets: **Blue**, **Dusty Violet**, **Oxide Terracotta**. Each defines 19 color roles in both light and dark modes. Component aliases derive from those roles. `/components/themes` provides neutral light/dark previews, editing, contrast checks and JSON import/export.
+Four presets: **Ely Neutral** (default), **Blue**, **Dusty Violet**, **Oxide Terracotta**. Each defines 19 color roles in both light and dark modes. Ely Neutral uses the upstream GPUI palette, including its high-contrast input boundaries. Saved palette choices are preserved. Component aliases derive from those roles. `/components/themes` provides light/dark previews, editing, contrast checks and JSON import/export.
+
+The shared `button` template accepts Ely's `primary`, `danger`, and `subtle` variants as aliases for `default`, `destructive`, and `secondary`.
 
 ```js
 const theme = ElyTheme.get('violet');

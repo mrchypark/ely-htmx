@@ -1,14 +1,30 @@
-[data-ely-family='forms'] .ely-api-field{display:grid;gap:.5rem;font-size:var(--ely-control-font-size);font-weight:500}
+[data-ely-family='forms'] .ely-api-field{display:grid;gap:.5rem;max-inline-size:26rem;font-size:var(--ely-control-font-size);font-weight:500}
+[data-ely-family='forms'] .ely-api-field.is-dense{max-inline-size:20rem;gap:.35rem}[data-ely-family='forms'] .ely-api-input-specimens{display:grid;gap:.75rem}[data-ely-family='forms'] .ely-api-input-primary{inline-size:min(100%,22.5rem)}[data-ely-family='forms'] .ely-api-input-row{display:flex;flex-wrap:wrap;gap:.75rem}[data-ely-family='forms'] .ely-api-input-specimen{inline-size:min(100%,15rem)}[data-ely-family='forms'] .ely-api-input-specimen .ely-api-field{max-inline-size:100%}[data-ely-family='forms'] .ely-api-width{max-inline-size:100%}[data-ely-family='forms'] .is-width-160{inline-size:10rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-200{inline-size:12.5rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-220{inline-size:13.75rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-240{inline-size:15rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-260{inline-size:16.25rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-320{inline-size:20rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-360{inline-size:22.5rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-420{inline-size:26.25rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-560{inline-size:35rem;max-inline-size:100%}[data-ely-family='forms'] .is-width-420 .ely-api-field{max-inline-size:26.25rem}
 [data-ely-family='forms'] fieldset{display:grid;gap:.75rem;min-inline-size:0;border:1px solid var(--border);padding:1rem;border-radius:.5rem}
 [data-ely-family='forms'] legend{padding-inline:.35rem;font-weight:600}
-[data-ely-family='forms'] .ely-api-number,[data-ely-family='forms'] .ely-api-input-group,[data-ely-family='forms'] .ely-api-swatches,[data-ely-family='forms'] .ely-api-duration{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}
-[data-ely-family='forms'] .ely-api-number .ely-api-field,[data-ely-family='forms'] .ely-api-input-group .ely-api-field{flex:1;min-inline-size:8rem}
+[data-ely-family='forms'] .ely-api-number,[data-ely-family='forms'] .ely-api-swatches,[data-ely-family='forms'] .ely-api-duration{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}
+[data-ely-family='forms'] .ely-api-swatches button{display:inline-flex;align-items:center;gap:.375rem}
+[data-ely-family='forms'] .ely-api-swatch-chip{inline-size:28px;block-size:28px;flex:none;border:1px solid color-mix(in srgb,var(--color-ink) 18%,transparent);border-radius:.25rem}
+[data-ely-family='forms'] .ely-api-number .ely-api-field{flex:1;min-inline-size:8rem}[data-ely-family='forms'] .ely-api-number.is-scrub{inline-size:min(100%,16.25rem);display:grid;grid-template-columns:auto minmax(0,1fr);gap:.5rem}[data-ely-family='forms'] .ely-api-number.is-scrub [data-ely-scrub]{align-self:center;cursor:ew-resize;font-weight:500;user-select:none}[data-ely-family='forms'] .ely-api-number.is-scrub input{min-inline-size:0}
+[data-ely-family='forms'] .ely-api-currency{display:flex;align-items:center;max-inline-size:26rem;border:1px solid var(--border);border-radius:.4rem;overflow:hidden}
+[data-ely-family='forms'] .ely-api-currency>span{display:block;flex:none;white-space:nowrap;padding-inline:.5rem;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-currency input{min-inline-size:0;border:0;border-radius:0}
 [data-ely-family='forms'] .ely-api-choice-cards{display:flex;flex-wrap:wrap;gap:.5rem}
-[data-ely-family='forms'] .ely-api-choice-card{display:grid;grid-template-columns:auto 1fr;gap:.5rem;border:1px solid var(--border);border-radius:.5rem;padding:.75rem}
+[data-ely-family='forms'] .ely-api-choice-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:.6rem;min-inline-size:18rem;border:1px solid var(--border);border-radius:.5rem;padding:.75rem}
+[data-ely-family='forms'] .ely-api-choice-card-copy{display:grid;gap:.2rem}[data-ely-family='forms'] .ely-api-choice-card-copy>span{color:var(--color-muted);font-size:.875em}[data-ely-family='forms'] .ely-api-choice-card-icon{color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-input-group{display:grid;gap:.35rem;max-inline-size:20rem;font-size:var(--ely-control-font-size);font-weight:500}[data-ely-family='forms'] .ely-api-input-group-frame{display:flex;align-items:center;overflow:hidden;border:1px solid var(--border);border-radius:.4rem}[data-ely-family='forms'] .ely-api-input-group-frame input{min-inline-size:0;flex:1;border:0;border-radius:0}[data-ely-family='forms'] .ely-api-input-addon{flex:none;white-space:nowrap;padding-inline:.55rem;color:var(--color-muted);background:color-mix(in srgb,var(--surface) 85%,var(--color-muted) 15%)}
+[data-ely-family='forms'] .ely-api-input-addon.is-icon{font-size:1rem}[data-ely-family='forms'] .ely-api-input-group-frame>button{margin-inline-end:.2rem}
+[data-ely-family='forms'] .ely-api-mention,[data-ely-family='forms'] .ely-api-tag-input.is-compact,[data-ely-family='forms'] .ely-api-key-value,[data-ely-family='forms'] .ely-api-path-input{max-inline-size:26.25rem}[data-ely-family='forms'] .ely-api-tag-input.is-compact [data-ui-component=tag-input]{max-inline-size:26.25rem}[data-ely-family='forms'] .ely-api-key-value,[data-ely-family='forms'] [data-ui-component=key-value-input][data-ely-key-value-disabled]{display:grid;gap:.5rem;max-inline-size:26.25rem}[data-ely-family='forms'] .ely-api-key-value [data-ui-key-values],[data-ely-family='forms'] [data-ui-component=key-value-input][data-ely-key-value-disabled] [data-ui-key-values]{display:grid;gap:.35rem}[data-ely-family='forms'] .ely-api-key-value .ely-control-row,[data-ely-family='forms'] [data-ui-component=key-value-input][data-ely-key-value-disabled] .ely-control-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:.35rem}[data-ely-family='forms'] .ely-api-path-input{display:flex;align-items:end;gap:.5rem}[data-ely-family='forms'] .ely-api-path-input .ely-api-field{flex:1;min-inline-size:0}
+[data-ely-family='forms'] .ely-api-choice-stack,[data-ely-family='forms'] .ely-api-switch-list,[data-ely-family='forms'] .ely-api-radio-group{display:grid;gap:.55rem;max-inline-size:20rem}[data-ely-family='forms'] .ely-api-choice-children{display:grid;gap:.45rem;padding-inline-start:1.5rem}[data-ely-family='forms'] .ely-api-choice-stack label,[data-ely-family='forms'] .ely-api-radio-group label,[data-ely-family='forms'] .ely-api-switch-list label{display:flex;align-items:center;gap:.5rem}[data-ely-family='forms'] .ely-api-radio-group.is-row{display:flex;flex-wrap:wrap;gap:1rem}[data-ely-family='forms'] .ely-api-switch-list small{display:block;color:var(--color-muted);font-size:.875em}
+[data-ely-family='forms'] .ely-api-evaluator{display:grid;gap:.5rem;max-inline-size:20rem}[data-ely-family='forms'] .ely-api-evaluator output:not(:empty){color:var(--color-muted);font-variant-numeric:tabular-nums}
+[data-ely-family='forms'] .ely-api-evaluator.is-compact{grid-template-columns:minmax(0,1fr) auto;align-items:end;max-inline-size:26.25rem}[data-ely-family='forms'] .ely-api-evaluator.is-compact output{min-block-size:2.25rem;padding:.55rem .65rem;border:1px solid var(--border);border-radius:.4rem;background:var(--surface);white-space:nowrap}[data-ely-family='forms'] .ely-api-pattern-status[data-ely-pattern-state=valid]{color:var(--color-success,#16803c);font-weight:600}[data-ely-family='forms'] .ely-api-pattern-status[data-ely-pattern-state=invalid]{color:var(--color-danger,#b42318);font-weight:600}.ely-api-visually-hidden{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[data-ely-family='forms'] .ely-api-number.is-compact{max-inline-size:13.75rem}[data-ely-family='forms'] .ely-api-number.is-compact>button{display:none}[data-ely-family='forms'] .ely-api-number.is-compact .ely-api-field{min-inline-size:0}
+[data-ely-family='forms'] .ely-api-password,.ely-api-search{display:grid;gap:.35rem;max-inline-size:20rem;font-size:var(--ely-control-font-size);font-weight:500}[data-ely-family='forms'] .ely-api-password.is-width-320,.ely-api-search.is-width-320{max-inline-size:20rem;inline-size:min(100%,20rem)}[data-ely-family='forms'] .ely-api-password [data-ui-component=password-input]{max-inline-size:20rem}[data-ely-family='forms'] .ely-api-password [data-ui-action=password-toggle]{font-size:0;inline-size:2.25rem;padding:0}[data-ely-family='forms'] .ely-api-password [data-ui-action=password-toggle]::after{content:'◉';font-size:1rem}[data-ely-family='forms'] .ely-api-search [data-ui-component=clearable-input]{position:relative}[data-ely-family='forms'] .ely-api-search .ely-control-row{position:relative;display:block}[data-ely-family='forms'] .ely-api-search input{inline-size:100%;padding-inline:2rem 2.25rem}[data-ely-family='forms'] .ely-api-search .ely-control-row::before{content:'⌕';position:absolute;z-index:1;inset-inline-start:.65rem;inset-block-start:50%;transform:translateY(-50%);color:var(--color-muted);pointer-events:none}[data-ely-family='forms'] .ely-api-search [data-ui-action=clear]{position:absolute;inset-inline-end:.2rem;inset-block-start:50%;transform:translateY(-50%);font-size:0;inline-size:2rem;padding:0}[data-ely-family='forms'] .ely-api-search [data-ui-action=clear]::after{content:'×';font-size:1rem}[data-ely-family='forms'] .ely-api-search small,[data-ely-family='forms'] .ely-api-hotkey small{color:var(--color-muted);font-weight:400}
+[data-ely-family='forms'] .ely-api-hotkey{position:relative;display:grid;gap:.35rem;max-inline-size:16.25rem}[data-ely-family='forms'] .ely-api-hotkey [data-ui-component=hotkey-input]{display:grid;gap:.35rem}[data-ely-family='forms'] .ely-api-hotkey [data-ui-hotkey]{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;letter-spacing:.04em}.ely-api-hotkey-glyph{position:absolute;z-index:1;inset:.55rem auto auto .65rem;color:var(--color-muted);pointer-events:none}
 [data-ely-family='forms'] .ely-api-transfer{display:grid;grid-template-columns:1fr auto 1fr;gap:.5rem;align-items:center}
 [data-ely-family='forms'] .ely-api-transfer label{display:grid;gap:.25rem;min-inline-size:0}
 [data-ely-family='forms'] .ely-api-transfer select{width:100%;min-height:8rem;border:1px solid var(--border);border-radius:.4rem;background:var(--surface);color:inherit;padding:.5rem}
-[data-ely-family='forms'] .ely-api-code-input{font-family:'Geist Mono',monospace;min-height:8rem}
+[data-ely-family='forms'] .ely-api-code-input{font-family:'JetBrains Mono',monospace}
 [data-ely-family='forms'] .ely-api-gradient{display:grid;gap:.5rem}
 [data-ely-family='forms'] [data-ely-gradient-preview]{display:block;min-height:3rem;border-radius:.4rem;border:1px solid var(--border)}
 [data-ely-family='forms'] .ely-api-records,[data-ely-family='forms'] .ely-api-checklist{list-style:none;padding:0;display:grid;gap:.5rem}
@@ -16,6 +32,454 @@
 [data-ely-family='forms'] .ely-api-import-export{display:grid;gap:.75rem}
 [data-ely-family='forms'] .ely-api-import-export>div{display:flex;flex-wrap:wrap;gap:.5rem}
 [data-ely-family='forms'] [data-ely-whats-new]{max-width:32rem;border:1px solid var(--border);border-radius:.5rem;color:inherit;background:var(--surface);padding:1rem}
-[data-ely-family='forms'] [data-ely-cascade-group]{display:grid;gap:.25rem;margin-inline-start:.75rem}
+[data-ely-family='forms'] .ely-api-select,.ely-api-listbox,.ely-api-combobox{max-inline-size:100%}[data-ely-family='forms'] .ely-api-multi-select [data-ui-component=multi-select]{position:relative;max-inline-size:22.5rem}[data-ely-family='forms'] .ely-api-multi-box{display:flex;align-items:center;flex-wrap:wrap;gap:.25rem;min-block-size:2.25rem;padding:.25rem .4rem;border:1px solid var(--border);border-radius:.4rem;background:var(--surface)}[data-ely-family='forms'] [data-ely-multi-chips]{display:flex;flex-wrap:wrap;gap:.25rem}[data-ely-family='forms'] [data-ely-multi-remove]{font-size:.85em;padding:.15rem .35rem}[data-ely-family='forms'] [data-ely-multi-entry]{flex:1;min-inline-size:7rem;border:0;background:transparent;outline:0}[data-ely-family='forms'] [data-ely-multi-source] [data-ui-multi-list]{display:none;position:absolute;z-index:2;inset-inline:0;top:calc(100% + .25rem);max-block-size:13rem;overflow:auto;padding:.25rem;border:1px solid var(--border);border-radius:.4rem;background:var(--surface);box-shadow:0 .5rem 1rem #0002}[data-ely-family='forms'] [data-ely-multi-source].is-open [data-ui-multi-list]{display:grid;gap:.15rem}[data-ely-family='forms'] [data-ely-multi-source] [data-ui-multi-option]{display:flex;gap:.5rem;block-size:28px;padding:3px .5rem;align-items:center}[data-ely-family='forms'] .ely-api-cascade{position:relative;max-inline-size:20rem}[data-ely-family='forms'] .ely-api-cascade-trigger{display:flex;inline-size:100%;justify-content:space-between;align-items:center}[data-ely-family='forms'] .ely-api-cascade-trigger output{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}[data-ely-family='forms'] .ely-api-cascade-menu{position:relative;margin-top:.25rem;min-block-size:8rem}[data-ely-family='forms'] .ely-api-cascade-menu>[data-ely-cascade-group]{display:grid;gap:.15rem;inline-size:8rem}[data-ely-family='forms'] [data-ely-cascade-node]{position:relative}[data-ely-family='forms'] [data-ely-cascade-group]{display:grid;gap:.15rem;padding:.25rem;border:1px solid var(--border);border-radius:.4rem;background:var(--surface)}[data-ely-family='forms'] [data-ely-cascade-node]>[data-ely-cascade-group]{position:absolute;z-index:2;inset-inline-start:calc(100% + .25rem);inset-block-start:0;inline-size:8rem}[data-ely-family='forms'] .ely-api-transfer.is-width-560{max-inline-size:35rem}
+[data-ely-family='forms'] .ely-api-account-switcher{position:relative;inline-size:max-content;max-inline-size:100%}
+[data-ely-family='forms'] .ely-api-account-switcher>[data-ely-account-menu]{display:flex;align-items:center;gap:.5rem;text-align:start}
+[data-ely-family='forms'] .ely-api-account-name,[data-ely-family='forms'] [data-ely-account-list] button{display:grid;gap:.125rem}
+[data-ely-family='forms'] .ely-api-account-switcher small{font:inherit;font-size:.875em;color:var(--color-muted)}
+[data-ely-family='forms'] [data-ely-account-list]{position:absolute;z-index:1;display:grid;min-inline-size:100%;margin-top:.25rem;padding:.25rem;border:1px solid var(--border);border-radius:.375rem;background:var(--surface);box-shadow:0 .5rem 1rem #0002}
+[data-ely-family='forms'] [data-ely-account-list] hr{inline-size:100%;border:0;border-top:1px solid var(--border)}
+[data-ely-family='forms'] .ely-api-auth-card{display:grid;gap:.75rem;max-inline-size:24rem}
+[data-ely-family='forms'] .ely-api-auth-card h4,[data-ely-family='forms'] .ely-api-auth-card p{margin:0}
+[data-ely-family='forms'] .ely-api-profile-layout{display:grid;grid-template-columns:minmax(16rem,20rem) minmax(18rem,26rem);align-items:start;gap:1rem}
+[data-ely-family='forms'] .ely-api-profile-card{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:.75rem}
+[data-ely-family='forms'] .ely-api-profile-card>p,[data-ely-family='forms'] .ely-api-profile-card dl,[data-ely-family='forms'] .ely-api-profile-card>div:last-child{grid-column:1/-1;margin:0}
+[data-ely-family='forms'] .ely-api-profile-card dl{display:grid;gap:.25rem;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-profile-card dl div{display:flex;gap:.4rem}[data-ely-family='forms'] .ely-api-profile-card dt{font-weight:600}[data-ely-family='forms'] .ely-api-profile-card dd{margin:0}
+[data-ely-family='forms'] .ely-api-profile-avatar{display:grid;place-items:center;inline-size:3rem;block-size:3rem;border-radius:50%;background:var(--accent-tint);font-size:1.2rem;font-weight:600}
+[data-ely-family='forms'] .ely-api-profile-presence{justify-self:end;color:var(--color-muted);font-size:.875em}
+[data-ely-family='forms'] .ely-api-session-list{display:grid;gap:.75rem;max-inline-size:30rem}
+[data-ely-family='forms'] .ely-api-session-list .ely-api-records{gap:0;border:1px solid var(--border);border-radius:.5rem;overflow:hidden}
+[data-ely-family='forms'] .ely-api-session-list .ely-api-records li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.75rem;padding:.75rem}
+[data-ely-family='forms'] .ely-api-session-list .ely-api-records li>div{display:grid;gap:.125rem}[data-ely-family='forms'] .ely-api-session-list small{color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-session-icon{display:grid;place-items:center;inline-size:2rem;block-size:2rem;border-radius:.375rem;background:var(--accent-tint)}
+[data-ely-family='forms'] .ely-api-current-session{font-size:.875em;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-subscription{max-inline-size:22rem}[data-ely-family='forms'] .ely-api-subscription .ui-card{display:grid;gap:1rem}
+[data-ely-family='forms'] .ely-api-subscription header{display:flex;justify-content:space-between;gap:.75rem}[data-ely-family='forms'] .ely-api-subscription header p{margin:.2rem 0 0;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-usage{display:grid;gap:.35rem}[data-ely-family='forms'] .ely-api-usage>div{display:flex;justify-content:space-between;gap:.5rem}[data-ely-family='forms'] .ely-api-usage span{color:var(--color-muted);font-size:.875em}
+[data-ely-family='forms'] [data-ely-settings-results]{display:grid;gap:.25rem;padding:.25rem;border:1px solid var(--border);border-radius:.375rem}
+[data-ely-family='forms'] [data-ely-setting]{display:grid;gap:.5rem}
+[data-ely-family='forms'] .ely-api-settings-body{display:grid;grid-template-columns:10rem minmax(0,1fr);gap:1rem}
+[data-ely-family='forms'] [data-ely-settings-nav]{display:grid;align-content:start;gap:.25rem}
+[data-ely-family='forms'] [data-ely-settings-nav] button[aria-selected='true']{background:var(--accent-tint);color:var(--color-ink)}
+[data-ely-family='forms'] .ely-api-color-picker,.ely-api-font-picker,.ely-api-icon-picker{display:grid;gap:.75rem}
+[data-ely-family='forms'] .ely-api-color-palette,.ely-api-color-channels{display:flex;flex-wrap:wrap;gap:.5rem}
+[data-ely-family='forms'] .ely-api-color-channels label{display:grid;gap:.25rem;min-inline-size:5rem}
+[data-ely-family='forms'] .ely-api-color-palette button{inline-size:2rem;block-size:2rem;padding:0;font-size:0}
+[data-ely-family='forms'] [data-ely-font-preview]{font-size:1.25rem}
+[data-ely-family='forms'] .ely-api-icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(5rem,1fr));gap:.25rem;max-block-size:16rem;overflow:auto}
+[data-ely-family='forms'] .ely-api-icon-grid button{display:grid;justify-items:center;gap:.25rem;padding:.5rem}[data-ely-family='forms'] .ely-api-icon-grid img{inline-size:1.25rem;block-size:1.25rem}[data-ely-family='forms'] .ely-api-icon-grid span{font-size:.75rem;overflow:hidden;text-overflow:ellipsis;max-inline-size:100%}
+[data-ely-family='forms'] [data-ely-wizard]{display:grid;gap:1rem}
+[data-ely-family='forms'] [data-ely-wizard]>nav{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+[data-ely-family='forms'] .ely-api-inline-form fieldset{display:flex;align-items:end;flex-wrap:wrap}
+[data-ely-family='forms'] .ely-api-inline-form .ely-api-field{flex:1;min-inline-size:12rem}
 [data-ely-family='forms'] [aria-pressed='true']{background:var(--accent-tint);color:var(--color-ink)}
-@media(max-width:36rem){[data-ely-family='forms'] .ely-api-transfer{grid-template-columns:1fr}[data-ely-family='forms'] .ely-api-transfer>div{display:flex;gap:.5rem}}
+@media(max-width:36rem){[data-ely-family='forms'] .ely-api-transfer{grid-template-columns:1fr}[data-ely-family='forms'] .ely-api-transfer>div{display:flex;gap:.5rem}[data-ely-family='forms'] .ely-api-settings-body,[data-ely-family='forms'] .ely-api-profile-layout{grid-template-columns:1fr}[data-ely-family='forms'] [data-ely-settings-nav]{grid-template-columns:repeat(auto-fit,minmax(8rem,1fr))}}
+
+[data-ely-family='forms'] .ely-api-color-plane{position:relative;inline-size:min(100%,16rem);aspect-ratio:1;border-radius:.4rem;background:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,hsl(var(--ely-color-hue,225) 100% 50%));cursor:crosshair;touch-action:none}[data-ely-family='forms'] [data-ely-color-plane-thumb]{position:absolute;inline-size:.85rem;block-size:.85rem;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #0008;transform:translate(-50%,-50%);pointer-events:none}[data-ely-family='forms'] .ely-api-color-hue{display:grid;gap:.25rem;max-inline-size:16rem}[data-ely-family='forms'] .ely-api-color-hue input{background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}[data-ely-family='forms'] .ely-api-icon-grid{grid-template-columns:repeat(8,minmax(2.25rem,1fr));max-block-size:18rem}[data-ely-family='forms'] .ely-api-icon-grid button{min-block-size:3rem;padding:.35rem;border-radius:.35rem}[data-ely-family='forms'] .ely-api-icon-grid img{inline-size:1.3rem;block-size:1.3rem}[data-ely-family='forms'] .ely-api-icon-grid [aria-selected='true']{outline:2px solid var(--color-accent);outline-offset:-2px;background:var(--accent-tint)}[data-ely-family='forms'] .ely-api-icon-name{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}[data-ely-family='forms'] .ely-api-icon-fallback{display:grid;place-items:center;inline-size:1.3rem;block-size:1.3rem;font-size:.65rem;font-weight:700;overflow:hidden;text-overflow:ellipsis}[data-ely-family='forms'] .ely-api-coachmark-stage{position:relative;min-block-size:13rem;border:1px solid var(--color-line);border-radius:.5rem;background:var(--surface);overflow:hidden}[data-ely-family='forms'] .ely-api-coachmark-target{position:absolute;inset:2.25rem auto auto 35%;z-index:2;inline-size:2.25rem;block-size:2.25rem;border-radius:.4rem;background:var(--color-accent);color:var(--surface)}[data-ely-family='forms'] .ely-api-coachmark-backdrop{position:absolute;inset:0;z-index:3;background:#0008}[data-ely-family='forms'] .ely-api-coachmark-spotlight{position:absolute;inset:1.85rem auto auto calc(35% - .4rem);inline-size:3.05rem;block-size:3.05rem;border:2px solid var(--color-accent);border-radius:.55rem;box-shadow:0 0 0 999px #0008}[data-ely-family='forms'] .ely-api-coachmark-backdrop aside{position:absolute;inset:5.5rem 1rem auto 1rem;display:grid;gap:.55rem;max-inline-size:19rem;padding:1rem;border-radius:.5rem;background:var(--surface);box-shadow:0 .75rem 2rem #0004}[data-ely-family='forms'] .ely-api-help-panel{display:grid;gap:.75rem;max-inline-size:30rem}[data-ely-family='forms'] .ely-api-help-panel ul{display:grid;gap:.25rem;margin:0;padding:0;list-style:none}[data-ely-family='forms'] .ely-api-help-panel [data-ely-help-open]{display:grid;inline-size:100%;gap:.15rem;padding:.65rem;text-align:start;border:0;background:transparent}[data-ely-family='forms'] .ely-api-help-panel [data-ely-help-open]:hover{background:var(--accent-tint)}[data-ely-family='forms'] .ely-api-help-panel [data-ely-help-open] span{color:var(--color-muted);font-size:.85em}[data-ely-family='forms'] .ely-api-help-panel [data-ely-help-article]{display:grid;gap:.75rem;padding:.25rem}[data-ely-family='forms'] .ely-api-feedback fieldset{display:grid;gap:.75rem;max-inline-size:22rem}[data-ely-family='forms'] [data-ely-feedback-faces]{display:flex;gap:.4rem}[data-ely-family='forms'] [data-ely-feedback-face]{inline-size:2.5rem;block-size:2.5rem;padding:0;font-size:1.15rem}[data-ely-family='forms'] [data-ely-feedback-face][aria-checked='true']{background:var(--accent-tint);outline:2px solid var(--color-accent);outline-offset:1px}
+
+[data-ely-family='forms'] .ely-api-icon-glyph{display:grid;place-items:center;inline-size:1.3rem;block-size:1.3rem}[data-ely-family='forms'] .ely-api-icon-glyph img{inline-size:1.3rem;block-size:1.3rem}[data-ely-family='forms'] .ely-api-icon-glyph.ely-api-icon-fallback{font-size:.65rem;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+[data-ely-family='forms'] .ely-api-color-plane{display:block;inline-size:min(100%,16rem);block-size:16rem;min-block-size:16rem}
+[data-ely-family='forms'] .ely-api-color-palette button{inline-size:2.25rem;block-size:2.25rem;padding:0;font-size:0;border-radius:.4rem}
+[data-ely-family='forms'] .ely-api-coachmark-stage{min-block-size:15rem;background:var(--surface);isolation:isolate}[data-ely-family='forms'] .ely-api-coachmark-backdrop{display:block;background:color-mix(in srgb,#000 58%,transparent)}[data-ely-family='forms'] .ely-api-coachmark-backdrop aside{inset:6.25rem 1rem auto auto;inline-size:min(18rem,calc(100% - 2rem));border:1px solid var(--border)}
+[data-ely-family='forms'] .ely-api-help-panel{padding:1rem;border:1px solid var(--border);border-radius:.5rem;background:var(--surface)}[data-ely-family='forms'] .ely-api-help-panel [data-ely-help-open] strong,[data-ely-family='forms'] .ely-api-help-panel [data-ely-help-open] span{display:block}.ely-api-help-panel [data-ely-help-open] strong{font-weight:600}
+
+[data-ely-family='forms'] [data-ely-feedback-face]{display:grid;place-items:center;border:1px solid var(--color-line);border-radius:.35rem;background:var(--surface);color:var(--color-ink);cursor:pointer}[data-ely-family='forms'] [data-ely-feedback-face]:disabled{opacity:.55;cursor:default}
+[data-ely-family='forms'] .ely-api-help-panel footer{display:flex;flex-wrap:wrap;gap:.35rem;padding-top:.25rem;border-top:1px solid var(--border)}
+[data-ely-family='forms'] .ely-api-choice-chips{display:flex;flex-wrap:wrap;gap:.5rem;max-inline-size:22.5rem}
+[data-ely-family='forms'] .ely-api-rating{display:flex;gap:.125rem;align-items:center}.ely-api-rating [data-ely-rate]{min-inline-size:2rem;padding:.25rem;color:var(--color-muted);font-size:1.25rem}.ely-api-rating [data-ely-rate][aria-pressed=true]{color:var(--color-ink)}.ely-api-choice-chip-specimen>small,.ely-api-rating-specimen>small,.ely-api-slider-specimen>small,.ely-api-calendar>small{display:block;margin-top:.25rem;color:var(--color-muted);font-size:.85em}
+[data-ely-family='forms'] .ely-api-slider{display:grid;gap:.35rem;max-inline-size:20rem}.ely-api-slider.is-width-320{inline-size:20rem;max-inline-size:100%}.ely-api-slider output{color:var(--color-muted);font-size:.85em;font-variant-numeric:tabular-nums}.ely-api-slider.is-vertical{inline-size:2.25rem;block-size:8.75rem;align-items:center}.ely-api-slider.is-vertical input[type=range]{writing-mode:vertical-lr;direction:rtl;inline-size:8.75rem;block-size:2.25rem}
+[data-ely-family='forms'] .ely-api-knob{position:relative;display:grid;place-items:center;inline-size:5rem;block-size:5rem}.ely-api-knob>input{position:absolute;opacity:0;pointer-events:none}.ely-api-knob [data-ely-knob]{display:grid;place-items:center;inline-size:4.5rem;block-size:4.5rem;border:1px solid var(--border);border-radius:50%;background:conic-gradient(var(--color-accent,#306b43) calc(var(--ely-knob-angle,0)*1deg),var(--surface-muted,var(--surface)) 0);box-shadow:inset 0 0 0 .55rem var(--surface);cursor:ns-resize;user-select:none}.ely-api-knob [data-ely-knob]::before{content:'';grid-area:1/1;inline-size:.14rem;block-size:1rem;background:var(--color-ink);border-radius:999px;transform:translateY(-.85rem) rotate(calc(var(--ely-knob-angle,0)*1deg - 135deg));transform-origin:center 1.95rem}.ely-api-knob [data-ely-knob-value]{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.ely-api-stepper{display:flex;align-items:center;gap:.5rem}.ely-api-stepper output{min-inline-size:2rem;text-align:center;font-variant-numeric:tabular-nums}.ely-api-stepper [data-ely-stepper-input]{position:absolute;inline-size:1px;block-size:1px;clip-path:inset(50%)}
+[data-ely-family='forms'] .ely-api-calendar{max-inline-size:19rem}.ely-api-calendar .ui-calendar-value{display:none}.ely-api-calendar .ui-calendar{gap:.5rem}.ely-api-calendar .ui-calendar-days button{inline-size:28px;block-size:28px;min-block-size:28px;padding:0}.ely-api-calendar .ui-calendar-week{font-size:.75rem}.ely-api-date-picker{position:relative;max-inline-size:100%}.ely-api-date-picker.is-width-260{inline-size:16.25rem;max-inline-size:100%}[data-ely-family='forms'] .ely-api-date-field{position:relative;display:grid;gap:.25rem;max-inline-size:100%}[data-ely-family='forms'] .ely-api-date-field small{color:var(--color-muted);font-size:11px;font-weight:400}[data-ely-family='forms'] .ely-api-date-field::before{content:'';position:absolute;z-index:1;inset-inline-start:.65rem;inset-block-start:.4rem;color:var(--color-muted);pointer-events:none}[data-ely-family='forms'] .ely-api-date-field input{padding-inline-start:2rem}.ely-api-date-range{position:relative}.ely-api-date-range>label{display:grid;gap:.25rem}.ely-api-date-range>label>small{font-size:11px;color:var(--color-muted);font-weight:400}.ely-api-date-range-trigger{display:flex;align-items:center;inline-size:100%;min-block-size:28px;block-size:28px;padding-inline:.7rem;border:1px solid var(--border);border-radius:.4rem;background:var(--surface);color:inherit;text-align:start}.ely-api-date-range-trigger::before{content:'▣';margin-inline-end:.55rem;color:var(--color-muted)}.ely-api-date-range-panel{position:absolute;z-index:3;inset-inline:0;inset-block-start:calc(100% + .25rem);display:grid;gap:.5rem;padding:.65rem;border:1px solid var(--border);border-radius:.45rem;background:var(--surface);box-shadow:0 .5rem 1rem #0002}
+[data-ely-family='forms'] .ely-api-date-range-panel[hidden]{display:none}
+[data-ely-component='forms/FilterChips'] [data-ely-chip][aria-pressed=true]::before{content:'✓';margin-inline-end:.35rem}
+
+[data-ely-family='forms'] .ely-api-gradient{max-inline-size:22.5rem;padding-inline:8px;gap:.5rem}
+[data-ely-family='forms'] .ely-api-gradient-bar{display:block;inline-size:100%;padding:0;border:0;background:transparent;cursor:crosshair}
+[data-ely-family='forms'] [data-ely-gradient-preview]{min-block-size:28px}
+[data-ely-family='forms'] .ely-api-gradient-stops{position:relative;block-size:16px}
+[data-ely-family='forms'] [data-ely-gradient-stop]{position:absolute;inset-block-start:0;transform:translateX(-50%);inline-size:16px;block-size:16px;min-block-size:16px;padding:2px;border:1px solid var(--color-line);border-radius:3px;background:var(--surface);touch-action:none}
+[data-ely-family='forms'] [data-ely-gradient-stop] span{display:block;inline-size:100%;block-size:100%;border-radius:1px}
+[data-ely-family='forms'] [data-ely-gradient-stop][aria-pressed=true]{border:2px solid var(--color-accent);padding:1px;outline:0}
+[data-ely-family='forms'] .ely-api-gradient-controls{display:flex;flex-wrap:wrap;gap:.5rem}
+[data-ely-family='forms'] .ely-api-gradient-controls label{display:grid;gap:.25rem;max-inline-size:5rem}
+[data-ely-family='forms'] [data-ely-gradient-compact] .ely-api-gradient-controls{display:none}
+
+[data-ely-family='forms'] .ely-api-color-picker{inline-size:min(100%,16.25rem);padding:.5rem;gap:.75rem}
+[data-ely-family='forms'] .ely-api-color-picker .ely-api-color-plane{inline-size:100%;block-size:152px;min-block-size:152px;aspect-ratio:auto;border-radius:5px}
+[data-ely-family='forms'] .ely-api-gradient .ely-api-color-picker{inline-size:100%;padding:8px 0 0}
+[data-ely-family='forms'] .ely-api-color-hue,[data-ely-family='forms'] .ely-api-color-alpha{display:block;max-inline-size:none}
+[data-ely-family='forms'] .ely-api-color-hue input,[data-ely-family='forms'] .ely-api-color-alpha input{display:block;inline-size:100%;block-size:12px;min-block-size:12px;border:0;border-radius:4px;appearance:none;padding:0;accent-color:var(--color-accent)}
+[data-ely-family='forms'] .ely-api-color-alpha input{background:linear-gradient(to right,transparent,var(--ely-selected-color)),repeating-conic-gradient(#8884 0% 25%,#3334 0% 50%) 0/8px 8px}
+[data-ely-family='forms'] .ely-api-color-format{display:grid;grid-template-columns:28px minmax(0,1fr) 28px;gap:.5rem;align-items:center}
+[data-ely-family='forms'] .ely-api-color-format input[type=color]{inline-size:28px;block-size:28px;padding:0;border:1px solid var(--border);border-radius:5px}
+[data-ely-family='forms'] .ely-api-color-channels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+[data-ely-family='forms'] .ely-api-color-channels label{min-inline-size:0;font-size:11px;color:var(--color-muted)}
+[data-ely-family='forms'] [data-ely-color-fields][hidden]{display:none}
+[data-ely-family='forms'] [data-ely-color-status]{font-size:11px;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-gradient [data-ely-color-status]{display:none}
+
+[data-ely-family='forms'] .ely-api-color-hue input::-webkit-slider-thumb,[data-ely-family='forms'] .ely-api-color-alpha input::-webkit-slider-thumb{appearance:none;inline-size:16px;block-size:16px;border:2px solid white;border-radius:50%;background:var(--ely-selected-color);box-shadow:0 1px 3px #0006}
+[data-ely-family='forms'] .ely-api-color-hue input::-webkit-slider-thumb{background:hsl(var(--ely-color-hue) 100% 50%)}
+[data-ely-family='forms'] .ely-api-color-hue input::-moz-range-thumb,[data-ely-family='forms'] .ely-api-color-alpha input::-moz-range-thumb{inline-size:12px;block-size:12px;border:2px solid white;border-radius:50%;background:var(--ely-selected-color)}
+[data-ely-family='forms'] .ely-api-color-format input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+[data-ely-family='forms'] .ely-api-color-format input[type=color]::-webkit-color-swatch{border:0;border-radius:4px}
+[data-ely-family='forms'] [data-ely-pick-screen-color]{font-size:0}
+[data-ely-family='forms'] [data-ely-pick-screen-color]::after{content:'';display:block;inline-size:14px;block-size:14px;mask:url('/assets/ely/icons/pipette.svg') center/contain no-repeat;background:var(--color-muted)}
+
+[data-ely-family='forms'] .ely-api-date-field::before{content:'';inline-size:16px;block-size:16px;inset-block-start:6px;background:var(--color-muted);mask:url('/assets/ely/icons/calendar.svg') center/contain no-repeat}
+[data-ely-family='forms'] .ely-api-date-field:has(input[type=time])::before{mask-image:url('/assets/ely/icons/clock.svg')}
+[data-ely-family='forms'] .ely-api-date-field input::-webkit-calendar-picker-indicator{position:absolute;inset-inline-start:.65rem;inset-block-start:6px;inline-size:16px;block-size:16px;padding:0;margin:0;opacity:0;cursor:pointer}
+[data-ely-family='forms'] .ely-api-date-range-trigger::before{content:'';display:block;flex:none;inline-size:16px;block-size:16px;background:var(--color-muted);mask:url('/assets/ely/icons/calendar-range.svg') center/contain no-repeat}
+
+[data-ely-family='forms'] .ely-api-color-format input[type=color]::-webkit-color-swatch{opacity:var(--ely-color-alpha,1)}
+
+[data-ely-family='forms'] .ely-api-cron-editor{display:grid;gap:.5rem;max-inline-size:32.5rem}
+[data-ely-family='forms'] .ely-api-cron-editor .ely-api-field{max-inline-size:none}
+[data-ely-family='forms'] .ely-api-cron-presets{display:flex;flex-wrap:wrap;gap:.5rem}
+[data-ely-family='forms'] [data-ely-cron-status],[data-ely-family='forms'] [data-ely-cron-runs]{font-size:11px;color:var(--color-muted)}
+[data-ely-family='forms'] [data-ely-cron-runs]{display:grid;gap:4px;margin:0;padding:0;list-style:none;font-variant-numeric:tabular-nums}
+[data-ely-family='forms'] [data-ely-cron-runs]:empty{display:none}
+[data-ely-family='forms'] .ely-api-specimen-code{display:block;margin-block-start:.5rem;font-size:11px;color:var(--color-muted)}
+
+[data-ely-family='forms'] .ely-api-period-picker .ely-api-date-field{display:grid;gap:.5rem}
+[data-ely-family='forms'] .ely-api-period-picker>small,[data-ely-family='forms'] .ely-api-period-picker .ely-api-date-field small,[data-ely-family='forms'] .ely-api-relative-picker>small{display:block;font-size:11px;font-weight:400;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-quarter-fields{display:flex;gap:.25rem}
+[data-ely-family='forms'] .ely-api-quarter-fields select{inline-size:80px;flex:none}
+[data-ely-family='forms'] .ely-api-quarter-fields input{flex:1;min-inline-size:0}
+[data-ely-family='forms'] .ely-api-period-picker>small,[data-ely-family='forms'] .ely-api-relative-picker>small{margin-block-start:.5rem}
+[data-ely-family='forms'] .ely-api-duration .ely-api-field{inline-size:112px;min-inline-size:0;gap:.25rem;font-weight:400}
+
+[data-ely-family="forms"] .ely-api-duration-part{position:relative;display:block;inline-size:112px;max-inline-size:100%}
+[data-ely-family="forms"] .ely-api-duration-part input{padding-inline-end:32px}
+[data-ely-family="forms"] .ely-api-duration-part>span:last-child{position:absolute;inset-inline-end:24px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-muted);font-size:13px}
+
+[data-ely-family="forms"] .ely-api-duration-picker{display:grid;gap:8px}
+[data-ely-family="forms"] .ely-api-duration-picker>small{font-size:11px;font-weight:400;color:var(--color-muted)}
+
+
+[data-ely-family="forms"] .ely-api-code-picker{display:grid;gap:4px;max-inline-size:100%}
+[data-ely-family="forms"] .ely-api-code-picker .ely-api-field{gap:8px;font-weight:400}
+[data-ely-family="forms"] .ely-api-code-picker small{font-size:11px;color:var(--color-muted)}
+[data-ely-family="forms"] textarea.ely-api-code-input{min-block-size:98px;block-size:98px}
+[data-ely-family="forms"] [data-ely-code-status]:empty{display:none}
+
+[data-ely-family="forms"] .ely-api-font-picker{display:grid;gap:8px}
+[data-ely-family="forms"] [data-ely-font-preview]{font-size:16px;line-height:24px;color:var(--color-muted)}
+
+[data-ely-family="forms"] .ely-api-icon-picker{inline-size:256px;max-inline-size:100%;gap:12px}
+[data-ely-family="forms"] .ely-api-icon-grid{grid-template-columns:repeat(8,minmax(0,1fr));gap:0;max-block-size:288px}
+[data-ely-family="forms"] .ely-api-icon-grid button{inline-size:32px;min-inline-size:0;block-size:32px;min-block-size:32px;padding:0;border:0;background:transparent}
+[data-ely-family="forms"] .ely-api-icon-glyph,[data-ely-family="forms"] .ely-api-icon-glyph img{inline-size:16px;block-size:16px}
+[data-ely-family="forms"] .ely-api-icon-picker output{font-size:11px;color:var(--color-muted)}
+
+[data-ely-family="forms"] .ely-api-icon-grid .ely-api-icon-group{grid-column:1/-1;padding-block:8px;font-size:11px;line-height:16px;color:var(--color-muted)}
+[data-ely-family="forms"] .ely-api-icon-glyph[data-ely-icon-text]:not([data-ely-icon-text=""]){font-size:16px;font-weight:400;overflow:visible}
+
+[data-ely-family="forms"] .ely-api-icon-grid{grid-auto-rows:32px}
+[data-ely-family="forms"] .ely-api-icon-grid .ely-api-icon-group{min-block-size:32px}
+[data-ely-family="forms"] .ely-api-icon-glyph.has-bundled-icon{background:currentColor;mask-size:contain;mask-repeat:no-repeat;mask-position:center}
+
+[data-ely-family="forms"] .ely-api-region-picker{display:grid;gap:8px}
+[data-ely-family="forms"] .ely-api-region-picker output{font-size:11px;color:var(--color-muted)}
+
+[data-ely-family="forms"] .ely-api-file-picker{display:grid;gap:8px}
+[data-ely-family="forms"] .ely-api-file-picker>small{font-size:11px;color:var(--color-muted)}
+
+[data-ely-family="forms"] .ely-api-field-caption{font-size:11px;font-weight:400;color:var(--color-muted)}
+
+[data-ely-family='forms'] .ely-api-profile-form,[data-ely-family='forms'] .ely-api-inline-form{inline-size:30rem;max-inline-size:100%}
+[data-ely-family='forms'] :is(.ely-api-profile-form,.ely-api-inline-form)>fieldset{border:0;padding:0;border-radius:0}
+[data-ely-family='forms'] .ely-api-profile-form legend{font-size:1rem;font-weight:600;padding:0;margin-block-end:.25rem}
+[data-ely-family='forms'] .ely-api-profile-form .ely-api-field{max-inline-size:100%;gap:.375rem}
+[data-ely-family='forms'] .ely-api-form-field{display:grid;gap:.25rem;min-inline-size:0}
+[data-ely-family='forms'] .ely-api-form-field>small,[data-ely-family='forms'] .ely-api-form-description,[data-ely-family='forms'] .ely-api-form-section>p{font-size:.75rem;color:var(--muted-foreground);margin:0}
+[data-ely-family='forms'] .ely-api-form-section{margin-block-start:1rem}[data-ely-family='forms'] .ely-api-form-section h4{font-size:1rem;font-weight:600;margin:0 0 .25rem}
+[data-ely-family='forms'] .ely-api-form-actions{display:flex;align-items:center;gap:.5rem;margin-block-start:.25rem}[data-ely-family='forms'] .ely-api-form-actions output{margin-inline-end:auto;font-size:.75rem;color:var(--muted-foreground)}
+[data-ely-family='forms'] .ely-api-inline-form .ely-api-form-field{flex:1;min-inline-size:10rem}[data-ely-family='forms'] .ely-api-inline-form .ely-api-field{min-inline-size:0;max-inline-size:100%;gap:.375rem}
+[data-ely-family='forms'] [data-ely-array-row]{display:flex;align-items:center;gap:.5rem}[data-ely-family='forms'] [data-ely-array-row]>input{flex:1;min-inline-size:0}
+
+[data-ely-family='forms'] .ely-api-profile-form textarea{min-block-size:4.75rem}
+
+[data-ely-family='forms'] .ely-api-inline-form>fieldset>button[data-slot]{align-self:end}
+
+[data-ely-family='forms'] .ely-api-swatch-picker{display:grid;gap:.625rem;justify-items:start}
+[data-ely-family='forms'] .ely-api-swatches{gap:.375rem;max-inline-size:14.625rem}
+[data-ely-family='forms'] .ely-api-swatches button[data-ely-swatch]{inline-size:1.5rem;min-inline-size:1.5rem;block-size:1.5rem;min-block-size:1.5rem;padding:0;border:1px solid var(--border);border-radius:var(--ely-control-radius);overflow:hidden;background:repeating-conic-gradient(#888 0% 25%,#bbb 0% 50%) 0 0/8px 8px}
+[data-ely-family='forms'] .ely-api-swatches button[aria-pressed=true]{padding:2px;border-color:var(--color-accent)}
+[data-ely-family='forms'] .ely-api-swatches .ely-api-swatch-chip,[data-ely-family='forms'] .ely-api-static-swatch .ely-api-swatch-chip{inline-size:100%;block-size:100%;border:0;border-radius:2px}
+[data-ely-family='forms'] .ely-api-static-swatch{display:inline-flex;inline-size:1.75rem;block-size:1.75rem;border:1px solid var(--border);border-radius:var(--ely-control-radius);background:repeating-conic-gradient(#888 0% 25%,#bbb 0% 50%) 0 0/8px 8px}
+[data-ely-family='forms'] .ely-api-static-swatch[data-selected]{padding:2px;border-color:var(--color-accent)}
+[data-ely-family='forms'] .ely-api-eyedropper::before{content:'';inline-size:1rem;block-size:1rem;background:currentColor;mask:url('/assets/ely/icons/pipette.svg') center/contain no-repeat}
+
+[data-ely-family='forms'] .ely-api-static-swatches{display:flex;gap:.5rem}
+
+[data-ely-family='forms'] .ely-api-code-surface{position:relative;display:block;min-inline-size:0}
+[data-ely-family='forms'] [data-ely-code-highlight]{position:absolute;inset:0;pointer-events:none;overflow:hidden;overflow-wrap:break-word;border:1px solid transparent;margin:0;color:var(--color-ink);background:transparent}
+[data-ely-family='forms'] [data-ely-code-input][data-highlighted=true]{color:transparent;caret-color:var(--color-ink)}
+[data-ely-family='forms'] .ely-code-keyword{color:#714ca6}[data-ely-family='forms'] .ely-code-string{color:#317a45}[data-ely-family='forms'] .ely-code-number{color:#a3591b}[data-ely-family='forms'] .ely-code-comment{color:#696764}[data-ely-family='forms'] .ely-code-function{color:#2863ab}[data-ely-family='forms'] .ely-code-type{color:#1e7777}[data-ely-family='forms'] .ely-code-constant{color:#aa5529}[data-ely-family='forms'] .ely-code-property{color:#a14759}[data-ely-family='forms'] :is(.ely-code-punctuation,.ely-code-operator){color:#605d5a}
+[data-theme=dark] [data-ely-family='forms'] .ely-code-keyword{color:#bba3e8}[data-theme=dark] [data-ely-family='forms'] .ely-code-string{color:#8ac596}[data-theme=dark] [data-ely-family='forms'] .ely-code-number{color:#eaab78}[data-theme=dark] [data-ely-family='forms'] .ely-code-comment{color:#acaaa8}[data-theme=dark] [data-ely-family='forms'] .ely-code-function{color:#85b6e9}[data-theme=dark] [data-ely-family='forms'] .ely-code-type{color:#84c9c8}[data-theme=dark] [data-ely-family='forms'] .ely-code-constant{color:#eda382}[data-theme=dark] [data-ely-family='forms'] .ely-code-property{color:#e29fa9}[data-theme=dark] [data-ely-family='forms'] :is(.ely-code-punctuation,.ely-code-operator){color:#afadab}
+@media(forced-colors:active){[data-ely-family='forms'] [data-ely-code-input][data-highlighted=true]{color:CanvasText}[data-ely-family='forms'] [data-ely-code-highlight]{display:none}}
+
+[data-ely-family='forms'] .ely-api-field-array,[data-ely-family='forms'] [data-ely-field-array]{display:grid;gap:.5rem}
+[data-ely-family='forms'] fieldset.ely-api-form-section{border:0;padding:0}
+
+/* Gallery 550–567 only. Shared forms and their standalone controls retain their styles. */
+[data-ely-family='forms'].ely-account-help{font-size:13px;line-height:20px;align-content:start}
+[data-ely-family='forms'].ely-account-help [hidden]{display:none!important}
+[data-ely-family='forms'].ely-account-help form,[data-ely-family='forms'].ely-account-help fieldset{min-width:0}
+[data-ely-family='forms'].ely-account-help fieldset{border:0;padding:0;margin:0;display:grid;gap:16px}
+[data-ely-family='forms'].ely-account-help .ely-api-field{gap:6px;margin:0}
+[data-ely-family='forms'].ely-account-help input:not([data-ui-pin-slot]):not([type=checkbox]):not([type=radio]):not([type=range]),[data-ely-family='forms'].ely-account-help select{min-height:28px;height:28px;padding:3px 10px;font-size:13px}
+[data-ely-family='forms'].ely-account-help textarea{padding:8px 12px;font-size:13px}
+[data-ely-family='forms'].ely-account-help button{min-height:28px;font-size:13px;padding:3px 12px}
+[data-ely-family='forms'].ely-account-help h3,[data-ely-family='forms'].ely-account-help h4,[data-ely-family='forms'].ely-account-help p{margin:0}
+[data-ely-family='forms'].ely-account-help small,[data-ely-family='forms'].ely-account-help article>p,[data-ely-family='forms'].ely-account-help fieldset>p{font-size:12px;color:var(--color-muted)}
+[data-ely-family='forms'].ely-account-help [data-suite-status]:empty{display:none}
+[data-ely-family='forms'].ely-account-help .ui-card{padding:20px;border:1px solid var(--color-line);border-radius:8px;background:var(--surface)}
+[data-ely-family='forms'].ely-account-help .ely-api-auth-card{width:380px;max-width:100%;display:grid;gap:20px}
+[data-ely-family='forms'][data-ely-component$='/MagicLinkForm'].ely-account-help .ely-api-auth-card,[data-ely-family='forms'][data-ely-component$='/ForgotPassword'].ely-account-help .ely-api-auth-card{width:360px}
+[data-ely-family='forms'].ely-account-help .ely-api-auth-card h4{font-size:14px;font-weight:600}
+[data-ely-family='forms'].ely-account-help .ely-suite-providers{display:grid;gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-api-auth-card form button[type=submit]{width:100%}
+[data-ely-family='forms'].ely-account-help .ely-suite-or{display:flex;gap:12px;align-items:center;font-size:11px;color:var(--color-muted)}
+[data-ely-family='forms'].ely-account-help .ely-suite-or:before,[data-ely-family='forms'].ely-account-help .ely-suite-or:after{content:'';height:1px;background:var(--color-line);flex:1}
+[data-ely-family='forms'].ely-account-help .ely-suite-auth-links{display:flex;align-items:center;justify-content:space-between;gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-suite-auth-links button{padding:0;min-height:0;color:var(--focus);background:transparent;border:0}
+[data-ely-family='forms'].ely-account-help .ely-suite-password-rules{margin:-8px 0 0;padding:0;list-style:none;display:grid;gap:4px;color:var(--color-muted);font-size:12px}
+[data-ely-family='forms'].ely-account-help .ely-suite-password-rules li:before{content:'○';margin-right:8px}
+[data-ely-family='forms'].ely-account-help .ely-suite-password-rules [data-kept=true]{color:var(--approved)}
+[data-ely-family='forms'].ely-account-help .ely-suite-password-rules [data-kept=true]:before{content:'✓'}
+[data-ely-family='forms'].ely-account-help .ely-pin-slots{gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-api-account-switcher{width:260px;max-width:100%;position:relative}
+[data-ely-family='forms'].ely-account-help [data-ely-account-menu]{display:flex;width:100%;align-items:center;gap:8px;padding:8px;border:0;background:transparent;text-align:left}
+[data-ely-family='forms'].ely-account-help .ely-api-account-name{flex:1;display:grid}
+[data-ely-family='forms'].ely-account-help .ely-api-account-name>span{display:block}
+[data-ely-family='forms'].ely-account-help .ely-suite-avatar{float:left;margin-right:10px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--error) 12%,var(--surface));color:var(--error);font-size:10px}
+[data-ely-family='forms'].ely-account-help [role=menu]{position:absolute;z-index:20;min-width:220px;border:1px solid var(--color-line);border-radius:6px;background:var(--surface);padding:6px;box-shadow:0 8px 24px #0002}
+[data-ely-family='forms'].ely-account-help [role=menu] button{display:block;width:100%;text-align:left;border:0;background:transparent}
+[data-ely-family='forms'].ely-account-help [role=menu] button[aria-checked=true]{background:var(--accent-tint)}
+[data-ely-family='forms'].ely-account-help .ely-suite-user-menu{position:relative;width:fit-content}
+[data-ely-family='forms'].ely-account-help .ely-suite-user-menu>button{width:28px;height:28px;border-radius:50%;padding:0}
+[data-ely-family='forms'].ely-account-help .ely-suite-user-menu [role=menu]>small{display:block}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card{width:320px;max-width:100%;display:grid;grid-template-columns:40px minmax(0,1fr);gap:16px 12px}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card>p,[data-ely-family='forms'].ely-account-help .ely-api-profile-card>dl,[data-ely-family='forms'].ely-account-help .ely-api-profile-card>div:last-child{grid-column:1/-1}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--error) 12%,var(--surface));color:var(--error)}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-presence{grid-column:1;grid-row:1;align-self:end;justify-self:end;font-size:0;width:8px;height:8px;background:var(--approved);border-radius:50%}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card dl{margin:0;display:grid;gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card dl>div{display:flex;gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card dd{margin:0}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-editor{width:400px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-editor legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+[data-ely-family='forms'].ely-account-help [data-suite-profile-avatar]{width:56px;height:56px;margin-bottom:4px}
+[data-ely-family='forms'].ely-account-help .ely-api-session-list{width:380px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-api-key-manager{width:420px;max-width:100%;display:grid;gap:16px}
+[data-ely-family='forms'].ely-account-help .ely-api-key-manager fieldset{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-api-key-manager legend{grid-column:1/-1;font-size:12px}
+[data-ely-family='forms'].ely-account-help .ely-api-records{padding:0;margin:0;list-style:none}
+[data-ely-family='forms'].ely-account-help .ely-api-records li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--color-line)}
+[data-ely-family='forms'].ely-account-help .ely-api-records li>div{flex:1;display:flex;flex-wrap:wrap;gap:4px}
+[data-ely-family='forms'].ely-account-help .ely-api-records small{flex-basis:100%}
+[data-ely-family='forms'].ely-account-help .ely-api-records code{margin-left:auto}
+[data-ely-family='forms'].ely-account-help .ely-api-session-list li>div>span:before{content:' · '}
+[data-ely-family='forms'].ely-account-help .ely-api-subscription{width:340px;max-width:100%;display:grid;gap:20px}
+[data-ely-family='forms'].ely-account-help .ely-api-subscription article{display:grid;gap:16px}
+[data-ely-family='forms'].ely-account-help .ely-api-subscription header{display:flex;gap:8px;align-items:center}
+[data-ely-family='forms'].ely-account-help .ely-api-subscription article>b{font-size:20px}
+[data-ely-family='forms'].ely-account-help .ely-api-usage{display:grid;gap:6px}
+[data-ely-family='forms'].ely-account-help .ely-api-usage>div{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+[data-ely-family='forms'].ely-account-help .ely-api-usage strong{font-weight:400}
+[data-ely-family='forms'].ely-account-help progress{width:100%;height:4px;accent-color:var(--color-ink)}
+[data-ely-family='forms'].ely-account-help progress[data-suite-level=warning]{accent-color:var(--warning)}
+[data-ely-family='forms'].ely-account-help progress[data-suite-level=danger]{accent-color:var(--error)}
+[data-ely-family='forms'].ely-account-help .ely-suite-payment,[data-ely-family='forms'].ely-account-help .ely-api-paywall,[data-ely-family='forms'].ely-account-help .ely-suite-support{width:360px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-suite-payment fieldset{grid-template-columns:1fr 1fr;gap:16px}
+[data-ely-family='forms'].ely-account-help .ely-suite-payment fieldset>*{grid-column:1/-1}
+[data-ely-family='forms'].ely-account-help .ely-suite-payment .ely-api-form-field:nth-of-type(2),[data-ely-family='forms'].ely-account-help .ely-suite-payment .ely-api-form-field:nth-of-type(3){grid-column:auto}
+[data-ely-family='forms'].ely-account-help .ely-suite-billing{width:400px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-suite-billing ul{list-style:none;padding:0;margin:0}
+[data-ely-family='forms'].ely-account-help .ely-suite-billing li{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-line)}
+[data-ely-family='forms'].ely-account-help .ely-suite-billing li small{display:block}
+[data-ely-family='forms'].ely-account-help .ely-suite-billing li>div:nth-child(2){text-align:right}
+[data-ely-family='forms'].ely-account-help .ely-api-paywall{display:flex;flex-wrap:wrap;gap:12px}
+[data-ely-family='forms'].ely-account-help .ely-api-paywall h4,[data-ely-family='forms'].ely-account-help .ely-api-paywall p,[data-ely-family='forms'].ely-account-help .ely-api-paywall ul{width:100%}
+[data-ely-family='forms'].ely-account-help .ely-api-paywall ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-suite-tag{font-size:11px;padding:1px 6px;border-radius:3px;background:var(--accent-tint);font-weight:400;white-space:nowrap}
+[data-ely-family='forms'].ely-account-help [data-suite-invoice=Paid]{color:var(--approved)}
+[data-ely-family='forms'].ely-account-help [data-suite-invoice=Due]{color:var(--warning)}
+[data-ely-family='forms'].ely-account-help [data-suite-invoice=Failed]{color:var(--error)}
+[data-ely-family='forms'].ely-account-help .ely-suite-team,[data-ely-family='forms'].ely-account-help .ely-api-invitations{width:640px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-suite-team table{width:100%;border-collapse:collapse}
+[data-ely-family='forms'].ely-account-help .ely-suite-team td{padding:12px 0;border-bottom:1px solid var(--color-line)}
+[data-ely-family='forms'].ely-account-help .ely-suite-team td>small{display:block}
+[data-ely-family='forms'].ely-account-help .ely-suite-team td:first-child{width:65%}
+[data-ely-family='forms'].ely-account-help .ely-api-invitations fieldset{display:flex;gap:8px;align-items:end}
+[data-ely-family='forms'].ely-account-help .ely-api-invitations fieldset>[data-slot=button]{align-self:end}
+[data-ely-family='forms'].ely-account-help .ely-api-invitations .ely-api-form-field:first-child{flex:1}
+[data-ely-family='forms'].ely-account-help .ely-api-settings-layout{width:880px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-api-settings-layout>fieldset{gap:24px}
+[data-ely-family='forms'].ely-account-help [data-ely-settings-search]{width:360px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-api-settings-body{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px}
+[data-ely-family='forms'].ely-account-help [data-ely-settings-nav]{display:grid;align-content:start;gap:2px;border:0;padding:0}
+[data-ely-family='forms'].ely-account-help [data-ely-settings-tab]{text-align:left;border:0;background:transparent;height:32px}
+[data-ely-family='forms'].ely-account-help [data-ely-settings-tab][aria-selected=true]{background:var(--accent-tint)}
+[data-ely-family='forms'].ely-account-help [data-ely-settings-panel]>p{margin:6px 0 16px;color:var(--color-muted)}
+[data-ely-family='forms'].ely-account-help [data-ely-setting]{display:grid;grid-template-columns:minmax(130px,1fr) minmax(180px,1fr);gap:16px;align-items:center;min-height:60px;padding:12px 0;border-bottom:1px solid var(--color-line)}
+[data-ely-family='forms'].ely-account-help [data-ely-setting]>div:last-child{text-align:right}
+[data-ely-family='forms'].ely-account-help [data-ely-setting] p{font-size:11px;color:var(--color-muted)}
+[data-ely-family='forms'].ely-account-help [data-suite-setting-preview]{display:block;margin-top:12px;text-align:left}
+[data-ely-family='forms'].ely-account-help .ely-suite-settings-choices{display:flex;justify-content:end;gap:4px}
+[data-ely-family='forms'].ely-account-help .ely-suite-settings-choices [aria-pressed=true]{outline:1px solid var(--color-ink);outline-offset:1px}
+[data-ely-family='forms'].ely-account-help [data-suite-swatch]{width:22px;height:22px;min-height:22px;padding:0;font-size:0;border:0}
+[data-ely-family='forms'].ely-account-help [data-ely-settings-results]{display:grid;max-width:360px;max-height:240px;overflow:auto;border:1px solid var(--color-line);border-radius:6px}
+[data-ely-family='forms'].ely-account-help [data-ely-wizard]{width:440px;max-width:100%;display:grid;gap:24px}
+[data-ely-family='forms'].ely-account-help [data-ely-wizard]>nav,[data-ely-family='forms'].ely-account-help [data-ely-wizard]>div{display:flex;align-items:center;justify-content:space-between}
+[data-ely-family='forms'].ely-account-help [data-ely-step-status]{font-size:12px;color:var(--color-muted)}
+[data-ely-family='forms'].ely-account-help [data-ely-step] legend{font-size:16px;font-weight:600;margin-bottom:4px}
+[data-ely-family='forms'].ely-account-help [data-ely-wizard] progress{height:2px;margin-top:-16px}
+[data-ely-family='forms'].ely-account-help .ely-suite-hotspot{width:240px;position:relative}
+[data-ely-family='forms'].ely-account-help .ely-suite-hotspot nav{display:flex;border:1px solid var(--color-line);border-radius:6px;padding:4px;margin-bottom:24px}
+[data-ely-family='forms'].ely-account-help .ely-suite-hotspot nav button{position:relative;border:0;background:transparent;width:32px;padding:0}
+[data-ely-family='forms'].ely-account-help [data-suite-hotspot] i{position:absolute;right:1px;top:-2px;width:9px;height:9px;border-radius:50%;background:var(--color-ink);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-ink) 15%,transparent)}
+[data-ely-family='forms'].ely-account-help .ely-suite-hotspot>p{display:flex;justify-content:space-between;padding:8px}
+[data-ely-family='forms'].ely-account-help .ely-suite-hotspot aside{position:absolute;z-index:10;top:38px;left:20px;width:240px;padding:16px;border:1px solid var(--color-line);border-radius:6px;background:var(--surface)}
+[data-ely-family='forms'].ely-account-help .ely-suite-highlight{width:360px;max-width:100%;padding:20px;border:1px solid var(--color-line);border-radius:8px;display:flex;flex-wrap:wrap;gap:8px}
+[data-ely-family='forms'].ely-account-help .ely-suite-highlight>strong,[data-ely-family='forms'].ely-account-help .ely-suite-highlight>p{width:100%}
+[data-ely-family='forms'].ely-account-help .ely-suite-checklist{width:400px;max-width:100%}
+[data-ely-family='forms'].ely-account-help .ely-suite-checklist header{display:flex;justify-content:space-between}
+[data-ely-family='forms'].ely-account-help .ely-api-checklist{list-style:none;margin:0;padding:0}
+[data-ely-family='forms'].ely-account-help .ely-api-checklist li{padding:12px 0;border-bottom:1px solid var(--color-line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+[data-ely-family='forms'].ely-account-help .ely-api-checklist label{display:flex;align-items:start;gap:12px}
+[data-ely-family='forms'].ely-account-help .ely-api-checklist small{display:block;margin-top:4px;text-decoration:none}
+[data-ely-family='forms'].ely-account-help .ely-api-checklist [data-done=true] label>span{text-decoration:line-through;color:var(--color-muted)}
+[data-ely-family='forms'].ely-account-help .ely-suite-tip,[data-ely-family='forms'].ely-account-help .ely-suite-empty{width:320px;max-width:100%;display:grid;gap:16px}
+[data-ely-family='forms'].ely-account-help .ely-suite-tip details{border:0;padding:0;position:relative}
+[data-ely-family='forms'].ely-account-help .ely-suite-tip summary{list-style:none;cursor:pointer}
+[data-ely-family='forms'].ely-account-help .ely-suite-tip details>p{position:absolute;z-index:10;background:var(--surface);border:1px solid var(--color-line);border-radius:6px;padding:12px;max-width:280px}
+[data-ely-family='forms'].ely-account-help .ely-suite-empty{text-align:center;padding:36px 12px;justify-items:center}
+[data-ely-family='forms'].ely-account-help .ely-suite-empty>span{font-size:24px}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel{width:320px;max-width:100%;height:460px;display:flex;flex-direction:column;border:1px solid var(--color-line);border-radius:8px;background:var(--surface);padding:0;gap:0;overflow:hidden}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel>header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid var(--color-line)}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel>.ely-api-field{padding:16px 16px 8px}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel nav,[data-ely-family='forms'].ely-account-help .ely-api-help-panel article{overflow:auto;padding:0 16px}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel nav ul{list-style:none;padding:0;margin:0}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel nav button{display:grid;gap:2px;text-align:left;border:0;background:transparent;padding:8px 12px;width:100%}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel nav span{font-size:12px;color:var(--color-muted)}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel footer{margin-top:auto;display:flex;border-top:1px solid var(--color-line);padding:8px;gap:4px}
+[data-ely-family='forms'].ely-account-help .ely-api-help-panel footer button{font-size:12px;padding:2px 6px}
+[data-ely-family='forms'].ely-account-help dialog{width:560px;max-width:calc(100vw - 32px);max-height:80vh;overflow:auto;border:1px solid var(--color-line);border-radius:10px;padding:24px;background:var(--surface);color:var(--color-ink)}
+[data-ely-family='forms'].ely-account-help dialog::backdrop{background:#0006}
+[data-ely-family='forms'].ely-account-help dialog header{display:flex;justify-content:space-between;align-items:center}
+[data-ely-family='forms'].ely-account-help .ely-suite-shortcuts dl>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-line)}
+[data-ely-family='forms'].ely-account-help .ely-suite-shortcuts dd{margin:0}
+[data-ely-family='forms'].ely-account-help .ely-api-feedback{width:300px;max-width:100%;padding:16px;border:1px solid var(--color-line);border-radius:8px;background:var(--surface)}
+[data-ely-family='forms'].ely-account-help [data-suite-feedback-open]{justify-self:start;width:fit-content}
+[data-ely-family='forms'].ely-account-help [data-ely-feedback-faces]{display:flex;gap:8px}
+[data-ely-family='forms'].ely-account-help [data-ely-feedback-face]{font-size:22px;width:44px;height:40px;padding:0}
+[data-ely-family='forms'].ely-account-help [data-ely-feedback-face][aria-checked=true]{outline:2px solid var(--focus)}
+@media(max-width:650px){[data-ely-family='forms'].ely-account-help .ely-api-settings-body{grid-template-columns:1fr}[data-ely-family='forms'].ely-account-help [data-ely-settings-nav]{display:flex;overflow:auto}[data-ely-family='forms'].ely-account-help [data-ely-setting]{grid-template-columns:1fr}[data-ely-family='forms'].ely-account-help [data-ely-setting]>div:last-child{text-align:left}}
+
+/* Settings controls stay within the bounded account/help layout. */
+[data-ely-family='forms'].ely-account-help .ely-suite-font-size{display:flex;align-items:center;justify-content:flex-end;gap:12px}
+[data-ely-family='forms'].ely-account-help .ely-suite-font-size input{width:144px;height:20px;padding:0}
+[data-ely-family='forms'].ely-account-help .ely-suite-font-size output{white-space:nowrap}
+[data-ely-family='forms'].ely-account-help [data-suite-keybinding]{display:flex;justify-content:space-between;gap:24px;padding:8px 0}
+[data-ely-family='forms'].ely-account-help .ely-suite-icon{display:block;width:16px;height:16px;background:currentColor;mask:center/contain no-repeat}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='pin']{mask-image:url('/assets/ely/icons/pin.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='share-2']{mask-image:url('/assets/ely/icons/share-2.svg')}
+
+[data-ely-family='forms'].ely-account-help [data-ely-settings-tab]{display:flex;align-items:center;gap:12px}
+[data-ely-family='forms'].ely-account-help [data-suite-proxy]{display:grid;gap:12px;width:280px;max-width:100%}
+[data-ely-family='forms'].ely-account-help [data-suite-proxy-fields]{display:grid;gap:8px}
+[data-ely-family='forms'].ely-account-help [data-suite-proxy-fields] label{display:grid;gap:4px}
+[data-ely-family='forms'].ely-account-help .ely-suite-settings-matrix{border-collapse:collapse;font-size:12px}
+[data-ely-family='forms'].ely-account-help .ely-suite-settings-matrix th,[data-ely-family='forms'].ely-account-help .ely-suite-settings-matrix td{padding:8px;text-align:center;font-weight:400}
+[data-ely-family='forms'].ely-account-help .ely-suite-settings-matrix tbody th{text-align:left}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='palette']{mask-image:url('/assets/ely/icons/palette.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='keyboard']{mask-image:url('/assets/ely/icons/keyboard.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='globe']{mask-image:url('/assets/ely/icons/globe.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='shield']{mask-image:url('/assets/ely/icons/shield.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='bell']{mask-image:url('/assets/ely/icons/bell.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='power']{mask-image:url('/assets/ely/icons/power.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='hard-drive']{mask-image:url('/assets/ely/icons/hard-drive.svg')}
+[data-ely-family='forms'].ely-account-help [data-suite-icon='wrench']{mask-image:url('/assets/ely/icons/wrench.svg')}
+
+/* Account source specimens: explicit placement avoids implicit grid cells and
+   the catalogue's generic equal-width columns. Keep reusable controls scoped. */
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card>.ely-api-profile-avatar,
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card>img{grid-area:1/1;width:40px;height:40px;object-fit:cover;border-radius:50%}
+[data-ely-family='forms'].ely-account-help .ely-api-profile-card>.ely-suite-profile-identity{grid-area:1/2;min-width:0}
+[data-ely-family='forms'].ely-account-help .ely-suite-providers>button{inline-size:100%;justify-self:stretch}
+.component-examples:has(>[data-ely-component='account/WorkspaceSwitcher']){grid-template-columns:minmax(0,260px) auto;gap:8px 24px}
+.component-examples:has(>[data-ely-component='account/WorkspaceSwitcher'])>[data-ely-component='account/AccountSwitcher']{grid-area:2/1}
+.component-examples:has(>[data-ely-component='account/WorkspaceSwitcher'])>[data-ely-component='account/UserMenu']{grid-area:1/2}
+.component-examples:has(>[data-ely-component='account/ProfileCard']){grid-template-columns:minmax(0,320px) minmax(0,400px);gap:24px}
+.component-examples:has(>[data-ely-component='account/BillingHistory']){grid-template-columns:minmax(0,400px) minmax(0,360px);gap:16px 24px}
+.component-examples:has(>[data-ely-component='account/BillingHistory'])>[data-ely-component='account/BillingHistory']{grid-area:1/1/3/2}
+.component-examples:has(>[data-ely-component='account/BillingHistory'])>[data-ely-component='account/UpgradePrompt']{grid-area:1/2}
+.component-examples:has(>[data-ely-component='account/BillingHistory'])>[data-ely-component='account/Paywall']{grid-area:2/2}
+.component-examples:has(>[data-ely-component='account/TeamMemberTable']){grid-template-columns:minmax(0,640px);gap:24px}
+@media(max-width:900px){
+ .component-examples:has(>[data-ely-component='account/ProfileCard']),
+ .component-examples:has(>[data-ely-component='account/BillingHistory']){grid-template-columns:minmax(0,1fr)}
+ .component-examples:has(>[data-ely-component='account/BillingHistory'])>[data-ely-component]{grid-area:auto}
+}
+
+/* Source forms 146–148, 160–161, 170, 172. Keep native field boundaries. */
+[data-ely-family='forms'] .ely-api-format-field{max-inline-size:100%}
+[data-ely-family='forms'] .is-width-180{inline-size:180px}
+[data-ely-family='forms'] .is-width-280{inline-size:280px}
+[data-ely-family='forms'] .is-width-300{inline-size:300px}
+[data-ely-family='forms'] .ely-api-format-field .ely-api-field{max-inline-size:100%}
+[data-ely-family='forms'] .ely-api-field-caption{display:block;margin-top:8px;font-size:11px;line-height:16px;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-currency{inline-size:100%;height:28px;border-color:var(--color-line)}
+[data-ely-family='forms'] .ely-api-currency input{width:100%;height:26px;padding:3px 8px;font-size:13px}
+[data-ely-family='forms'] .ely-api-currency:focus-within{outline:2px solid var(--focus);outline-offset:2px}
+[data-ely-family='forms'] .ely-api-currency [data-ely-unit]{min-height:24px;border:0;padding:0 8px;background:transparent;font-size:12px;flex:none}
+[data-ely-family='forms'] .ely-api-format-icon{position:relative}
+[data-ely-family='forms'] .ely-api-format-icon>span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--color-muted);pointer-events:none}
+[data-ely-family='forms'] .ely-api-format-icon input{height:28px;padding:3px 10px 3px 34px;font-size:13px}
+[data-ely-family='forms'] .ely-api-phone{display:flex;min-width:0}
+[data-ely-family='forms'] .ely-api-phone input{height:28px;min-width:0;padding:3px 10px;font-size:13px}
+[data-ely-family='forms'] .ely-api-phone select{width:76px;flex:none;height:28px;min-height:28px;padding:2px 4px;font-size:12px;border:1px solid var(--color-line);border-radius:4px 0 0 4px}
+[data-ely-family='forms'] .ely-api-phone:has(select) input{border-radius:0 4px 4px 0}
+[data-ely-family='forms'] .ely-api-radio-group{display:grid;gap:8px;max-inline-size:none}
+[data-ely-family='forms'] .ely-api-radio-group.is-row{display:flex;gap:16px;flex-wrap:wrap}
+[data-ely-family='forms'] .ely-api-radio-group label{flex:none;white-space:nowrap;gap:8px;font-size:13px;line-height:21px}
+[data-ely-family='forms'] .ely-api-radio-group label[aria-disabled=true]{opacity:.5}
+[data-ely-family='forms'] .ely-api-radio-group input[type=radio],
+[data-ely-family='forms'] .ely-api-choice-card input{appearance:auto;inline-size:16px;block-size:16px;min-inline-size:16px;min-block-size:16px;flex:none;margin:2px 0;padding:0;accent-color:var(--color-ink);box-shadow:none}
+[data-ely-family='forms'] .ely-api-choice-cards{width:640px;max-width:100%;display:flex;gap:12px}
+[data-ely-family='forms'] .ely-api-choice-card{flex:1;min-inline-size:0;padding:16px;gap:12px;border-color:var(--color-line);font-size:13px;line-height:20px}
+[data-ely-family='forms'] .ely-api-choice-card:has(input:checked){border-color:var(--color-ink)}
+[data-ely-family='forms'] .ely-api-choice-card strong{font-weight:500}
+[data-ely-family='forms'] .ely-api-rating{gap:2px;inline-size:max-content}
+[data-ely-family='forms'] .ely-api-rating [data-ely-rate]{inline-size:20px;min-inline-size:20px;block-size:24px;min-height:24px;padding:0;border:0;box-shadow:none;background:transparent;font-size:22px;line-height:24px;color:var(--color-muted)}
+[data-ely-family='forms'] .ely-api-rating [data-ely-rate][aria-pressed=true]{background:transparent;color:var(--color-ink)}
+[data-ely-family='forms'] .ely-api-knob{inline-size:48px;block-size:48px}
+[data-ely-family='forms'] .ely-api-knob>input{display:none}
+[data-ely-family='forms'] .ely-api-knob [data-ely-knob]{position:relative;inline-size:48px;block-size:48px;border:1px solid var(--color-line);background:var(--surface);box-shadow:none;touch-action:none}
+[data-ely-family='forms'] .ely-api-knob [data-ely-knob]:before{position:absolute;inset:3px;inline-size:auto;block-size:auto;border-radius:50%;background:conic-gradient(from 225deg,var(--color-ink) 0deg var(--ely-knob-sweep,0deg),var(--color-line) var(--ely-knob-sweep,0deg) 270deg,transparent 270deg);mask:radial-gradient(transparent 16px,#000 16px);transform:none}
+[data-ely-family='forms'] .ely-api-knob [data-ely-knob]:after{content:'';position:absolute;top:10px;left:22px;width:3px;height:7px;background:var(--color-ink);transform:rotate(calc(var(--ely-knob-angle,0)*1deg));transform-origin:1.5px 13px}
+[data-ely-family='forms'] .ely-api-knob [data-ely-knob]:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+[data-ely-family='forms'] .ely-api-knob [data-ely-knob][aria-disabled=true]{opacity:.5;cursor:default}
+[data-ely-family='forms'] .ely-api-stepper{height:28px;width:82px;gap:0;border:1px solid var(--color-line);border-radius:5px;overflow:hidden}
+[data-ely-family='forms'] .ely-api-stepper button{inline-size:24px;min-inline-size:24px;height:26px;min-height:26px;padding:0;border:0;border-radius:0;background:transparent}
+[data-ely-family='forms'] .ely-api-stepper output{min-inline-size:32px;font-size:13px}
+.component-examples:has(>[data-ely-component='forms/CurrencyInput']),
+.component-examples:has(>[data-ely-component='forms/EmailInput']),
+.component-examples:has(>[data-ely-component='forms/PhoneInput']),
+.component-examples:has(>[data-ely-component='forms/Rating']),
+.component-examples:has(>[data-ely-component='forms/Knob']){display:flex;flex-wrap:wrap;align-items:end;gap:24px}
+.component-examples:has(>[data-ely-component='forms/CurrencyInput'])>[data-ely-family],
+.component-examples:has(>[data-ely-component='forms/EmailInput'])>[data-ely-family],
+.component-examples:has(>[data-ely-component='forms/PhoneInput'])>[data-ely-family],
+.component-examples:has(>[data-ely-component='forms/Rating'])>[data-ely-family],
+.component-examples:has(>[data-ely-component='forms/Knob'])>[data-ely-family]{flex:none;width:auto;max-width:100%}
+.component-examples:has(>[data-ely-component='forms/CheckboxCard']){gap:16px}
+/* Shared radio-group supplies ordinary groups; its wrapper must not dictate orientation. */
+[data-ely-family='forms'] .ely-api-radio-group>[data-slot='radio-group']{display:contents}
+
+/* Shared radio items are cards elsewhere; forms groups use plain labeled radios. */
+[data-ely-family='forms'] .ely-api-radio-group label[data-slot='radio-item']{padding:0;border:0;border-radius:0;background:transparent}
+[data-ely-family='forms'] .ely-api-radio-group label{white-space:normal;max-inline-size:100%}

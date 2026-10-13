@@ -1,0 +1,115 @@
+package uiexamples
+
+import (
+	"bytes"
+	ui "github.com/mrchypark/ely-htmx"
+	"html/template"
+	"maps"
+	"strings"
+	"testing"
+)
+
+func TestNativeMiscSourceFixtures598To613(t *testing.T) {
+	tpl, err := template.New("").Funcs(ui.Funcs()).ParseFS(ui.Files, "templates/ely-api.html", "templates/ely-api-native.html", "templates/ely-api-native-tooling.html", "templates/shadcn-select.html", "templates/shadcn-switch.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	count := 0
+	for _, fixture := range advancedNativeCases() {
+		if fixture.Component.Chapter != "misc" {
+			continue
+		}
+		count++
+		t.Run(fixture.Component.Name, func(t *testing.T) {
+			p := fixture.Component.Props
+			examples := p["PreviewExamples"].([]map[string]any)
+			if len(examples) == 0 {
+				t.Fatal("missing source preview")
+			}
+			for _, example := range examples {
+				props := maps.Clone(p)
+				maps.Copy(props, example)
+				name := fixture.Component.Name
+				if alternate, ok := example["PreviewName"].(string); ok {
+					name = alternate
+				}
+				var out bytes.Buffer
+				if err := ui.RenderComponent(tpl, &out, ui.Component{Chapter: "misc", Name: name, ID: "source-misc", Props: props}); err != nil {
+					t.Fatal(err)
+				}
+				if strings.Contains(out.String(), "Caller row") || strings.Contains(out.String(), "A7K9") {
+					t.Fatal("generic fixture leaked")
+				}
+			}
+		})
+	}
+	if count != 16 {
+		t.Fatalf("want16 source components, got%d", count)
+	}
+	var poll, quiz, license, transfer, clock map[string]any
+	for _, c := range advancedNativeCases() {
+		switch c.Component.Chapter + "/" + c.Component.Name {
+		case "misc/Poll":
+			poll = c.Component.Props
+		case "misc/Quiz":
+			quiz = c.Component.Props
+		case "misc/LicenseViewer":
+			license = c.Component.Props
+		case "misc/ExportDialog":
+			transfer = c.Component.Props
+		case "misc/Clock":
+			clock = c.Component.Props
+		}
+	}
+	if poll["Label"] != "Which chart should come next?" || len(poll["Options"].([]any)) != 3 || len(poll["Questions"].([]any)) != 3 {
+		t.Fatal("poll/survey source data lost")
+	}
+	if len(quiz["Questions"].([]any)) != 2 || len(quiz["Items"].([]any)) != 3 {
+		t.Fatal("quiz/deck source data lost")
+	}
+	packages := license["Items"].([]any)
+	if len(packages) != 4 || !strings.Contains(packages[2].(map[string]any)["Content"].(string), "SIL OPEN FONT LICENSE") {
+		t.Fatal("full source licenses lost")
+	}
+	if len(clock["Items"].([]any)) != 5 || len(transfer["PreviewExamples"].([]map[string]any)) != 3 || !strings.Contains(transfer["CSV"].(string), `"Lin, Wei"`) {
+		t.Fatal("source zones or transfer previews lost")
+	}
+	for _, name := range []string{"w7xk.png", "q3np.png", "LICENSE"} {
+		data, err := ui.Files.ReadFile("assets/ely/native-misc/" + name)
+		if err != nil || len(data) == 0 {
+			t.Fatalf("missing source asset%s: %v", name, err)
+		}
+	}
+}
+
+func TestNativeMiscSourceVisualCorrections(t *testing.T) {
+	tpl, err := template.New("").Funcs(ui.Funcs()).ParseFS(ui.Files, "templates/ely-api.html", "templates/ely-api-native.html", "templates/ely-api-native-tooling.html", "templates/shadcn-select.html", "templates/shadcn-switch.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"BarcodeDisplay", "PrintButton", "Clock", "ExportDialog"} {
+		p := map[string]any{}
+		nativeMiscFixtures(name, p)
+		examples := p["PreviewExamples"].([]map[string]any)
+		if name == "Clock" && (examples[0]["Caption"] != "clock" || examples[1]["Caption"] != "world clock") {
+			t.Fatal("clock specimen captions lost")
+		}
+		if name == "ExportDialog" && len(examples) != 3 {
+			t.Fatal("transfer row must retain all three independent dialogs")
+		}
+		var out bytes.Buffer
+		if err := ui.RenderComponent(tpl, &out, ui.Component{Chapter: "misc", Name: name, ID: "visual-misc", Props: p}); err != nil {
+			t.Fatal(err)
+		}
+		switch name {
+		case "BarcodeDisplay":
+			if !strings.Contains(out.String(), `data-misc-source-note hidden`) {
+				t.Fatal("description-only specimen duplicates the gallery description")
+			}
+		case "PrintButton":
+			if !strings.Contains(out.String(), `class="ely-misc-warning">PrintButton: gpui has no print API.`) || strings.Contains(out.String(), "ShareSheet is") {
+				t.Fatal("print specimen must contain only the short source warning")
+			}
+		}
+	}
+}

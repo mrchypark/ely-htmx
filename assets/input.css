@@ -1,15 +1,23 @@
 @import 'tailwindcss';
 
+@font-face { font-family: 'Inter'; src: url('/assets/ely/fonts/Inter-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('/assets/ely/fonts/Inter-Medium.ttf') format('truetype'); font-style: normal; font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('/assets/ely/fonts/Inter-SemiBold.ttf') format('truetype'); font-style: normal; font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('/assets/ely/fonts/Inter-Italic.ttf') format('truetype'); font-style: italic; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/assets/ely/fonts/JetBrainsMono-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/assets/ely/fonts/JetBrainsMono-Medium.ttf') format('truetype'); font-style: normal; font-weight: 500; font-display: swap; }
 @font-face { font-family: 'Geist'; src: url('/assets/geist.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
 @font-face { font-family: 'Geist Mono'; src: url('/assets/geist-mono.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
 @font-face { font-family: 'Pretendard'; src: url('/assets/pretendard.woff2') format('woff2'); font-style: normal; font-weight: 100 900; font-display: swap; }
 
 @theme {
+  --font-sans: 'Inter', 'Pretendard', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Pretendard', monospace;
   --color-paper: #FCFAF7;
-  --color-ink: #14213A;
-  --color-muted: #6F6B66;
-  --color-line: #E6E1DA;
-  --color-accent: #335CFF;
+  --color-ink: #181613;
+  --color-muted: #605D5A;
+  --color-line: #E1DFDD;
+  --color-accent: #181613;
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
   --color-primary: var(--color-accent);
@@ -29,19 +37,19 @@
 @layer base {
   :root {
     color-scheme: light;
-    --surface: #FFFFFF; --border: #8C8781; --accent-hover: #2449DF; --accent-tint: #EEF2FF; --on-accent: #FFFFFF; --focus: #335CFF;
-    --draft: #68625C; --draft-tint: #F1ECE6; --approved: #36654F; --approved-tint: #EDF4EF; --warning: #8A5B18; --warning-tint: #FBF1DA; --error: #A13F3F; --error-tint: #F9ECE9;
+    --surface: #FFFFFF; --border: #82807D; --accent-hover: #302D2B; --accent-tint: #F2F0ED; --on-accent: #FCFAF7; --focus: #3772BB;
+    --draft: #605D5A; --draft-tint: #F6F4F1; --approved: #267B4C; --approved-tint: #E7F9EC; --warning: #A25F12; --warning-tint: #FEF2DD; --error: #BA3E38; --error-tint: #FFEFEC;
   }
   :root[data-theme='dark'] {
     color-scheme: dark;
-    --color-paper: #171615; --surface: #211F1D; --color-ink: #F2EFEA; --color-muted: #BBB4AC; --color-line: #37332F; --border: #817970;
-    --color-accent: #6B8AFF; --accent-hover: #8CA4FF; --accent-tint: #202840; --on-accent: #14213A; --focus: #6B8AFF;
-    --draft: #C4BEB5; --draft-tint: #302C28; --approved: #A5C7B0; --approved-tint: #25362B; --warning: #E2BE7A; --warning-tint: #3B3020; --error: #E4A29B; --error-tint: #3F2927;
+    --color-paper: #252525; --surface: #2C2C2C; --color-ink: #F3F1F0; --color-muted: #C4C2C0; --color-line: #3F3F3F; --border: #858380;
+    --color-accent: #F3F1F0; --accent-hover: #D9D7D5; --accent-tint: #383838; --on-accent: #252525; --focus: #69A1E8;
+    --draft: #C4C2C0; --draft-tint: #202020; --approved: #6BBC89; --approved-tint: #182C1F; --warning: #E8B45E; --warning-tint: #342611; --error: #E5756E; --error-tint: #3A1D1B;
   }
   * { box-sizing: border-box; }
   html { background: var(--color-paper); color: var(--color-ink); scrollbar-gutter: stable; scroll-padding-top: 2rem; }
   html:lang(ko) { word-break: keep-all; overflow-wrap: anywhere; }
-  body { min-width: 320px; margin: 0; font-family: 'Geist', 'Pretendard', system-ui, sans-serif; font-weight: 300; line-height: 1.625; }
+  body { min-width: 320px; margin: 0; font-family: 'Inter', 'Pretendard', system-ui, sans-serif; font-weight: 400; line-height: 1.625; }
   h1, h2, h3, legend, .wordmark { font-weight: 800; letter-spacing: -.045em; text-wrap: balance; }
   h1, h2, h3 { overflow-wrap: anywhere; }
   h2 { font-size: 1.5rem; line-height: 1.25; margin: 0 0 1rem; }
@@ -50,7 +58,7 @@
   button, input, select, textarea { font: inherit; }
   button { touch-action: manipulation; }
   textarea { resize: vertical; }
-  code, time { font-family: 'Geist Mono', 'Pretendard', monospace; font-size: .85em; overflow-wrap: anywhere; }
+  code, time { font-family: 'JetBrains Mono', 'Pretendard', monospace; font-size: .85em; overflow-wrap: anywhere; }
   :focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
   [hidden] { display: none !important; }
 }
@@ -83,7 +91,7 @@
   .hero-copy { width: 50%; position: relative; z-index: 1; }
   .hero-art { position: absolute; width: 65%; right: -3rem; top: 0; height: 100%; color: var(--color-ink); z-index: -1; pointer-events: none; }
   .hero-art svg { width: 100%; height: 100%; overflow: visible; }
-  .eyebrow { color: var(--color-muted); font-family: 'Geist Mono', 'Pretendard', monospace; font-size: .73rem; font-weight: 400; letter-spacing: .06em; margin: 0 0 1rem; }
+  .eyebrow { color: var(--color-muted); font-family: 'JetBrains Mono', 'Pretendard', monospace; font-size: .73rem; font-weight: 400; letter-spacing: .06em; margin: 0 0 1rem; }
   .display { font-size: clamp(2.5rem, 6vw, 7rem); line-height: 1.07; margin: 0 0 1.5rem; }
   .title { font-size: clamp(2.4rem, 4.6vw, 5rem); line-height: 1.1; margin: 1rem 0 1.5rem; max-width: 19ch; }
   .lede { color: var(--color-muted); font-size: clamp(1.05rem, 1.6vw, 1.25rem); font-weight: 300; line-height: 1.6; max-width: 40rem; margin: 0; }
@@ -186,22 +194,19 @@
 
 /* Keep the imported shadcn controls on the shared Ely styling above utility classes. */
 [data-slot='button'] { box-shadow: none; }
-[data-slot='button'][data-variant='default']:hover { background: var(--accent-hover); }
+[data-slot='button']:is([data-variant='default'],[data-variant='primary']):hover { background: var(--accent-hover); }
 [data-slot='button'][data-variant='outline'], [data-slot='button'][data-variant='ghost'] { color: var(--color-ink); }
+[data-slot='button'][data-variant='secondary'] { background: var(--surface); color: var(--color-ink); border: 1px solid var(--color-line); }
+[data-slot='button'][data-variant='subtle'] { background: var(--accent-tint); color: var(--color-ink); }
+[data-slot='button']:is([data-variant='secondary'],[data-variant='subtle']):hover { background: var(--accent-tint); }
 [data-slot='button'][data-variant='outline'] { border-color: var(--border); }
 [data-slot='button'][data-variant='outline']:hover, [data-slot='button'][data-variant='ghost']:hover { background: var(--accent-tint); color: var(--color-ink); }
-[data-slot='button'][data-variant='destructive'] { background: var(--error-tint); color: var(--error); border-color: var(--error); }
-[data-slot='button']:not(.native-preview *) { justify-self: start; max-width: 100%; height: auto; min-height: 3rem; border-radius: 999px; padding: .625rem 1.375rem; font-size: .9375rem; line-height: 1.625rem; white-space: normal; }
-[data-slot='button'][data-size='sm']:not(.native-preview *) { min-height: 2.25rem; padding: .25rem 1rem; font-size: .85rem; }
-[data-slot='button'][data-size='xs']:not(.native-preview *) { min-height: 1.5rem; padding: .125rem .5rem; font-size: .75rem; line-height: 1.25rem; }
-[data-slot='button'][data-size^='icon']:not(.native-preview *) { min-height: 0; padding: 0; inline-size: 2.25rem; block-size: 2.25rem; }
-[data-slot='button'][data-size='icon-xs']:not(.native-preview *) { inline-size: 1.5rem; block-size: 1.5rem; }
-[data-slot='button'][data-size='icon-sm']:not(.native-preview *) { inline-size: 2rem; block-size: 2rem; }
-[data-slot='button'][data-size='icon-lg']:not(.native-preview *) { inline-size: 2.5rem; block-size: 2.5rem; }
-
-[data-slot='input']:not(.native-preview *) { height: 3rem; min-height: 3rem; background: var(--surface); padding: .625rem 1rem; line-height: 1.25rem; box-shadow: none; }
-[data-slot='textarea']:not(.native-preview *), [data-slot='select'] { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: .4rem; background: var(--surface); color: var(--color-ink); padding: .8rem 1rem; font: inherit; line-height: 1.65; box-shadow: none; }
-[data-slot='select']:not([multiple]):not([size]) { height: 3rem; min-height: 3rem; padding-block: .625rem; line-height: 1.25rem; }
+[data-slot='button']:is([data-variant='destructive'],[data-variant='danger']) { background: var(--error); color: var(--on-accent); border-color: transparent; }
+[data-slot='button']:is([data-variant='destructive'],[data-variant='danger']):hover { background: color-mix(in srgb, var(--error), var(--color-ink) 14%); }
+[data-slot='button']:disabled { opacity: .45; }
+.button[data-slot='button'] { height: auto; min-height: 3rem; inline-size: auto; border-radius: 999px; padding: .625rem 1.375rem; font-size: .9375rem; line-height: 1.625rem; }
+[data-slot='input'] { background: var(--surface); box-shadow: none; }
+[data-slot='textarea'], [data-slot='select'] { width: 100%; min-width: 0; border: 1px solid var(--border); background: var(--surface); color: var(--color-ink); box-shadow: none; }
 [data-slot='field-label'] { font-size: .9375rem; font-weight: 600; }
 [data-slot='field-label'] small { margin-left: .5rem; color: var(--color-muted); font-size: .75rem; font-weight: 400; }
 [data-slot='field-description'] { color: var(--color-muted); font-size: .875rem; line-height: 1.7; margin: .5rem 0 1.375rem; }

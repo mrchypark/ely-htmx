@@ -3,7 +3,6 @@ package uiexamples
 import (
 	"io/fs"
 	"net/http/httptest"
-	"regexp"
 	"strings"
 	"testing"
 )
@@ -13,15 +12,8 @@ func TestGalleryRecipesCallSharedComponents(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	controls := regexp.MustCompile(`<(input|textarea|select|button)\b`)
-	for _, path := range paths {
-		data, err := Files.ReadFile(path)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if controls.Match(data) {
-			t.Errorf("gallery owns control implementation: %s", path)
-		}
+	if len(paths) != 0 {
+		t.Fatalf("obsolete parallel gallery implementations remain: %v", paths)
 	}
 	server, err := New()
 	if err != nil {

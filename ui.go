@@ -17,12 +17,17 @@ import (
 //go:embed templates/*.html assets/* components.json LICENSE THIRD_PARTY_UI.md
 var Files embed.FS
 
-// Option is a value and label for shared choice controls.
+// Option supplies a submitted value, a label, and optional choice icons.
 type Option struct {
 	Value    string
 	Label    string
 	Selected bool
 	Disabled bool
+	Icon     string
+	Glyph    string
+	Note     string
+	Keywords string
+	Group    string
 }
 
 var extraAttributeName = regexp.MustCompile(`^(data|aria|hx)-[a-z0-9]+(-[a-z0-9]+)*$`)

@@ -3,7 +3,7 @@
 루트 `ui` 패키지는 애플리케이션에서 사용하는 공통 Go 패키지다. PocketBase와 예제 서버에 의존하지 않는다. [Ely](https://elygpui.com/)의 디자인을 프로젝트의 HTML·Go·htmx 환경에 맞춰 구현한다.
 
 
-색상은 [공통 테마 설정](themes.md)의 라이트·다크 19개 역할과 `ElyTheme` API로 지정한다. `/components/themes`에서 기본 블루·바이올렛·테라코타를 비교하고 새 제안을 편집·적용·JSON으로 공유한다.
+색상은 [공통 테마 설정](themes.md)의 라이트·다크 19개 역할과 `ElyTheme` API로 지정한다. `/components/themes`에서 기본 Ely Neutral과 블루·바이올렛·테라코타를 비교하고 새 제안을 편집·적용·JSON으로 공유한다.
 
 `NewTemplates()`는 브랜드, 기본 폼, 복합 폼, 데이터 표시, 달력, 지도와 Ely 카탈로그 템플릿을 준비한다. 호출자는 자신의 `ParseFS`로 화면을 추가한다. `BindAssets(mux)`는 공통 자산의 개별 경로를 등록하므로 앱의 다른 `/assets/` 핸들러와 함께 사용할 수 있다. 중첩된 Ely 이미지·라이선스·지도 데이터도 같은 방식으로 제공한다.
 
@@ -22,7 +22,7 @@ err := ui.RenderComponent(templates, writer, ui.Component{
 
 Go 화면에서는 같은 API를 `{{component (dict "Chapter" "documents" "Name" "MarkdownRenderer" "ID" "source-preview" "Props" (dict "Value" .Source))}}`로 호출한다. `{{template "ui-component-assets"}}`와 `{{template "ui-advanced-assets"}}`를 추가한다. 한 계열만 사용할 때는 `{{template "ui-advanced-family-assets" "workspace"}}`처럼 필요한 CSS만 추가할 수 있다. 지도에는 `ui-map-assets`를 추가한다. 카탈로그의 상세 페이지도 이 API와 호출자 데이터를 사용한다. 
 
-공통 속성은 `Title`, `Label`, `Name`, `Value`, `Disabled`, `Required`이다. `Items`, `Options`, `Rows`, `Fields`와 SVG 좌표는 컴포넌트별 데이터이다. 문자열은 Go 템플릿이 이스케이프한다. Markdown은 GFM으로 렌더링하며 입력의 HTML과 위험한 링크 스킴을 실행하지 않는다. QR과 Code128은 실제 호출 값으로 인코딩한다.
+공통 속성은 `Title`, `Label`, `Name`, `Value`, `Disabled`, `Required`이다. `Items`, `Options`, `Rows`, `Fields`와 SVG 좌표는 컴포넌트별 데이터이다. 문자열은 Go 템플릿이 이스케이프한다. Markdown은 GFM으로 렌더링하며 입력의 HTML과 위험한 링크 스킴을 실행하지 않는다. QR, Code128과 EAN-13은 실제 호출 값으로 인코딩한다. EAN-13은 12자리 숫자의 검증 숫자를 계산하고, 13자리 입력의 검증 숫자를 확인한다.
 
 각 계열의 속성과 동작은 [기본 표시](advanced-foundation.md), [상호작용](advanced-interaction.md), [데이터](advanced-data.md), [작업 공간](advanced-workspace.md), [통신](advanced-communication.md), [미디어·환경](advanced-native.md), [폼·계정·설정](advanced-forms.md)에 있다.
 

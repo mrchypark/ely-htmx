@@ -1,9 +1,13 @@
 (() => {
   const light = {'color-paper':'#FCFAF7', 'color-ink':'#14213A', 'color-muted':'#6F6B66', 'color-line':'#E6E1DA', 'color-accent':'#335CFF', surface:'#FFFFFF', border:'#8C8781', 'accent-hover':'#2449DF', 'accent-tint':'#EEF2FF', 'on-accent':'#FFFFFF', focus:'#335CFF', draft:'#68625C', 'draft-tint':'#F1ECE6', approved:'#36654F', 'approved-tint':'#EDF4EF', warning:'#8A5B18', 'warning-tint':'#FBF1DA', error:'#A13F3F', 'error-tint':'#F9ECE9'};
   const dark = {'color-paper':'#171615', 'color-ink':'#F2EFEA', 'color-muted':'#BBB4AC', 'color-line':'#37332F', 'color-accent':'#6B8AFF', surface:'#211F1D', border:'#817970', 'accent-hover':'#8CA4FF', 'accent-tint':'#202840', 'on-accent':'#14213A', focus:'#6B8AFF', draft:'#C4BEB5', 'draft-tint':'#302C28', approved:'#A5C7B0', 'approved-tint':'#25362B', warning:'#E2BE7A', 'warning-tint':'#3B3020', error:'#E4A29B', 'error-tint':'#3F2927'};
+  // Ely GPUI palette; input boundaries use its high-contrast border_strong values.
+  const elyLight = {'color-paper':'#FCFAF7', 'color-ink':'#181613', 'color-muted':'#605D5A', 'color-line':'#E1DFDD', 'color-accent':'#181613', surface:'#FFFFFF', border:'#82807D', 'accent-hover':'#302D2B', 'accent-tint':'#F2F0ED', 'on-accent':'#FCFAF7', focus:'#3772BB', draft:'#605D5A', 'draft-tint':'#F6F4F1', approved:'#267B4C', 'approved-tint':'#E7F9EC', warning:'#A25F12', 'warning-tint':'#FEF2DD', error:'#BA3E38', 'error-tint':'#FFEFEC'};
+  const elyDark = {'color-paper':'#252525', 'color-ink':'#F3F1F0', 'color-muted':'#C4C2C0', 'color-line':'#3F3F3F', 'color-accent':'#F3F1F0', surface:'#2C2C2C', border:'#858380', 'accent-hover':'#D9D7D5', 'accent-tint':'#383838', 'on-accent':'#252525', focus:'#69A1E8', draft:'#C4C2C0', 'draft-tint':'#202020', approved:'#6BBC89', 'approved-tint':'#182C1F', warning:'#E8B45E', 'warning-tint':'#342611', error:'#E5756E', 'error-tint':'#3A1D1B'};
   const tokens = Object.keys(light);
   const aliases = {'color-background':'color-paper', 'color-foreground':'color-ink', 'color-primary':'color-accent', 'color-primary-foreground':'on-accent', 'color-secondary':'accent-tint', 'color-secondary-foreground':'color-ink', 'color-card':'surface', 'color-card-foreground':'color-ink', 'color-muted-foreground':'color-muted', 'color-accent-foreground':'on-accent', 'color-border':'color-line', 'color-input':'border', 'color-ring':'focus', 'color-destructive':'error'};
   const palettes = new Map([
+    ['ely', {id:'ely', name:'Ely Neutral', light:elyLight, dark:elyDark}],
     ['blue', {id:'blue', name:'Blue', light, dark}],
     ['violet', {id:'violet', name:'Dusty Violet', light:{...light, 'color-accent':'#67547F', 'accent-hover':'#514063', 'accent-tint':'#F1ECF6', focus:'#67547F'}, dark:{...dark, 'color-accent':'#C0A5DF', 'accent-hover':'#D4BDEC', 'accent-tint':'#2D2537', focus:'#C0A5DF'}}],
     ['terracotta', {id:'terracotta', name:'Oxide Terracotta', light:{...light, 'color-accent':'#96523E', 'accent-hover':'#793F2F', 'accent-tint':'#F8EDE7', focus:'#96523E'}, dark:{...dark, 'color-accent':'#E7A38B', 'accent-hover':'#F1BAA7', 'accent-tint':'#3C2B26', focus:'#E7A38B'}}],
@@ -34,7 +38,7 @@
   const contrast = (a,b) => { const first=luminance(a),second=luminance(b); return (Math.max(first,second)+.05)/(Math.min(first,second)+.05); };
   function issues(value) {
     const theme = validate(value), problems = [];
-    const pairs = [['color-ink','color-paper'],['color-ink','surface'],['color-muted','color-paper'],['color-muted','surface'],['on-accent','color-accent'],['on-accent','accent-hover'],['color-ink','accent-tint'],['draft','draft-tint'],['approved','approved-tint'],['warning','warning-tint'],['error','error-tint'],['border','surface',3],['focus','surface',3],['focus','color-paper',3]];
+    const pairs = [['color-ink','color-paper'],['color-ink','surface'],['color-muted','color-paper'],['color-muted','surface'],['on-accent','color-accent'],['on-accent','accent-hover'],['on-accent','error'],['color-ink','accent-tint'],['draft','draft-tint'],['approved','approved-tint'],['warning','warning-tint'],['error','error-tint'],['border','surface',3],['focus','surface',3],['focus','color-paper',3]];
     for (const mode of ['light','dark']) for (const [foreground,background,minimum=4.5] of pairs) {
       const ratio = contrast(theme[mode][foreground],theme[mode][background]);
       if (ratio < minimum) problems.push({mode,foreground,background,ratio,minimum});
@@ -78,7 +82,7 @@
   }
   try { register(JSON.parse(read('ely-custom-theme'))); } catch {}
   const selected = read('ely-palette');
-  const initialID = palettes.has(selected) && !issues(get(selected)).length ? selected : 'blue';
+  const initialID = palettes.has(selected) && !issues(get(selected)).length ? selected : 'ely';
   const savedMode = read('ely-theme');
   const initialMode = ['light','dark'].includes(savedMode) ? savedMode : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   preview(root,initialID,initialMode);

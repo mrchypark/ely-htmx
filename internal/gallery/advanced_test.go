@@ -76,6 +76,47 @@ func TestEveryAdvancedAPIAndAliasRenders(t *testing.T) {
 	}
 }
 
+func TestAuditAliasLinkKeepsSelectedFamily(t *testing.T) {
+	server, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/components/audit?family=data", nil))
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `href="/components/audit?aliases=1&amp;family=data"`) {
+		t.Fatal("alias link lost the selected component family")
+	}
+}
+
+func TestAuditIncludesEveryResolvedName(t *testing.T) {
+	server, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	definitions, err := ui.ComponentDefinitions()
+	if err != nil {
+		t.Fatal(err)
+	}
+	counts := map[string]int{}
+	seen := map[string]bool{}
+	for _, definition := range definitions {
+		for _, name := range append([]string{definition.Name}, definition.Aliases...) {
+			key := definition.Chapter + "/" + name
+			if !seen[key] {
+				seen[key] = true
+				counts[definition.Family]++
+			}
+		}
+	}
+	for family, count := range counts {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/components/audit?aliases=1&family="+family, nil))
+		if got := strings.Count(response.Body.String(), "data-audit-case "); response.Code != http.StatusOK || got != count {
+			t.Errorf("%s audit rendered %d cases, want %d (status %d)", family, got, count, response.Code)
+		}
+	}
+}
+
 func TestMarkdownPreviewHostAdapter(t *testing.T) {
 	server, err := New()
 	if err != nil {
