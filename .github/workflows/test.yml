@@ -35,3 +35,56 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
+  static-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/sdui-static-unit-test.mjs
+      - run: bash scripts/build-pages.sh dist /ely-htmx/
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/sdui-static-browser-test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-pages-browser-evidence
+          path: test-results/static-pages/
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: github-pages-static-site
+          path: dist/
+          include-hidden-files: true
+  deploy-pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/sdui-runtime'
+    needs: [test, browser, static-pages]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages-static-site
+          path: public-site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public-site
+      - name: Deploy verified gallery and playground
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -38,16 +38,25 @@ type server struct {
 	token       string
 	mux         *http.ServeMux
 	busy        chan struct{}
+	readAsset   func(string) ([]byte, error)
 }
 
-// NewHandler creates a local development tool, not production authentication.
-// Its per-process session expires on restart. No screen or data is persisted server-side.
-func NewHandler() (http.Handler, error) {
+func newRegistry() (*sdui.Registry, error) {
 	r, err := sdui.CatalogueRegistry()
 	if err != nil {
 		return nil, err
 	}
 	if err = r.Register(sdui.Definition{Name: "playground/card", Template: "card", Properties: map[string]sdui.Property{"title": {Type: sdui.String, Target: "Title", Required: true}}, Slots: map[string]sdui.SlotDefinition{"content": {Target: "Content", AllowedTypes: []string{"text", "button", "stack"}, MaxNodes: 16}}}); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// NewHandler creates a local development tool, not production authentication.
+// Its per-process session expires on restart. No screen or data is persisted server-side.
+func NewHandler() (http.Handler, error) {
+	r, err := newRegistry()
+	if err != nil {
 		return nil, err
 	}
 	token := make([]byte, 32)
@@ -259,7 +268,11 @@ func (s *server) preview(w http.ResponseWriter, r *http.Request) {
 		fail(e)
 		return
 	}
-	safe, e := previewDocument(rendered.String(), assets.String())
+	readAsset := s.readAsset
+	if readAsset == nil {
+		readAsset = ui.Files.ReadFile
+	}
+	safe, e := previewDocumentWithAssets(rendered.String(), assets.String(), readAsset)
 	if e != nil {
 		fail(e)
 		return
@@ -310,6 +323,10 @@ func stylesheetPaths(source string) []string {
 // Defense in depth: the opaque sandbox has no scripts/forms/popups/navigation.
 // Strip all markup capable of navigation or resource loads, including local URLs.
 func previewDocument(source, assets string) (string, error) {
+	return previewDocumentWithAssets(source, assets, ui.Files.ReadFile)
+}
+
+func previewDocumentWithAssets(source, assets string, readAsset func(string) ([]byte, error)) (string, error) {
 	doc, e := html.Parse(strings.NewReader(source))
 	if e != nil {
 		return "", e
@@ -340,7 +357,7 @@ func previewDocument(source, assets string) (string, error) {
 	// bytes inside an opaque-origin iframe without granting any resource network.
 	var css bytes.Buffer
 	for _, path := range stylesheetPaths(assets) {
-		value, err := ui.Files.ReadFile(strings.TrimPrefix(path, "/"))
+		value, err := readAsset(strings.TrimPrefix(path, "/"))
 		if err != nil {
 			return "", err
 		}

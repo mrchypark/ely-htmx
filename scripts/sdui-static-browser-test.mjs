@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {readFile,mkdir} from 'node:fs/promises';
+import {resolve,extname} from 'node:path';
+import {chromium} from 'playwright';
+const root=resolve('dist'), base='/ely-htmx/', errors=[], bad=[];
+const server=createServer(async(req,res)=>{try{let p=decodeURIComponent(new URL(req.url,'http://local').pathname);if(!p.startsWith(base)){res.writeHead(404).end();return;}p=p.slice(base.length);if(!p||p.endsWith('/'))p+='index.html';const file=resolve(root,p);if(!file.startsWith(root+'/'))throw Error('path');const data=await readFile(file);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.wasm':'application/wasm','.svg':'image/svg+xml'})[extname(file)]||'application/octet-stream');res.end(data);}catch{res.writeHead(404).end();}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const origin=`http://127.0.0.1:${server.address().port}`;
+let browser;
+try{
+ browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1440,height:1000}});
+ await context.route('**/*',route=>{const u=route.request().url();if(u.startsWith(origin+base))return route.continue();bad.push(u);return route.abort();});
+ const page=await context.newPage();page.on('pageerror',e=>errors.push(String(e)));page.on('response',r=>{if(r.status()>=400)bad.push(`${r.status()} ${r.url()}`);});
+ await page.goto(origin+base);assert((await page.locator('a').count())>40,'gallery links rendered');
+ await page.goto(origin+base+'playground/');await page.waitForFunction(()=>globalThis.elyRendererMetrics,{},{timeout:120000});
+ const screen={version:'1',id:'static-test',root:{id:'layout',type:'stack',children:[{id:'message',type:'text',props:{text:'Static WASM preview'}}]}};
+ await page.locator('#tab-screen').click();await page.locator('#screen-editor').fill(JSON.stringify(screen));await page.locator('#screen-editor').press('Control+Enter');
+ await page.waitForFunction(()=>document.querySelector('#preview-frame').srcdoc.includes('Static WASM preview'));
+ assert.equal(await page.locator('#preview-frame').getAttribute('sandbox'),'');
+ const measured=await page.evaluate(async screen=>elyStaticAPI('/api/preview',{body:JSON.stringify({screen,data:{},profile:'static',strategy:'smallest'})}),screen);
+ for(const coding of ['identity','gzip','br','zstd'])assert(measured.sizes.html[coding]>0);
+ await page.locator('#screen-editor').fill('{broken');await page.locator('#screen-editor').press('Control+Enter');await page.waitForFunction(()=>document.querySelector('#validation-message').textContent.trim());
+ assert((await page.locator('#preview-frame').getAttribute('srcdoc')).includes('Static WASM preview'));
+ await page.locator('#screen-editor').fill(JSON.stringify(screen));await page.locator('#screen-editor').press('Control+Enter');
+ await page.locator('#node-tree [data-node-path]').last().click();await page.locator('#node-duplicate').click();assert.equal(JSON.parse(await page.locator('#screen-editor').inputValue()).root.children.length,2);
+ await page.locator('#undo').click();assert.equal(JSON.parse(await page.locator('#screen-editor').inputValue()).root.children.length,1);
+ await mkdir('test-results/static-pages',{recursive:true});await page.screenshot({path:'test-results/static-pages/desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));await page.screenshot({path:'test-results/static-pages/mobile.png',fullPage:true});
+ assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);console.log('Static gallery and real WASM editor passed',await page.evaluate(()=>elyRendererMetrics));
+}finally{await browser?.close();await new Promise(r=>server.close(r));}

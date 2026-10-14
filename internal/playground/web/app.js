@@ -193,6 +193,7 @@
   }
 
   async function api(path, options = {}) {
+    if (globalThis.elyStaticAPI) return globalThis.elyStaticAPI(path, options);
     const response = await fetch(path, {credentials: 'same-origin', ...options});
     let data;
     try { data = await response.json(); }

@@ -4,7 +4,6 @@ package ui
 import (
 	"bytes"
 	"crypto/sha256"
-	"embed"
 	"fmt"
 	"html/template"
 	"io/fs"
@@ -20,9 +19,6 @@ import (
 
 	"github.com/mrchypark/ely-htmx/internal/httpencoding"
 )
-
-//go:embed templates/*.html assets/* components.json LICENSE THIRD_PARTY_UI.md
-var Files embed.FS
 
 // Option supplies a submitted value, a label, and optional choice icons.
 type Option struct {
