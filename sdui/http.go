@@ -2,11 +2,18 @@ package sdui
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
+	"errors"
 	"fmt"
 	"io"
+	"mime"
+	"strconv"
+
+	"github.com/klauspost/compress/zstd"
+	"github.com/mrchypark/ely-htmx/internal/httpencoding"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -39,13 +46,19 @@ type Action struct {
 // The in-memory replay cache is a bounded single-process convenience, not a
 // durable business transaction or a replacement for database idempotency.
 type Config struct {
-	Endpoint              string
-	Authenticate          func(*http.Request) (string, error)
-	Authorize             func(context.Context, string) error
-	CSRF                  func(*http.Request) (string, error)
-	Loaders               map[string]Loader
-	Actions               map[string]Action
-	MaxBodyBytes          int64
+	Endpoint     string
+	Authenticate func(*http.Request) (string, error)
+	Authorize    func(context.Context, string) error
+	CSRF         func(*http.Request) (string, error)
+	Loaders      map[string]Loader
+	Actions      map[string]Action
+	MaxBodyBytes int64
+	// MaxCompressedBodyBytes bounds encoded input independently of MaxBodyBytes (decoded).
+	MaxCompressedBodyBytes int64
+	// CompressResponses opts into compression of authenticated HTML, which includes
+	// CSRF tokens and may reflect input. Enable ONLY after the host mitigates
+	// compression side channels (BREACH); no-store alone is not a mitigation.
+	CompressResponses     bool
 	IdempotencyTTL        time.Duration
 	MaxIdempotencyEntries int
 	MaxReplayBytes        int64
@@ -85,6 +98,12 @@ func NewHandler(plan *Plan, c Config) (*Handler, error) {
 	}
 	if c.MaxBodyBytes < 1 || c.MaxBodyBytes > 64<<20 {
 		return nil, fmt.Errorf("MaxBodyBytes must be 1..64 MiB")
+	}
+	if c.MaxCompressedBodyBytes == 0 {
+		c.MaxCompressedBodyBytes = c.MaxBodyBytes
+	}
+	if c.MaxCompressedBodyBytes < 1 || c.MaxCompressedBodyBytes > 64<<20 {
+		return nil, fmt.Errorf("MaxCompressedBodyBytes must be 1..64 MiB")
 	}
 	if c.IdempotencyTTL == 0 {
 		c.IdempotencyTTL = 10 * time.Minute
@@ -133,8 +152,16 @@ func validEndpoint(path string) bool {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Cache-Control", "no-store")
-	w.Header().Set("Vary", "Cookie, Authorization")
+	w.Header().Set("Cache-Control", "no-store, no-transform")
+	w.Header().Add("Vary", "Cookie, Authorization, Accept-Encoding")
+	available := []string{"identity"}
+	if h.config.CompressResponses {
+		available = append(available, "zstd", "br", "gzip")
+	}
+	if _, ok := httpencoding.NegotiateAvailable(strings.Join(r.Header.Values("Accept-Encoding"), ","), available...); !ok {
+		http.Error(w, "no acceptable content encoding", http.StatusNotAcceptable)
+		return
+	}
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	if h.revision != "" {
 		w.Header().Set("X-SDUI-Revision", h.revision)
@@ -190,15 +217,18 @@ func (h *Handler) page(w http.ResponseWriter, r *http.Request, principal, csrf s
 		return
 	}
 	b.WriteString("</body></html>")
-	writeHTML(w, 200, b.Bytes())
+	h.writeHTML(w, r, 200, b.Bytes())
 }
 func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf string) {
-	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, h.config.MaxBodyBytes))
+	body, compressed, status, err := h.readBody(w, r)
 	if err != nil {
-		http.Error(w, "request too large", 413)
+		http.Error(w, err.Error(), status)
 		return
 	}
 	r.Body = io.NopCloser(bytes.NewReader(body))
+	r.ContentLength = int64(len(body))
+	r.Header.Set("Content-Length", strconv.Itoa(len(body)))
+	r.Header.Del("Content-Encoding") // downstream sees decoded bytes exactly once
 	if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
 		err = r.ParseMultipartForm(h.config.MaxBodyBytes)
 	} else {
@@ -219,9 +249,22 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf
 		}
 		return v[0]
 	}
-	if subtle.ConstantTimeCompare([]byte(one("_csrf")), []byte(csrf)) != 1 {
+	token := one("_csrf")
+	if compressed {
+		tokens := r.Header.Values("X-SDUI-CSRF")
+		if len(tokens) != 1 || len(r.PostForm["_csrf"]) != 0 {
+			http.Error(w, "invalid CSRF token", 403)
+			return
+		}
+		token = tokens[0]
+	}
+	if subtle.ConstantTimeCompare([]byte(token), []byte(csrf)) != 1 {
 		http.Error(w, "invalid CSRF token", 403)
 		return
+	}
+	if compressed {
+		r.PostForm.Set("_csrf", token)
+		r.Form.Set("_csrf", token)
 	}
 	if h.revision != "" && one("_revision") != h.revision {
 		w.Header().Set("X-SDUI-Reload", "required")
@@ -275,7 +318,7 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf
 		}
 		select {
 		case <-existing.done:
-			writeHTML(w, existing.status, existing.body)
+			h.writeHTML(w, r, existing.status, existing.body)
 		case <-r.Context().Done():
 		}
 		return
@@ -291,7 +334,7 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf
 	h.mu.Unlock()
 	// Finalize every outcome, including a host panic, so duplicate requests cannot
 	// wait forever. Panics become generic failures without exposing host internals.
-	status := 500
+	status = 500
 	response := []byte("action failed\n")
 	defer func() {
 		_ = recover()
@@ -303,7 +346,7 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf
 		entry.expires = time.Now().Add(h.config.IdempotencyTTL)
 		close(entry.done)
 		h.mu.Unlock()
-		writeHTML(w, status, response)
+		h.writeHTML(w, r, status, response)
 	}()
 	result, err := action.Run(r.Context(), req)
 	if err != nil {
@@ -329,7 +372,20 @@ func (h *Handler) allowed(action, target string) bool {
 	}
 	return false
 }
-func writeHTML(w http.ResponseWriter, status int, b []byte) {
+func (h *Handler) writeHTML(w http.ResponseWriter, r *http.Request, status int, b []byte) {
+	if h.config.CompressResponses && w.Header().Get("Content-Encoding") == "" {
+		coding, _ := httpencoding.Negotiate(strings.Join(r.Header.Values("Accept-Encoding"), ","))
+		if coding != "identity" {
+			encoded, err := httpencoding.Encode(b, coding)
+			if err != nil {
+				http.Error(w, "compression failed", 500)
+				return
+			}
+			b = encoded
+			w.Header().Set("Content-Encoding", coding)
+		}
+	}
+	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
 	_, _ = w.Write(b)
@@ -365,4 +421,57 @@ func fingerprintForm(r *http.Request) ([32]byte, error) {
 	var sum [32]byte
 	copy(sum[:], h.Sum(nil))
 	return sum, nil
+}
+
+// readBody authenticates before decoding and bounds both representations. Only
+// URL-encoded forms use compressed requests; multipart uploads keep their native
+// streaming/form semantics. No stacked encodings or transparent fallback.
+func (h *Handler) readBody(w http.ResponseWriter, r *http.Request) ([]byte, bool, int, error) {
+	encodings := r.Header.Values("Content-Encoding")
+	coding := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Encoding")))
+	compressed := coding != "" && coding != "identity"
+	if len(encodings) > 1 || (compressed && coding != "gzip" && coding != "zstd") {
+		w.Header().Set("Accept-Encoding", "gzip, zstd")
+		return nil, false, 415, errors.New("unsupported content encoding")
+	}
+	limit := h.config.MaxBodyBytes
+	if compressed {
+		media, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+		if err != nil || media != "application/x-www-form-urlencoded" {
+			return nil, true, 415, errors.New("compressed requests require URL-encoded forms")
+		}
+		limit = h.config.MaxCompressedBodyBytes
+	}
+	raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, limit))
+	if err != nil {
+		return nil, compressed, 413, errors.New("request too large")
+	}
+	if !compressed {
+		return raw, false, 0, nil
+	}
+	var reader io.Reader
+	switch coding {
+	case "gzip":
+		decoder, err := gzip.NewReader(bytes.NewReader(raw))
+		if err != nil {
+			return nil, true, 400, errors.New("invalid compressed request")
+		}
+		defer decoder.Close()
+		reader = decoder
+	case "zstd":
+		decoder, err := zstd.NewReader(bytes.NewReader(raw), zstd.WithDecoderConcurrency(1), zstd.WithDecoderLowmem(true), zstd.WithDecoderMaxMemory(uint64(h.config.MaxBodyBytes)+(8<<20)), zstd.WithDecoderMaxWindow(8<<20))
+		if err != nil {
+			return nil, true, 400, errors.New("invalid compressed request")
+		}
+		defer decoder.Close()
+		reader = decoder
+	}
+	decoded, err := io.ReadAll(io.LimitReader(reader, h.config.MaxBodyBytes+1))
+	if int64(len(decoded)) > h.config.MaxBodyBytes {
+		return nil, true, 413, errors.New("decoded request too large")
+	}
+	if err != nil {
+		return nil, true, 400, errors.New("invalid compressed request")
+	}
+	return decoded, true, 0, nil
 }

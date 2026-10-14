@@ -75,7 +75,14 @@ try {
     document.addEventListener('htmx:after:swap', () => sduiSwaps++);
   });
   checkpoint('load page and selective bundled assets');
+  const initialCSSResponse = page.waitForResponse(response => new URL(response.url()).pathname === '/assets/app.css');
   await page.goto(origin, {waitUntil: 'networkidle'});
+  const cssResponse = await initialCSSResponse;
+  const cssHeaders = await cssResponse.allHeaders();
+  const cssRequestHeaders = await cssResponse.request().allHeaders();
+  assert(['gzip', 'br', 'zstd'].includes(cssHeaders['content-encoding']), 'Chromium receives compressed static CSS');
+  assert(cssRequestHeaders['accept-encoding'].split(',').map(value => value.trim()).includes(cssHeaders['content-encoding']), 'server selects an encoding Chromium advertised');
+  assert.match(cssHeaders.vary, /accept-encoding/i, 'asset encoding varies by request support');
   const name = page.locator('#profile-editor input[name="name"]');
   const toggle = page.locator('#updates-switch input[role="switch"]');
   const submit = page.locator('#save-profile button');
@@ -91,6 +98,7 @@ try {
   }
   assert.equal(requests.filter(path => path === '/assets/ely-api-interaction-entry.js').length, 1, 'conditional branch asset closure is preloaded');
   assert.equal(await page.locator('#saved-animation').count(), 0, 'conditional component starts absent');
+  assert(!requests.includes('/assets/lottie-light.min.js'), 'absent animation does not download Lottie');
   assert(!requests.includes('/assets/ely-api-all.js'), 'no all-family loader');
 
   // Server validation replaces the requested region even on HTTP 422, and
@@ -103,6 +111,10 @@ try {
   await ready();
   assert.equal(await name.evaluate(node => document.activeElement === node), true, 'focus restored after validation');
   assert.equal(await page.locator('#profile-form').count(), 1, 'no duplicate region IDs after 422');
+  assert(!requests.includes('/assets/lottie-light.min.js'), 'validation without an animation does not download Lottie');
+  const smallRequestHeaders = await postRequests.at(-1).allHeaders();
+  assert.match(smallRequestHeaders['content-type'], /^multipart\/form-data; boundary=/i, 'small actions retain native multipart transport');
+  assert.equal(smallRequestHeaders['content-encoding'], undefined);
 
   // Successful native FormData includes repeated names, the clicked submitter,
   // and a real File. File bytes are read by Go, not JSON-serialized or mocked.
@@ -116,11 +128,15 @@ try {
   assert.match(await page.locator('#attachment-result').innerText(), new RegExp(`proof\\.txt \\(${contents.length} bytes\\)`));
   assert.match(await page.locator('#tags-result').innerText(), /Repeated fields: go, hypermedia/);
   assert.match(await page.locator('#intent-result').innerText(), /Submitter: save/);
+  const uploadHeaders = await postRequests.at(-1).allHeaders();
+  assert.match(uploadHeaders['content-type'], /^multipart\/form-data; boundary=/i, 'uploads retain native multipart transport');
+  assert.equal(uploadHeaders['content-encoding'], undefined);
   await ready();
   assert.equal(await submit.evaluate(node => document.activeElement === node), true, 'submit button focus restored');
 
   await page.waitForSelector('#saved-animation [data-ely-ready="true"]');
   await page.waitForFunction(() => document.querySelector('#saved-animation [data-interaction-lottie-status]')?.textContent === 'Animation ready');
+  assert.equal(requests.filter(path => path === '/assets/lottie-light.min.js').length, 1, 'first animation mount downloads Lottie once');
   await page.locator('#saved-animation [data-interaction-lottie-play]').click();
   assert.equal(await page.locator('#saved-animation [data-interaction-lottie-status]').innerText(), 'Animation playing');
   await page.locator('#saved-animation [data-interaction-lottie-pause]').click();
@@ -134,6 +150,7 @@ try {
   await page.waitForFunction(() => document.querySelector('#saved-animation [data-interaction-lottie-status]')?.textContent === 'Animation ready' && window.lottie.getRegisteredAnimations().length === 1);
   await ready();
   assert.equal(postRequests.length, before + 1, 'one advanced change causes one request');
+  assert.equal(requests.filter(path => path === '/assets/lottie-light.min.js').length, 1, 'later animation mounts reuse Lottie');
   assert.equal(await toggle.isChecked(), true);
   assert.match(await result.innerText(), /Updates on\./);
   assert.equal(await toggle.evaluate(node => document.activeElement === node), true, 'advanced control focus restored');
@@ -328,8 +345,51 @@ try {
   await page.waitForFunction(() => document.querySelector('#profile-result')?.textContent.includes('Saved After validated replacement.'));
   assert.match(await result.innerText(), /Save #10\./);
   assert.deepEqual(errors, []);
+  // Exercise native CompressionStream against the real Go decoder. An empty
+  // file input is still a File in FormData, so disable it for this text-only
+  // action. The extra repeated tag verifies decoded values reach the action.
+  checkpoint('native request compression roundtrip');
+  const publicTag = 'public-example-✓-'.repeat(4);
+  const publicPadding = 'ordinary public test data '.repeat(256);
+  await name.fill('Compressed browser submission');
+  const compressionCSRF = await page.locator('[data-sdui-screen]').getAttribute('data-sdui-csrf');
+  await page.evaluate(({tag, padding}) => {
+    const form = document.getElementById('profile-editor');
+    form.querySelector('input[type="file"]').disabled = true;
+    const field = document.createElement('input');
+    field.type = 'hidden'; field.name = 'tag'; field.value = tag;
+    form.appendChild(field);
+    const extra = document.createElement('input');
+    extra.type = 'hidden'; extra.name = 'public-padding'; extra.value = padding;
+    form.appendChild(extra);
+  }, {tag: publicTag, padding: publicPadding});
+  before = postRequests.length;
+  const compressedRequestPromise = page.waitForRequest(request => request.method() === 'POST');
+  await submit.click();
+  const compressedRequest = await compressedRequestPromise;
+  const compressionHeaders = await compressedRequest.allHeaders();
+  assert(['gzip', 'zstd'].includes(compressionHeaders['content-encoding']), 'native browser compresses eligible text action');
+  assert.match(compressionHeaders['content-type'], /^application\/x-www-form-urlencoded/i);
+  assert.equal(compressionHeaders['x-sdui-csrf'], compressionCSRF, 'CSRF is sent in its dedicated header');
+  const compressedBytes = compressedRequest.postDataBuffer();
+  assert(compressedBytes && compressedBytes.length < Buffer.byteLength(publicPadding), 'wire body is smaller than plain public data');
+  const decodedFields = await page.evaluate(async ({bytes, encoding}) => {
+    const stream = new Blob([new Uint8Array(bytes)]).stream().pipeThrough(new DecompressionStream(encoding));
+    const values = new URLSearchParams(await new Response(stream).text());
+    return {csrfPresent: values.has('_csrf'), tags: values.getAll('tag'), name: values.get('name'), padding: values.get('public-padding')};
+  }, {bytes: [...compressedBytes], encoding: compressionHeaders['content-encoding']});
+  assert.equal(decodedFields.csrfPresent, false, 'CSRF secret is absent from compressed input');
+  assert.deepEqual(decodedFields.tags, ['go', 'hypermedia', publicTag], 'compression preserves repeated Unicode values');
+  assert.equal(decodedFields.name, 'Compressed browser submission');
+  assert.equal(decodedFields.padding, publicPadding);
+  await page.waitForFunction(() => document.querySelector('#profile-result')?.textContent.includes('Saved Compressed browser submission.'));
+  await ready();
+  assert.match(await result.innerText(), /Save #11\./, 'Go decodes and commits compressed browser input');
+  assert.equal(await page.locator('#tags-result').innerText(), `Repeated fields: go, hypermedia, ${publicTag}`);
+  assert.equal(postRequests.length, before + 1, 'compression sends exactly one action request');
+  assert.deepEqual(errors, []);
   if (process.env.SDUI_SCREENSHOT) await page.screenshot({path: process.env.SDUI_SCREENSHOT, fullPage: true});
-  console.log('SDUI browser checks passed: real Go server, selective bundled assets, validation, FormData/files/repeated fields/submitter, advanced changes, repeated swaps and cleanup, focus, duplicate suppression, late-response race, Back/Forward, named-field clobbering, auth/CSRF and idempotent replay.');
+  console.log('SDUI browser checks passed: real Go server, selective bundled assets, validation, FormData/files/repeated fields/submitter, advanced changes, repeated swaps and cleanup, focus, duplicate suppression, late-response race, Back/Forward, named-field clobbering, auth/CSRF, idempotent replay, compressed static assets and native request compression.');
 } catch (error) {
   // Print the primary failure before cleanup can close a pending request. Every
   // asynchronous route path catches its own failure, so diagnostics cannot be

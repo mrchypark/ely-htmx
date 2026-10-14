@@ -1,5 +1,44 @@
 import {register, emit} from './ely-api.js';
 
+// Share one optional dependency request across current and future mounts. A
+// failed download can be retried by a later mount; ordinary interaction controls
+// never fetch Lottie. Keep this URL host-owned rather than accepting schema URLs.
+let lottieLibraryPromise;
+const loadLottieLibrary = () => {
+  if (window.lottie?.loadAnimation) return Promise.resolve(window.lottie);
+  if (lottieLibraryPromise) return lottieLibraryPromise;
+  lottieLibraryPromise = new Promise((resolve, reject) => {
+    let script = document.querySelector('script[src="/assets/lottie-light.min.js"]');
+    const owned = !script;
+    if (!script) {
+      script = document.createElement('script');
+      script.src = '/assets/lottie-light.min.js';
+      script.async = true;
+    }
+    const finish = () => {
+      script.removeEventListener('load', loaded);
+      script.removeEventListener('error', failed);
+    };
+    const failed = () => {
+      finish();
+      if (owned) script.remove();
+      reject(new Error('Lottie library is unavailable'));
+    };
+    const loaded = () => {
+      if (!window.lottie?.loadAnimation) { failed(); return; }
+      finish();
+      resolve(window.lottie);
+    };
+    script.addEventListener('load', loaded);
+    script.addEventListener('error', failed);
+    if (owned) document.head.append(script);
+  }).catch(error => {
+    lottieLibraryPromise = undefined;
+    throw error;
+  });
+  return lottieLibraryPromise;
+};
+
 const closest = (root, target, selector) => target instanceof Element && target.closest(selector)?.closest('[data-ely-family]') === root ? target.closest(selector) : null;
 const change = (root, detail = {}) => root.dispatchEvent(new CustomEvent('ely:change', {bubbles: true, detail: {id: root.id, component: root.dataset.elyComponent, ...detail}}));
 const itemValue = item => item.dataset.interactionValue || item.value || item.textContent.trim();
@@ -1437,8 +1476,8 @@ register('interaction', root => {
     };
     const start = async () => {
       try {
-        const library = window.lottie;
-        if (!library?.loadAnimation) throw new Error('Lottie library is unavailable');
+        const library = await loadLottieLibrary();
+        if (destroyed) return;
         const animationData = await data();
         if (destroyed) return;
         animation = library.loadAnimation({container: canvas, renderer: 'svg', loop: host.dataset.lottieLoop === 'true', autoplay: host.dataset.lottieAutoplay === 'true', animationData});

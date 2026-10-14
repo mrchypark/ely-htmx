@@ -164,7 +164,7 @@ func TestRenderAssetsFamilyUnion(t *testing.T) {
 		t.Fatal(err)
 	}
 	assets := output.String()
-	for _, asset := range []string{"app.css", "sdui.css", "sdui.js", "ely-controls.css", "ely-controls.js", "ely-api.css", "ely-api-forms.css", "ely-api-forms-entry.js", "ely-api-workspace-entry.js", "ely-api-calendar-parity.css", "ely-api-native-tooling.css", "lottie-light.min.js"} {
+	for _, asset := range []string{"app.css", "sdui.css", "sdui.js", "ely-controls.css", "ely-controls.js", "ely-api.css", "ely-api-forms.css", "ely-api-forms-entry.js", "ely-api-workspace-entry.js", "ely-api-calendar-parity.css", "ely-api-native-tooling.css"} {
 		if strings.Count(assets, `/assets/`+asset+`"`) != 1 {
 			t.Errorf("asset %s not emitted exactly once", asset)
 		}
@@ -194,6 +194,9 @@ func TestRenderAssetsFamilyUnion(t *testing.T) {
 		}
 	}
 	checkAssetPaths(doc)
+	if strings.Contains(assets, "lottie-light.min.js") {
+		t.Fatal("interaction family eagerly loads optional Lottie dependency")
+	}
 	if strings.Contains(assets, "ely-api-all.js") {
 		t.Fatal("unbounded all-family loader")
 	}

@@ -3,7 +3,7 @@
 The optional `github.com/mrchypark/ely-htmx/sdui` package compiles versioned JSON
 screens into Ely's existing Go templates and catalogue components. The server
 owns data, validation and actions. A small delegated browser adapter submits
-native `FormData` and replaces one declared region with server-rendered HTML.
+native `FormData` (with progressive text-request compression) and replaces one declared region with server-rendered HTML.
 
 The runtime includes strict decoding, recursive property contracts, local
 reusable templates, conditions, stable-key repeats, registered slots,
@@ -12,6 +12,8 @@ revision-aware requests. Schema values never select arbitrary Go templates,
 execute expressions or grant server capabilities.
 
 Related references:
+
+- [HTTP compression, performance and security](sdui-transport.md)
 
 - [Composition grammar and full examples](sdui-composition.md)
 - [JSON design decisions and primary-source research](sdui-json-design.md)

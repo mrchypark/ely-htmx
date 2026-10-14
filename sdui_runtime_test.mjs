@@ -581,3 +581,220 @@ test('validated inert Lottie JSON survives swaps but executable or malformed scr
   assert.equal(h.notifications.at(-1).type,accepted?'sdui:success':'sdui:error',markup);
  }
 });
+
+function nativeCompression(h, Compression = CompressionStream) {
+  Object.assign(h.window, {CompressionStream: Compression, Blob, Response, URLSearchParams});
+}
+async function eventually(predicate) {
+  const deadline = Date.now() + 2000;
+  while (!predicate() && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 1));
+  assert(predicate(), 'asynchronous compression did not finish');
+}
+async function decodedForm(call, encoding = call.options.headers['Content-Encoding']) {
+  const stream = new Blob([call.options.body]).stream().pipeThrough(new DecompressionStream(encoding));
+  return new URLSearchParams(await new Response(stream).text());
+}
+
+test('native gzip fallback compresses text only, preserves repeats and keeps CSRF outside compressed data', async () => {
+  const h = harness();
+  const formats = [];
+  nativeCompression(h, class {
+    constructor(format) {
+      formats.push(format);
+      if (format === 'zstd') throw new TypeError('unsupported');
+      return new CompressionStream(format);
+    }
+  });
+  h.input.value = '한글 & + =\n\r\r\n'.repeat(500);
+  h.screen.setAttribute('data-sdui-revision', 'revision-v1');
+  h.form.append(h.element('input', {name: 'tag', value: 'one'}), h.element('input', {name: 'tag', value: 'two'}));
+  h.fire(); h.fire();
+  await eventually(() => h.calls.length === 1);
+  const call = h.calls[0];
+  assert.deepEqual(formats, ['zstd', 'gzip']);
+  assert.equal(call.options.headers['Content-Encoding'], 'gzip');
+  assert.equal(call.options.headers['Content-Type'], 'application/x-www-form-urlencoded;charset=UTF-8');
+  assert.equal(call.options.headers['X-SDUI-CSRF'], 'screen-token');
+  const form = await decodedForm(call);
+  assert.equal(form.has('_csrf'), false);
+  assert.equal(form.get('name'), h.input.value.replace(/\r\n|\r|\n/g, '\r\n'));
+  assert.deepEqual(form.getAll('tag'), ['one', 'two']);
+  assert.equal(form.get('commit'), 'save');
+  assert.equal(form.get('_revision'), 'revision-v1');
+  assert.equal(form.get('_request'), call.options.headers['Idempotency-Key']);
+  assert(call.options.body.byteLength < form.toString().length);
+  await h.complete(0);
+  assert.equal(h.notifications.at(-1).type, 'sdui:success');
+});
+
+test('supported native zstd is preferred without trying gzip (format-selection double)', async () => {
+  const h = harness();
+  const formats = [];
+  // Node's native implementation may not implement zstd. Test selection with a
+  // stream double; the previous test verifies real native gzip wire bytes.
+  nativeCompression(h, class {
+    constructor(format) { formats.push(format); return new CompressionStream('gzip'); }
+  });
+  h.input.value = 'repeated text '.repeat(300); h.fire();
+  await eventually(() => h.calls.length === 1);
+  assert.deepEqual(formats, ['zstd']);
+  assert.equal(h.calls[0].options.headers['Content-Encoding'], 'zstd');
+  assert.equal((await decodedForm(h.calls[0], 'gzip')).get('name'), h.input.value);
+});
+
+test('missing compression dependencies and small payloads retain multipart without new headers', () => {
+  for (const missing of ['CompressionStream', 'Blob', 'Response', 'URLSearchParams', null]) {
+    const h = harness(); nativeCompression(h);
+    if (missing) { delete h.window[missing]; h.input.value = 'x'.repeat(4000); }
+    h.fire();
+    assert.equal(h.calls.length, 1);
+    assert(h.calls[0].options.body instanceof FormDataDouble);
+    assert.equal(h.calls[0].options.headers['Content-Encoding'], undefined);
+    assert.equal(h.calls[0].options.headers['X-SDUI-CSRF'], undefined);
+    assert.equal(h.calls[0].options.body.get('_csrf'), 'screen-token');
+  }
+});
+
+test('compression threshold is 1024 encoded bytes and files always retain multipart', async () => {
+  for (const size of [1023, 1024]) {
+    const h = harness();
+    let attempts = 0;
+    nativeCompression(h, class { constructor() { attempts++; throw new TypeError('unsupported'); } });
+    // All other form fields including request-1 contribute this exact encoding.
+    const metadata = new URLSearchParams({name: '', commit: 'save', _action: 'save', _target: 'region', _request: 'request-1'}).toString();
+    h.input.value = 'a'.repeat(size - metadata.length);
+    h.fire(); await eventually(() => h.calls.length === 1);
+    assert.equal(attempts, size < 1024 ? 0 : 2);
+    assert(h.calls[0].options.body instanceof FormDataDouble);
+  }
+  const h = harness();
+  nativeCompression(h, class { constructor() { assert.fail('files must never enter compression'); } });
+  h.input.value = 'a'.repeat(4000);
+  const upload = h.element('input', {type: 'file', name: 'file'});
+  const file = new File(['file bytes'], 'upload.txt'); upload.files = [file]; h.form.append(upload);
+  h.fire();
+  assert.equal(h.calls.length, 1);
+  assert(h.calls[0].options.body instanceof FormDataDouble);
+  assert.equal(h.calls[0].options.body.get('file').name, 'upload.txt');
+});
+
+test('non-saving compression and broken streams fall back without a network retry', async () => {
+  for (const broken of [false, true]) {
+    const h = harness();
+    nativeCompression(h, class {
+      constructor() { return new TransformStream({transform(chunk, controller) {
+        if (broken) throw new Error('compression failed');
+        controller.enqueue(chunk);
+      }}); }
+    });
+    h.input.value = 'a'.repeat(4000); h.fire();
+    await eventually(() => h.calls.length === 1);
+    assert(h.calls[0].options.body instanceof FormDataDouble);
+    assert.equal(h.calls[0].options.headers['Content-Encoding'], undefined);
+    assert.equal(h.notifications.length, 0);
+  }
+});
+
+test('cancellation during compression prevents requests and restores busy state', async () => {
+  for (const cancel of ['pagehide', 'destroy', 'replace']) {
+    const h = harness();
+    const gate = deferred(); let started = false;
+    nativeCompression(h, class {
+      constructor() { return new TransformStream({async transform(chunk, controller) {
+        started = true; await gate.promise; controller.enqueue(new Uint8Array([1]));
+      }}); }
+    });
+    h.input.value = 'a'.repeat(4000); h.fire();
+    await eventually(() => started);
+    if (cancel === 'pagehide') h.window.dispatchEvent(new DOMEvent('pagehide'));
+    else if (cancel === 'destroy') h.window.__elySDUI.destroy();
+    else h.region.remove();
+    gate.resolve();
+    await eventually(() => !h.form.hasAttribute('aria-busy'));
+    assert.equal(h.calls.length, 0);
+    assert.equal(h.notifications.length, 0);
+  }
+});
+
+test('a newer change supersedes compression before the old request can fetch', async () => {
+  const h = harness(); const gate = deferred(); let started = false;
+  nativeCompression(h, class {
+    constructor() { return new TransformStream({async transform(chunk, controller) {
+      started = true; await gate.promise; controller.enqueue(new Uint8Array([1]));
+    }}); }
+  });
+  for (const [name, value] of Object.entries({'data-sdui-on': 'change', 'data-sdui-action': 'save', 'data-sdui-target': 'region'})) h.input.setAttribute(name, value);
+  h.input.value = 'a'.repeat(4000); h.fire(h.input, 'change');
+  await eventually(() => started);
+  h.input.value = 'new'; h.fire(h.input, 'change');
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.calls[0].options.body.get('name'), 'new');
+  gate.resolve(); await tick(); await tick();
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.input.getAttribute('aria-busy'), 'true');
+  await h.complete(0, fragment('new'));
+  assert.equal(h.document.getElementById('name').value, 'new');
+});
+
+test('compressed network failure is not automatically replayed and user retry gets a new id', async () => {
+  const h = harness(); nativeCompression(h);
+  h.input.value = 'a'.repeat(4000); h.fire();
+  await eventually(() => h.calls.length === 1);
+  const first = h.calls[0].options.headers['Idempotency-Key'];
+  h.calls[0].reject(new Error('network failure'));
+  await eventually(() => !h.form.hasAttribute('aria-busy'));
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.notifications.at(-1).type, 'sdui:error');
+  h.fire(); await eventually(() => h.calls.length === 2);
+  const second = h.calls[1].options.headers['Idempotency-Key'];
+  assert.notEqual(first, second);
+  assert.equal((await decodedForm(h.calls[1])).get('_request'), second);
+  await h.complete(1);
+  assert.equal(h.notifications.at(-1).type, 'sdui:success');
+});
+
+test('explicit request-compression opt-out on form or ancestor preserves multipart', () => {
+  for (const scope of ['form', 'region', 'screen']) {
+    const h = harness();
+    nativeCompression(h, class { constructor() { assert.fail('opted-out data must not enter compression'); } });
+    h[scope].setAttribute('data-sdui-request-compression', 'off');
+    h.input.value = 'a'.repeat(4000); h.fire();
+    assert.equal(h.calls.length, 1);
+    assert(h.calls[0].options.body instanceof FormDataDouble);
+    assert.equal(h.calls[0].options.body.get('_csrf'), 'screen-token');
+    assert.equal(h.calls[0].options.headers['Content-Encoding'], undefined);
+  }
+});
+
+test('password forms automatically disable request compression including external buttons and fields', () => {
+  for (const external of [false, true, 'field']) {
+    const h = harness();
+    nativeCompression(h, class { constructor() { assert.fail('password form must not enter compression'); } });
+    const password = h.element('input', {type: 'password', name: 'password', value: 'private'});
+    h.form.append(password);
+    h.input.value = 'a'.repeat(4000);
+    if (external) {
+      h.form.setAttribute('id', 'password-form');
+      if (external === 'field') { password.setAttribute('form', 'password-form'); h.screen.append(password); }
+      const button = h.element('button', {form: 'password-form', type: 'submit', 'data-sdui-on': 'click', 'data-sdui-action': 'save', 'data-sdui-target': 'region'});
+      h.screen.append(button); h.fire(button, 'click');
+    } else h.fire();
+    assert.equal(h.calls.length, 1);
+    assert(h.calls[0].options.body instanceof FormDataDouble);
+    assert.equal(h.calls[0].options.headers['Content-Encoding'], undefined);
+  }
+});
+
+test('CSRF tokens unsafe for HTTP headers retain the existing multipart flow', () => {
+  for (const csrf of ['unicode-한글', 'token\nnewline', 'token\rcarriage', ' token ', 'token\ttab', 'token\0null', 'token\x7fdel']) {
+    const h = harness();
+    nativeCompression(h, class { constructor() { assert.fail('header-unsafe CSRF must not enter compression'); } });
+    h.screen.setAttribute('data-sdui-csrf', csrf);
+    h.input.value = 'a'.repeat(4000); h.fire();
+    assert.equal(h.calls.length, 1);
+    assert(h.calls[0].options.body instanceof FormDataDouble);
+    assert.equal(h.calls[0].options.body.get('_csrf'), csrf);
+    assert.equal(h.calls[0].options.headers['X-SDUI-CSRF'], undefined);
+    assert.equal(h.calls[0].options.headers['Content-Encoding'], undefined);
+  }
+});

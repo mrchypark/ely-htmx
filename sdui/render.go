@@ -191,7 +191,8 @@ func validateEndpoint(endpoint string) error {
 
 // RenderAssets emits the fixed basic assets, the union of registered leaf
 // family assets and their CSS dependencies, and the event bridge. Schemas can
-// never select an asset URL. Call once per page, before any region swaps.
+// never select an asset URL. Optional Lottie code is loaded by its component
+// only when mounted, including after region swaps. Call once per page.
 func (p *Plan) RenderAssets(w io.Writer) error {
 	if p == nil || p.root == nil || p.templates == nil {
 		return fmt.Errorf("sdui: rendering requires a compiled plan")
@@ -232,9 +233,6 @@ func (p *Plan) RenderAssets(w io.Writer) error {
 		fmt.Fprintf(&output, `<link rel="stylesheet" href="/assets/%s">`, name)
 	}
 	for _, family := range p.families {
-		if family == "interaction" {
-			output.WriteString(`<script src="/assets/lottie-light.min.js" defer></script>`)
-		}
 		fmt.Fprintf(&output, `<script type="module" src="/assets/ely-api-%s-entry.js"></script>`, family)
 	}
 	output.WriteString(`<script src="/assets/sdui.js" defer></script>`)

@@ -79,6 +79,58 @@
     return data;
   }
 
+  function mayCompress(source, origin) {
+    const form = matches(origin, 'form') ? origin : origin.form || closest(origin, 'form') || closest(source, 'form');
+    const off = '[data-sdui-request-compression="off"]';
+    // Applications with other secrets must opt out on the form or an ancestor.
+    // Password forms opt out automatically, including external submit buttons.
+    return !closest(origin, off) && !closest(source, off) && !(form && closest(form, off)) &&
+      !matches(origin, 'input[type="password"]') && !query(form || source, 'input[type="password"]') &&
+      !(form && [...document.querySelectorAll('input[type="password"]')].some(control => control.form === form));
+  }
+
+  function compressedBody(data, signal) {
+    // Native progressive enhancement only: uploads retain browser multipart
+    // boundaries, and unsupported browsers retain the original FormData.
+    // Host-issued tokens need not be HTTP-header-safe. Keep those in the
+    // existing multipart flow rather than changing or rejecting the token.
+    const csrf = data.get('_csrf');
+    if (typeof csrf !== 'string' || !/^[\x21-\x7e]+$/.test(csrf)) return null;
+    if (typeof window.CompressionStream !== 'function' || typeof window.Blob !== 'function' ||
+        typeof window.Response !== 'function' || typeof window.URLSearchParams !== 'function') return null;
+    const values = new window.URLSearchParams();
+    for (const [name, value] of data) {
+      if (typeof value !== 'string') return null;
+      // Never place the CSRF secret in the same compression context as input.
+      // The server validates X-SDUI-CSRF and restores its internal form value.
+      // Match native form submission's line ending normalization.
+      if (name !== '_csrf') values.append(name.replace(/\r\n|\r|\n/g, '\r\n'), value.replace(/\r\n|\r|\n/g, '\r\n'));
+    }
+    const plain = new window.Blob([values.toString()]);
+    if (plain.size < 1024 || typeof plain.stream !== 'function') return null;
+    return (async () => {
+      for (const encoding of ['zstd', 'gzip']) {
+        if (signal.aborted) return null;
+        try {
+          const compressor = new window.CompressionStream(encoding);
+          const stream = plain.stream().pipeThrough(compressor, {signal});
+          const bytes = await new window.Response(stream).arrayBuffer();
+          if (signal.aborted) return null;
+          if (bytes.byteLength >= plain.size) return null;
+          return {body: bytes, headers: {
+            'Content-Encoding': encoding,
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'X-SDUI-CSRF': csrf,
+          }};
+        } catch {
+          // Constructor or streaming failures may vary by browser/format.
+          // No network request has happened, so falling back is safe.
+        }
+      }
+      return null;
+    })();
+  }
+
   function safeFragment(html, targetID) {
     const template = document.createElement('template');
     template.innerHTML = html;
@@ -220,10 +272,13 @@
       setAttr(source, 'aria-busy', 'true');
       const current = () => !destroyed && !record.controller.signal.aborted && pending.get(targetID) === record &&
         screen.isConnected && target.isConnected && document.getElementById(targetID) === target;
+      const compression = mayCompress(source, origin) && compressedBody(body, record.controller.signal);
+      const encoded = compression ? await compression : null;
+      if (!current()) return;
       const response = await window.fetch(endpoint, {
-        method: 'POST', body, signal: record.controller.signal,
+        method: 'POST', body: encoded?.body || body, signal: record.controller.signal,
         credentials: 'same-origin', mode: 'same-origin', redirect: 'error',
-        headers: {'Accept': 'text/html', 'Idempotency-Key': id, 'X-SDUI-Request': 'true'},
+        headers: {'Accept': 'text/html', 'Idempotency-Key': id, 'X-SDUI-Request': 'true', ...encoded?.headers},
       });
       if (!current()) return;
       status = response.status;

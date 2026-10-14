@@ -203,7 +203,7 @@ func TestHandlerAuthenticationAndAuthorization(t *testing.T) {
 			if strings.Contains(w.Body.String(), "private") {
 				t.Fatal("internal error exposed")
 			}
-			if w.Header().Get("Cache-Control") != "no-store" || w.Header().Get("X-Content-Type-Options") != "nosniff" {
+			if w.Header().Get("Cache-Control") != "no-store, no-transform" || w.Header().Get("X-Content-Type-Options") != "nosniff" {
 				t.Fatal("missing security headers")
 			}
 		})
@@ -692,7 +692,7 @@ func TestHandlerPageEscapesBindingsAndIsolatesUsers(t *testing.T) {
 					return
 				}
 			}
-			if w.Header().Get("Content-Type") != "text/html; charset=utf-8" || w.Header().Get("Cache-Control") != "no-store" || w.Header().Get("Vary") != "Cookie, Authorization" {
+			if w.Header().Get("Content-Type") != "text/html; charset=utf-8" || w.Header().Get("Cache-Control") != "no-store, no-transform" || w.Header().Get("Vary") != "Cookie, Authorization, Accept-Encoding" {
 				results <- fmt.Errorf("missing page security headers: %v", w.Header())
 				return
 			}

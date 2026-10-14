@@ -8,10 +8,18 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"mime"
 	"net/http"
+	"path"
 	"reflect"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
+	"sync"
+	"time"
+
+	"github.com/mrchypark/ely-htmx/internal/httpencoding"
 )
 
 //go:embed templates/*.html assets/* components.json LICENSE THIRD_PARTY_UI.md
@@ -56,14 +64,29 @@ func NewTemplates() (*template.Template, error) {
 	return tpl.ParseFS(Files, "templates/*.html")
 }
 
+// Shared immutable assets are prepared once, even when several muxes bind them.
+var preparedAssets = sync.OnceValues(prepareAssets)
+
 // BindAssets registers shared asset paths without taking over application assets.
+// Public text assets negotiate zstd, Brotli or gzip; dynamic pages are untouched.
 func BindAssets(mux *http.ServeMux) error {
-	assets, err := fs.Sub(Files, "assets")
+	handlers, err := preparedAssets()
 	if err != nil {
 		return err
 	}
-	handler := http.StripPrefix("/assets/", http.FileServer(http.FS(assets)))
-	return fs.WalkDir(assets, ".", func(name string, entry fs.DirEntry, err error) error {
+	for name, handler := range handlers {
+		mux.Handle("GET /assets/"+name, handler)
+	}
+	return nil
+}
+
+func prepareAssets() (map[string]http.Handler, error) {
+	assets, err := fs.Sub(Files, "assets")
+	if err != nil {
+		return nil, err
+	}
+	handlers := make(map[string]http.Handler)
+	err = fs.WalkDir(assets, ".", func(name string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -74,15 +97,81 @@ func BindAssets(mux *http.ServeMux) error {
 		if err != nil {
 			return err
 		}
-		etag := fmt.Sprintf(`"%x"`, sha256.Sum256(data))
-		mux.Handle("GET /assets/"+name, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		contentType := mime.TypeByExtension(path.Ext(name))
+		if contentType == "" {
+			contentType = http.DetectContentType(data)
+		}
+		codings := []string{"identity"}
+		if strings.HasPrefix(contentType, "text/") || strings.Contains(contentType, "javascript") || strings.Contains(contentType, "json") || strings.Contains(contentType, "svg") {
+			codings = []string{"zstd", "br", "gzip", "identity"}
+		}
+		type representation struct {
+			body []byte
+			etag string
+		}
+		variants := make(map[string]representation)
+		for _, coding := range codings {
+			body, err := httpencoding.Encode(data, coding)
+			if err != nil {
+				return fmt.Errorf("encode asset %s: %w", name, err)
+			}
+			variants[coding] = representation{body, fmt.Sprintf(`"%x"`, sha256.Sum256(body))}
+		}
+		// With equal client qualities, send the smallest precomputed representation.
+		// NegotiateAvailable still treats implicit identity only as a fallback.
+		sort.SliceStable(codings, func(i, j int) bool {
+			return len(variants[codings[i]].body) < len(variants[codings[j]].body)
+		})
+
+		handlers[name] = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			httpencoding.AddVary(w.Header(), "Accept-Encoding")
+			coding, ok := httpencoding.NegotiateAvailable(strings.Join(r.Header.Values("Accept-Encoding"), ","), codings...)
+			if !ok {
+				http.Error(w, "no acceptable content coding", http.StatusNotAcceptable)
+				return
+			}
+			variant := variants[coding]
 			w.Header().Set("Cache-Control", "public, no-cache")
-			w.Header().Set("ETag", etag)
-			handler.ServeHTTP(w, r)
-		}))
+			w.Header().Set("ETag", variant.etag)
+			w.Header().Set("Content-Type", contentType)
+			w.Header().Del("Content-Encoding")
+			if coding != "identity" {
+				w.Header().Set("Content-Encoding", coding)
+			}
+			// Ranges are optional. Ignore them for encoded representations rather than
+			// producing multipart framing that is not itself content-encoded. Identity
+			// retains ServeContent's full range and If-Range handling.
+			if coding != "identity" || r.Method == http.MethodHead {
+				r = r.Clone(r.Context())
+				r.Header.Del("Range")
+				r.Header.Del("If-Range")
+			}
+			http.ServeContent(assetResponseWriter{w, len(variant.body)}, r, name, time.Time{}, bytes.NewReader(variant.body))
+		})
 		return nil
 	})
+	return handlers, err
 }
+
+// ServeContent cannot infer encoded length and intentionally leaves it unset.
+// Add it only for successful full responses, never a 304 or failed precondition.
+type assetResponseWriter struct {
+	http.ResponseWriter
+	length int
+}
+
+func (w assetResponseWriter) WriteHeader(status int) {
+	if status == http.StatusOK {
+		w.Header().Set("Content-Length", strconv.Itoa(w.length))
+	}
+	if status == http.StatusPreconditionFailed {
+		w.Header().Del("Content-Encoding")
+		w.Header().Del("Content-Length")
+	}
+	w.ResponseWriter.WriteHeader(status)
+}
+
+func (w assetResponseWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 
 func Funcs() template.FuncMap {
 	return template.FuncMap{
