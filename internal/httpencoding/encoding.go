@@ -16,12 +16,21 @@ import (
 
 // Encode encodes one complete representation. identity returns data unchanged.
 func Encode(data []byte, coding string) ([]byte, error) {
+	o, _ := Normalize(nil, "static")
+	return EncodeWithOptions(data, coding, o)
+}
+
+// EncodeWithOptions encodes using validated, normalized options.
+func EncodeWithOptions(data []byte, coding string, options Options) ([]byte, error) {
 	var b bytes.Buffer
 	switch coding {
 	case "identity":
 		return data, nil
 	case "gzip":
-		w := gzip.NewWriter(&b)
+		w, err := gzip.NewWriterLevel(&b, options.GzipLevel)
+		if err != nil {
+			return nil, err
+		}
 		if _, err := w.Write(data); err != nil {
 			return nil, err
 		}
@@ -29,7 +38,7 @@ func Encode(data []byte, coding string) ([]byte, error) {
 			return nil, err
 		}
 	case "br":
-		w := brotli.NewWriterLevel(&b, 5)
+		w := brotli.NewWriterLevel(&b, options.BrotliLevel)
 		if _, err := w.Write(data); err != nil {
 			return nil, err
 		}
@@ -37,7 +46,7 @@ func Encode(data []byte, coding string) ([]byte, error) {
 			return nil, err
 		}
 	case "zstd":
-		w, err := zstd.NewWriter(nil, zstd.WithEncoderConcurrency(1))
+		w, err := zstd.NewWriter(nil, zstd.WithEncoderConcurrency(1), zstd.WithEncoderLevel(zstd.EncoderLevelFromZstd(options.ZstdLevel)))
 		if err != nil {
 			return nil, err
 		}

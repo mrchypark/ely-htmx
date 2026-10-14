@@ -207,3 +207,48 @@ func TestAssetEqualQualitySelectsSmallest(t *testing.T) {
 		}
 	}
 }
+
+func TestBindAssetsWithOptions(t *testing.T) {
+	options := CompressionOptions{Codecs: []string{"gzip", "br"}, Strategy: "preference", GzipLevel: 1}
+	mux := http.NewServeMux()
+	if err := BindAssetsWithOptions(mux, &options); err != nil {
+		t.Fatal(err)
+	}
+	options.Codecs[0] = "zstd"
+	request := func(mux *http.ServeMux, header string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest("GET", "/assets/app.css", nil)
+		r.Header.Set("Accept-Encoding", header)
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, r)
+		return w
+	}
+	if w := request(mux, "gzip,br,zstd"); w.Header().Get("Content-Encoding") != "gzip" {
+		t.Fatal("preference or immutable options", w.Header())
+	}
+	if w := request(mux, "zstd,identity;q=0"); w.Code != 406 {
+		t.Fatal("unconfigured codec accepted", w.Code)
+	}
+	identityMux := http.NewServeMux()
+	if err := BindAssetsWithOptions(identityMux, &CompressionOptions{Disabled: true}); err != nil {
+		t.Fatal(err)
+	}
+	if w := request(identityMux, "gzip"); w.Header().Get("Content-Encoding") != "" {
+		t.Fatal("disabled", w.Header())
+	}
+	if w := request(mux, "gzip"); w.Header().Get("Content-Encoding") != "gzip" {
+		t.Fatal("cross-handler cache pollution", w.Header())
+	}
+	thresholdMux := http.NewServeMux()
+	if err := BindAssetsWithOptions(thresholdMux, &CompressionOptions{Codecs: []string{"gzip"}, MinBytes: 10000000}); err != nil {
+		t.Fatal(err)
+	}
+	if w := request(thresholdMux, "gzip"); w.Header().Get("Content-Encoding") != "" {
+		t.Fatal("threshold", w.Header())
+	}
+	if w := request(thresholdMux, "gzip,identity;q=0"); w.Header().Get("Content-Encoding") != "gzip" {
+		t.Fatal("identity exclusion", w.Header())
+	}
+	if err := BindAssetsWithOptions(http.NewServeMux(), &CompressionOptions{GzipLevel: 20}); err == nil {
+		t.Fatal("invalid settings accepted")
+	}
+}

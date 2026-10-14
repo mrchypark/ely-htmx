@@ -10,17 +10,19 @@ import (
 	"fmt"
 	"io"
 	"mime"
-	"strconv"
-
-	"github.com/klauspost/compress/zstd"
-	"github.com/mrchypark/ely-htmx/internal/httpencoding"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/andybalholm/brotli"
+	"github.com/klauspost/compress/zstd"
+	ui "github.com/mrchypark/ely-htmx"
+	"github.com/mrchypark/ely-htmx/internal/httpencoding"
 )
 
 // Request contains authenticated host context and parsed input. Files are valid
@@ -58,7 +60,13 @@ type Config struct {
 	// CompressResponses opts into compression of authenticated HTML, which includes
 	// CSRF tokens and may reflect input. Enable ONLY after the host mitigates
 	// compression side channels (BREACH); no-store alone is not a mitigation.
-	CompressResponses     bool
+	CompressResponses bool
+	// ResponseCompression controls codecs/levels/thresholds; CompressResponses must
+	// still be true. Nil uses the CPU-oriented dynamic profile.
+	ResponseCompression *ui.CompressionOptions
+	// RequestCompression controls accepted request codecs and the browser policy.
+	// Nil uses progressive native defaults. Disabled rejects compressed requests.
+	RequestCompression    *RequestCompressionOptions
 	IdempotencyTTL        time.Duration
 	MaxIdempotencyEntries int
 	MaxReplayBytes        int64
@@ -105,6 +113,31 @@ func NewHandler(plan *Plan, c Config) (*Handler, error) {
 	if c.MaxCompressedBodyBytes < 1 || c.MaxCompressedBodyBytes > 64<<20 {
 		return nil, fmt.Errorf("MaxCompressedBodyBytes must be 1..64 MiB")
 	}
+	responseOptions, err := httpencoding.Normalize(c.ResponseCompression, "dynamic")
+	if err != nil {
+		return nil, fmt.Errorf("response compression: %w", err)
+	}
+	responseOptions.Disabled = !c.CompressResponses || (c.ResponseCompression != nil && c.ResponseCompression.Disabled)
+	c.ResponseCompression = &responseOptions
+	requestOptions := DefaultRequestCompressionOptions()
+	if c.RequestCompression != nil {
+		requestOptions = *c.RequestCompression
+		if requestOptions.Codecs == nil {
+			requestOptions.Codecs = DefaultRequestCompressionOptions().Codecs
+		}
+	}
+	if requestOptions.MinBytes < 0 || requestOptions.MinBytes > 64<<20 || requestOptions.MinSavingsBytes < 0 || requestOptions.MinSavingsBytes > 64<<20 || requestOptions.MinSavingsPercent < 0 || requestOptions.MinSavingsPercent > 100 {
+		return nil, fmt.Errorf("invalid request compression thresholds")
+	}
+	seenCodecs := map[string]bool{}
+	for _, coding := range requestOptions.Codecs {
+		if (coding != "gzip" && coding != "zstd" && coding != "br") || seenCodecs[coding] {
+			return nil, fmt.Errorf("invalid or duplicate request compression codec %q", coding)
+		}
+		seenCodecs[coding] = true
+	}
+	requestOptions.Codecs = append([]string{}, requestOptions.Codecs...)
+	c.RequestCompression = &requestOptions
 	if c.IdempotencyTTL == 0 {
 		c.IdempotencyTTL = 10 * time.Minute
 	}
@@ -155,8 +188,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store, no-transform")
 	w.Header().Add("Vary", "Cookie, Authorization, Accept-Encoding")
 	available := []string{"identity"}
-	if h.config.CompressResponses {
-		available = append(available, "zstd", "br", "gzip")
+	if !h.config.ResponseCompression.Disabled {
+		available = append(available, h.config.ResponseCompression.Codecs...)
 	}
 	if _, ok := httpencoding.NegotiateAvailable(strings.Join(r.Header.Values("Accept-Encoding"), ","), available...); !ok {
 		http.Error(w, "no acceptable content encoding", http.StatusNotAcceptable)
@@ -212,7 +245,7 @@ func (h *Handler) page(w http.ResponseWriter, r *http.Request, principal, csrf s
 		return
 	}
 	b.WriteString("</head><body>")
-	if err := h.plan.Render(&b, RenderContext{Data: data, CSRF: csrf, Endpoint: h.config.Endpoint, Revision: h.revision}); err != nil {
+	if err := h.plan.Render(&b, RenderContext{Data: data, CSRF: csrf, Endpoint: h.config.Endpoint, Revision: h.revision, RequestCompression: h.config.RequestCompression}); err != nil {
 		http.Error(w, "render failed", 500)
 		return
 	}
@@ -359,7 +392,7 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf
 		return
 	}
 	var b bytes.Buffer
-	if err = h.plan.RenderRegion(&b, target, RenderContext{Data: result.Data, CSRF: csrf, Endpoint: h.config.Endpoint, Revision: h.revision}); err != nil {
+	if err = h.plan.RenderRegion(&b, target, RenderContext{Data: result.Data, CSRF: csrf, Endpoint: h.config.Endpoint, Revision: h.revision, RequestCompression: h.config.RequestCompression}); err != nil {
 		return
 	}
 	status, response = result.Status, b.Bytes()
@@ -373,15 +406,18 @@ func (h *Handler) allowed(action, target string) bool {
 	return false
 }
 func (h *Handler) writeHTML(w http.ResponseWriter, r *http.Request, status int, b []byte) {
-	if h.config.CompressResponses && w.Header().Get("Content-Encoding") == "" {
-		coding, _ := httpencoding.Negotiate(strings.Join(r.Header.Values("Accept-Encoding"), ","))
+	if !h.config.ResponseCompression.Disabled && w.Header().Get("Content-Encoding") == "" {
+		body, coding, ok, err := httpencoding.SelectEncoded(b, strings.Join(r.Header.Values("Accept-Encoding"), ","), *h.config.ResponseCompression)
+		if err != nil {
+			http.Error(w, "compression failed", 500)
+			return
+		}
+		if !ok {
+			http.Error(w, "no acceptable content encoding", 406)
+			return
+		}
+		b = body
 		if coding != "identity" {
-			encoded, err := httpencoding.Encode(b, coding)
-			if err != nil {
-				http.Error(w, "compression failed", 500)
-				return
-			}
-			b = encoded
 			w.Header().Set("Content-Encoding", coding)
 		}
 	}
@@ -430,8 +466,20 @@ func (h *Handler) readBody(w http.ResponseWriter, r *http.Request) ([]byte, bool
 	encodings := r.Header.Values("Content-Encoding")
 	coding := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Encoding")))
 	compressed := coding != "" && coding != "identity"
-	if len(encodings) > 1 || (compressed && coding != "gzip" && coding != "zstd") {
-		w.Header().Set("Accept-Encoding", "gzip, zstd")
+	allowed := !compressed
+	if compressed && !h.config.RequestCompression.Disabled {
+		for _, supported := range h.config.RequestCompression.Codecs {
+			if coding == supported {
+				allowed = true
+			}
+		}
+	}
+	if len(encodings) > 1 || !allowed {
+		accepted := "identity"
+		if !h.config.RequestCompression.Disabled && len(h.config.RequestCompression.Codecs) > 0 {
+			accepted = strings.Join(h.config.RequestCompression.Codecs, ", ")
+		}
+		w.Header().Set("Accept-Encoding", accepted)
 		return nil, false, 415, errors.New("unsupported content encoding")
 	}
 	limit := h.config.MaxBodyBytes
@@ -451,6 +499,8 @@ func (h *Handler) readBody(w http.ResponseWriter, r *http.Request) ([]byte, bool
 	}
 	var reader io.Reader
 	switch coding {
+	case "br":
+		reader = brotli.NewReader(bytes.NewReader(raw))
 	case "gzip":
 		decoder, err := gzip.NewReader(bytes.NewReader(raw))
 		if err != nil {

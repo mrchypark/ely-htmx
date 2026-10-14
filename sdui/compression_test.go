@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	ui "github.com/mrchypark/ely-htmx"
 	"github.com/mrchypark/ely-htmx/internal/httpencoding"
 )
 
@@ -29,6 +30,7 @@ func ioBody(b []byte) io.ReadCloser { return io.NopCloser(bytes.NewReader(b)) }
 func TestCompressedActionRoundtripReplay(t *testing.T) {
 	calls := 0
 	h := httpTestHandler(t, func(c *Config) {
+		c.RequestCompression = &RequestCompressionOptions{Codecs: []string{"gzip", "zstd", "br"}}
 		httpTestRun(c, func(_ context.Context, r Request) (Result, error) {
 			calls++
 			if r.HTTPRequest.Header.Get("Content-Encoding") != "" {
@@ -39,7 +41,7 @@ func TestCompressedActionRoundtripReplay(t *testing.T) {
 	})
 	values := httpTestValues()
 	values.Del("_csrf")
-	for _, coding := range []string{"gzip", "zstd"} {
+	for _, coding := range []string{"gzip", "zstd", "br"} {
 		w := httpTestServe(h, compressedTestRequest(t, coding, "same", []byte(values.Encode())))
 		if w.Code != 200 || !strings.Contains(w.Body.String(), "hello") {
 			t.Fatalf("%s: %d %s", coding, w.Code, w.Body.String())
@@ -52,7 +54,7 @@ func TestCompressedActionRoundtripReplay(t *testing.T) {
 }
 
 func TestCompressedActionFailures(t *testing.T) {
-	for _, coding := range []string{"gzip", "zstd"} {
+	for _, coding := range []string{"gzip", "zstd", "br"} {
 		t.Run(coding, func(t *testing.T) {
 			vals := httpTestValues()
 			vals.Del("_csrf")
@@ -72,7 +74,9 @@ func TestCompressedActionFailures(t *testing.T) {
 				{"malformed", 400, func(r *http.Request) { r.Body = ioBody([]byte("bad")) }},
 				{"truncated", 400, func(r *http.Request) { b, _ := io.ReadAll(r.Body); r.Body = ioBody(b[:len(b)-2]) }},
 			}
-			h := httpTestHandler(t, nil)
+			h := httpTestHandler(t, func(c *Config) {
+				c.RequestCompression = &RequestCompressionOptions{Codecs: []string{"gzip", "zstd", "br"}}
+			})
 			for _, tc := range cases {
 				t.Run(tc.name, func(t *testing.T) {
 					r := compressedTestRequest(t, coding, tc.name, plain)
@@ -87,12 +91,19 @@ func TestCompressedActionFailures(t *testing.T) {
 			if w := httpTestServe(h, r); w.Code != 403 {
 				t.Fatalf("body csrf: %d", w.Code)
 			}
-			small := httpTestHandler(t, func(c *Config) { c.MaxBodyBytes = 128; c.MaxCompressedBodyBytes = 1024 })
+			small := httpTestHandler(t, func(c *Config) {
+				c.MaxBodyBytes = 128
+				c.MaxCompressedBodyBytes = 1024
+				c.RequestCompression = &RequestCompressionOptions{Codecs: []string{"gzip", "zstd", "br"}}
+			})
 			r = compressedTestRequest(t, coding, "bomb", []byte(strings.Repeat("x", 10000)))
 			if w := httpTestServe(small, r); w.Code != 413 {
 				t.Fatalf("bomb: %d %s", w.Code, w.Body.String())
 			}
-			wire := httpTestHandler(t, func(c *Config) { c.MaxCompressedBodyBytes = 1 })
+			wire := httpTestHandler(t, func(c *Config) {
+				c.MaxCompressedBodyBytes = 1
+				c.RequestCompression = &RequestCompressionOptions{Codecs: []string{"gzip", "zstd", "br"}}
+			})
 			if w := httpTestServe(wire, compressedTestRequest(t, coding, "wire", plain)); w.Code != 413 {
 				t.Fatalf("wire: %d", w.Code)
 			}
@@ -117,5 +128,78 @@ func TestCompressionResponsePolicy(t *testing.T) {
 	r.Header.Set("Accept-Encoding", "identity;q=0, gzip")
 	if w := httpTestServe(h, r); w.Code != 406 {
 		t.Fatalf("excluded identity %d", w.Code)
+	}
+}
+
+func TestCompressionConfiguration(t *testing.T) {
+	plan := httpTestPlan(t)
+	invalid := []func(*Config){
+		func(c *Config) { c.RequestCompression = &RequestCompressionOptions{Codecs: []string{"unknown"}} },
+		func(c *Config) { c.RequestCompression = &RequestCompressionOptions{Codecs: []string{"gzip", "gzip"}} },
+		func(c *Config) { c.RequestCompression = &RequestCompressionOptions{MinBytes: -1} },
+		func(c *Config) { c.RequestCompression = &RequestCompressionOptions{MinSavingsPercent: 101} },
+		func(c *Config) { c.ResponseCompression = &ui.CompressionOptions{Codecs: []string{"bad"}} },
+		func(c *Config) { c.ResponseCompression = &ui.CompressionOptions{GzipLevel: 10} },
+	}
+	for i, edit := range invalid {
+		c := httpTestConfig()
+		edit(&c)
+		if _, err := NewHandler(plan, c); err == nil {
+			t.Fatalf("config %d accepted", i)
+		}
+	}
+	for _, disabled := range []bool{false, true} {
+		options := &RequestCompressionOptions{Disabled: disabled, Codecs: []string{"br"}, MinBytes: 2048, MinSavingsBytes: 100, MinSavingsPercent: 10}
+		h := httpTestHandler(t, func(c *Config) { c.RequestCompression = options })
+		options.Codecs[0] = "gzip" // constructor owns its independent copy
+		vals := httpTestValues()
+		vals.Del("_csrf")
+		r := compressedTestRequest(t, "br", "config-br", []byte(vals.Encode()))
+		w := httpTestServe(h, r)
+		want := 200
+		if disabled {
+			want = 415
+		}
+		if w.Code != want {
+			t.Fatalf("br disabled=%v: %d %s", disabled, w.Code, w.Body.String())
+		}
+		r = compressedTestRequest(t, "gzip", "config-gzip", []byte(vals.Encode()))
+		w = httpTestServe(h, r)
+		if w.Code != 415 {
+			t.Fatalf("excluded gzip: %d", w.Code)
+		}
+		w = httpTestServe(h, httpTestRequest("GET", "/", "", "alice", nil))
+		if !strings.Contains(w.Body.String(), `data-sdui-request-codecs="br"`) || !strings.Contains(w.Body.String(), `data-sdui-request-min-bytes="2048"`) {
+			t.Fatal("browser policy not rendered")
+		}
+	}
+}
+
+func TestResponseCompressionRequiresSecurityOptIn(t *testing.T) {
+	for _, enabled := range []bool{false, true} {
+		h := httpTestHandler(t, func(c *Config) {
+			c.CompressResponses = enabled
+			c.ResponseCompression = &ui.CompressionOptions{Codecs: []string{"gzip"}, GzipLevel: 1, MinBytes: 1}
+		})
+		r := httpTestRequest("GET", "/", "", "alice", nil)
+		r.Header.Set("Accept-Encoding", "br, gzip")
+		w := httpTestServe(h, r)
+		if (w.Header().Get("Content-Encoding") == "gzip") != enabled {
+			t.Fatalf("security flag %v: %v", enabled, w.Header())
+		}
+	}
+	h := httpTestHandler(t, func(c *Config) {
+		c.CompressResponses = true
+		c.ResponseCompression = &ui.CompressionOptions{Codecs: []string{"gzip"}, MinBytes: 64 << 20}
+	})
+	r := httpTestRequest("GET", "/", "", "alice", nil)
+	r.Header.Set("Accept-Encoding", "gzip")
+	if w := httpTestServe(h, r); w.Header().Get("Content-Encoding") != "" {
+		t.Fatal("threshold ignored")
+	}
+	r = httpTestRequest("GET", "/", "", "alice", nil)
+	r.Header.Set("Accept-Encoding", "gzip, identity;q=0")
+	if w := httpTestServe(h, r); w.Code != 200 || w.Header().Get("Content-Encoding") != "gzip" {
+		t.Fatalf("forbidden identity fallback: %d %v", w.Code, w.Header())
 	}
 }

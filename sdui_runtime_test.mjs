@@ -798,3 +798,71 @@ test('CSRF tokens unsafe for HTTP headers retain the existing multipart flow', (
     assert.equal(h.calls[0].options.headers['Content-Encoding'], undefined);
   }
 });
+
+test('request codec policy follows host order and unsupported-only lists retain multipart', async () => {
+  for (const [codecs, expected] of [['gzip,zstd', ['gzip']], ['br,unknown', []], ['', []], ['zstd,gzip', ['zstd']], ['gzip,gzip', ['gzip']]]) {
+    const h = harness(); const formats = [];
+    h.screen.setAttribute('data-sdui-request-codecs', codecs);
+    nativeCompression(h, class { constructor(format) { formats.push(format); return new CompressionStream('gzip'); } });
+    h.input.value = 'a'.repeat(4000); h.fire();
+    await eventually(() => h.calls.length === 1);
+    assert.deepEqual(formats, expected);
+    if (!expected.length) assert(h.calls[0].options.body instanceof FormDataDouble);
+    else assert.equal(h.calls[0].options.headers['Content-Encoding'], expected[0]);
+  }
+});
+
+test('request compression threshold is configurable and malformed values use safe defaults', async () => {
+  for (const [value, shouldCompress] of [['0', true], ['10000', false], ['-1', false], ['1e2', false], ['67108865', false], ['NaN', false], ['', false]]) {
+    const h = harness(); let attempts = 0;
+    h.screen.setAttribute('data-sdui-request-min-bytes', value);
+    h.screen.setAttribute('data-sdui-request-codecs', 'gzip');
+    nativeCompression(h, class { constructor(format) { attempts++; return new CompressionStream(format); } });
+    h.input.value = 'a'.repeat(500); h.fire();
+    await eventually(() => h.calls.length === 1);
+    assert.equal(attempts, shouldCompress ? 1 : 0, value);
+    assert.equal(h.calls[0].options.body instanceof FormDataDouble, !shouldCompress, value);
+  }
+});
+
+test('minimum byte and percentage savings gate compressed requests with bounded fallback', async () => {
+  for (const [name, value, compress] of [
+    ['min-savings-bytes', '10000', false], ['min-savings-bytes', '0', true],
+    ['min-savings-bytes', '-1', true], ['min-savings-bytes', '67108865', true],
+    ['min-savings-percent', '100', false], ['min-savings-percent', '99', false],
+    ['min-savings-percent', '0', true], ['min-savings-percent', '101', true],
+    ['min-savings-percent', 'invalid', true],
+  ]) {
+    const h = harness(); nativeCompression(h);
+    h.screen.setAttribute(`data-sdui-request-${name}`, value);
+    h.input.value = 'a'.repeat(4000); h.fire();
+    await eventually(() => h.calls.length === 1);
+    assert.equal(h.calls[0].options.body instanceof FormDataDouble, !compress, `${name}=${value}`);
+  }
+});
+
+test('codec fallback can meet savings when the first native codec does not', async () => {
+  const h = harness(); const formats = [];
+  nativeCompression(h, class { constructor(format) {
+    formats.push(format);
+    return format === 'zstd' ? new TransformStream({transform(chunk, controller) {controller.enqueue(chunk);}}) : new CompressionStream(format);
+  }});
+  h.input.value = 'a'.repeat(4000); h.fire();
+  await eventually(() => h.calls.length === 1);
+  assert.deepEqual(formats, ['zstd', 'gzip']);
+  assert.equal(h.calls[0].options.headers['Content-Encoding'], 'gzip');
+});
+
+test('default savings gates require at least 64 bytes and 5 percent', async () => {
+  for (const [size, savings, compress] of [[1024, 63, false], [1024, 64, true], [2048, 102, false], [2048, 103, true]]) {
+    const h = harness();
+    h.screen.setAttribute('data-sdui-request-codecs', 'gzip');
+    nativeCompression(h, class { constructor() { return new TransformStream({transform() {}, flush(controller) {
+      controller.enqueue(new Uint8Array(size - savings));
+    }}); } });
+    const metadata = new URLSearchParams({name: '', commit: 'save', _action: 'save', _target: 'region', _request: 'request-1'}).toString();
+    h.input.value = 'a'.repeat(size - metadata.length); h.fire();
+    await eventually(() => h.calls.length === 1);
+    assert.equal(h.calls[0].options.body instanceof FormDataDouble, !compress, `${size}/${savings}`);
+  }
+});

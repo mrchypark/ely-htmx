@@ -89,11 +89,31 @@
       !(form && [...document.querySelectorAll('input[type="password"]')].some(control => control.form === form));
   }
 
-  function compressedBody(data, signal) {
+  function requestCompression(screen) {
+    const number = (name, fallback, max) => {
+      const value = attr(screen, `data-sdui-request-${name}`);
+      if (value === null || !/^\d{1,10}$/.test(value)) return fallback;
+      const parsed = Number(value);
+      return Number.isSafeInteger(parsed) && parsed <= max ? parsed : fallback;
+    };
+    const configured = attr(screen, 'data-sdui-request-codecs');
+    // An explicit empty or unsupported list disables compression. Never silently
+    // send a codec the host did not allow, or load third-party codec code.
+    const codecs = configured === null ? ['zstd', 'gzip'] :
+      [...new Set(configured.slice(0, 256).split(',').map(value => value.trim()))]
+        .filter(value => value === 'zstd' || value === 'gzip');
+    return {codecs, minBytes: number('min-bytes', 1024, 67108864),
+      minSavingsBytes: number('min-savings-bytes', 64, 67108864),
+      minSavingsPercent: number('min-savings-percent', 5, 100)};
+  }
+
+  function compressedBody(data, signal, screen) {
     // Native progressive enhancement only: uploads retain browser multipart
     // boundaries, and unsupported browsers retain the original FormData.
     // Host-issued tokens need not be HTTP-header-safe. Keep those in the
     // existing multipart flow rather than changing or rejecting the token.
+    const policy = requestCompression(screen);
+    if (!policy.codecs.length) return null;
     const csrf = data.get('_csrf');
     if (typeof csrf !== 'string' || !/^[\x21-\x7e]+$/.test(csrf)) return null;
     if (typeof window.CompressionStream !== 'function' || typeof window.Blob !== 'function' ||
@@ -107,16 +127,18 @@
       if (name !== '_csrf') values.append(name.replace(/\r\n|\r|\n/g, '\r\n'), value.replace(/\r\n|\r|\n/g, '\r\n'));
     }
     const plain = new window.Blob([values.toString()]);
-    if (plain.size < 1024 || typeof plain.stream !== 'function') return null;
+    if (plain.size < policy.minBytes || typeof plain.stream !== 'function') return null;
     return (async () => {
-      for (const encoding of ['zstd', 'gzip']) {
+      for (const encoding of policy.codecs) {
         if (signal.aborted) return null;
         try {
           const compressor = new window.CompressionStream(encoding);
           const stream = plain.stream().pipeThrough(compressor, {signal});
           const bytes = await new window.Response(stream).arrayBuffer();
           if (signal.aborted) return null;
-          if (bytes.byteLength >= plain.size) return null;
+          const savings = plain.size - bytes.byteLength;
+          if (savings <= 0 || savings < policy.minSavingsBytes ||
+              savings * 100 < plain.size * policy.minSavingsPercent) continue;
           return {body: bytes, headers: {
             'Content-Encoding': encoding,
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -272,7 +294,7 @@
       setAttr(source, 'aria-busy', 'true');
       const current = () => !destroyed && !record.controller.signal.aborted && pending.get(targetID) === record &&
         screen.isConnected && target.isConnected && document.getElementById(targetID) === target;
-      const compression = mayCompress(source, origin) && compressedBody(body, record.controller.signal);
+      const compression = mayCompress(source, origin) && compressedBody(body, record.controller.signal, screen);
       const encoded = compression ? await compression : null;
       if (!current()) return;
       const response = await window.fetch(endpoint, {

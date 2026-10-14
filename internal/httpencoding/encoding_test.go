@@ -93,3 +93,142 @@ func TestAddVary(t *testing.T) {
 		t.Fatal(h)
 	}
 }
+
+func TestNormalizeOptions(t *testing.T) {
+	for _, profile := range []string{"static", "dynamic", "request"} {
+		o, err := Normalize(nil, profile)
+		if err != nil || o.Disabled != (profile == "dynamic") {
+			t.Fatalf("%s: %#v %v", profile, o, err)
+		}
+	}
+	for _, o := range []Options{
+		{Codecs: []string{"gzip", "gzip"}}, {Codecs: []string{"identity"}}, {Codecs: []string{"deflate"}},
+		{Strategy: "random"}, {MinBytes: 64<<20 + 1}, {MinSavingsBytes: 64<<20 + 1}, {MinBytes: -1}, {MinSavingsBytes: -1}, {MinSavingsPercent: 101},
+		{GzipLevel: 10}, {GzipLevel: -3}, {BrotliLevel: -1}, {BrotliLevel: 12}, {ZstdLevel: -6}, {ZstdLevel: 23},
+	} {
+		if _, err := Normalize(&o, "static"); err == nil {
+			t.Fatalf("accepted invalid options %#v", o)
+		}
+	}
+	if _, err := Normalize(nil, "unknown"); err == nil {
+		t.Fatal("accepted unknown profile")
+	}
+	input := Options{Codecs: []string{"gzip"}}
+	o, err := Normalize(&input, "dynamic")
+	if err != nil {
+		t.Fatal(err)
+	}
+	input.Codecs[0] = "br"
+	if o.Codecs[0] != "gzip" || o.MinBytes != 0 || o.Disabled {
+		t.Fatal("input alias or zero semantics", o)
+	}
+	empty, err := Normalize(&Options{Codecs: []string{}}, "static")
+	if err != nil || len(empty.Codecs) != 0 {
+		t.Fatal("empty list lost", empty, err)
+	}
+}
+
+func TestSelectOptions(t *testing.T) {
+	variants := map[string][]byte{"identity": make([]byte, 1000), "gzip": make([]byte, 100), "br": make([]byte, 50)}
+	for _, tc := range []struct {
+		strategy, header, want string
+		threshold              int
+		disabled               bool
+		ok                     bool
+	}{
+		{"preference", "gzip,br", "gzip", 0, false, true},
+		{"smallest", "gzip,br", "br", 0, false, true},
+		{"smallest", "gzip;q=1,br;q=0.5", "gzip", 0, false, true},
+		{"smallest", "gzip,br", "identity", 2000, false, true},
+		{"smallest", "gzip,br,identity;q=0", "br", 2000, false, true},
+		{"smallest", "*;q=0", "", 0, false, false},
+		{"preference", "gzip,identity;q=0", "", 0, true, false},
+		{"preference", "gzip", "identity", 0, true, true},
+	} {
+		o, _ := Normalize(&Options{Codecs: []string{"gzip", "br"}, Strategy: tc.strategy, MinBytes: tc.threshold, Disabled: tc.disabled}, "static")
+		got, ok := Select(tc.header, variants, o)
+		if got != tc.want || ok != tc.ok {
+			t.Fatalf("%#v got %s %v", tc, got, ok)
+		}
+	}
+	for _, o := range []Options{{MinBytes: 1001}, {MinSavingsBytes: 901}, {MinSavingsPercent: 91}} {
+		if MeetsThresholds(1000, 100, o) {
+			t.Fatal("threshold ignored", o)
+		}
+	}
+	if !MeetsThresholds(1000, 1100, Options{}) {
+		t.Fatal("zero thresholds must disable checks")
+	}
+}
+
+func TestSelectEncodedOptions(t *testing.T) {
+	data := bytes.Repeat([]byte("public dynamic response "), 100)
+	for _, strategy := range []string{"preference", "smallest"} {
+		for _, coding := range []string{"gzip", "br", "zstd"} {
+			o, _ := Normalize(&Options{Codecs: []string{coding}, Strategy: strategy, GzipLevel: 1, BrotliLevel: 1, ZstdLevel: 1}, "dynamic")
+			body, got, ok, err := SelectEncoded(data, coding, o)
+			if err != nil || !ok || got != coding || len(body) >= len(data) {
+				t.Fatalf("encode %s/%s: %s %v %v", strategy, coding, got, ok, err)
+			}
+			o.MinSavingsBytes = len(data)
+			_, got, ok, err = SelectEncoded(data, coding, o)
+			if err != nil || !ok || got != "identity" {
+				t.Fatal("threshold fallback", got, ok, err)
+			}
+			_, got, ok, err = SelectEncoded(data, coding+",identity;q=0", o)
+			if err != nil || !ok || got != coding {
+				t.Fatal("forbidden identity fallback", got, ok, err)
+			}
+		}
+	}
+	// Invalid unselected encoder proves preference does not encode every codec.
+	o := Options{Codecs: []string{"br", "gzip"}, Strategy: "preference", BrotliLevel: 1, GzipLevel: 99}
+	if _, got, ok, err := SelectEncoded(data, "br,gzip", o); err != nil || !ok || got != "br" {
+		t.Fatal(got, ok, err)
+	}
+}
+
+func TestEncodingCustomLevelsRoundTrip(t *testing.T) {
+	data := bytes.Repeat([]byte("public data with repeated fields and varying separators;\n"), 100)
+	for _, tc := range []struct {
+		coding string
+		level  int
+	}{{"gzip", -2}, {"gzip", -1}, {"gzip", 1}, {"gzip", 9}, {"br", 1}, {"br", 8}, {"zstd", -5}, {"zstd", 1}, {"zstd", 5}} {
+		o, _ := Normalize(nil, "static")
+		switch tc.coding {
+		case "gzip":
+			o.GzipLevel = tc.level
+		case "br":
+			o.BrotliLevel = tc.level
+		case "zstd":
+			o.ZstdLevel = tc.level
+		}
+		body, err := EncodeWithOptions(data, tc.coding, o)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var r io.Reader = bytes.NewReader(body)
+		switch tc.coding {
+		case "gzip":
+			decoder, e := gzip.NewReader(r)
+			if e != nil {
+				t.Fatal(e)
+			}
+			defer decoder.Close()
+			r = decoder
+		case "br":
+			r = brotli.NewReader(r)
+		case "zstd":
+			decoder, e := zstd.NewReader(r)
+			if e != nil {
+				t.Fatal(e)
+			}
+			defer decoder.Close()
+			r = decoder
+		}
+		decoded, err := io.ReadAll(r)
+		if err != nil || !bytes.Equal(data, decoded) {
+			t.Fatalf("%s level %d roundtrip failed: %v", tc.coding, tc.level, err)
+		}
+	}
+}

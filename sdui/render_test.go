@@ -296,3 +296,44 @@ func TestRenderingRequiresCompiledPlan(t *testing.T) {
 		}
 	}
 }
+
+func TestRenderRequestCompressionPolicy(t *testing.T) {
+	plan := renderTestPlan(t)
+	for _, tt := range []struct {
+		name   string
+		policy *RequestCompressionOptions
+		want   []string
+	}{
+		{"default absent", nil, nil},
+		{"explicit", &RequestCompressionOptions{Codecs: []string{"gzip", "zstd"}, MinBytes: 2048, MinSavingsBytes: 80, MinSavingsPercent: 10}, []string{`data-sdui-request-codecs="gzip,zstd"`, `data-sdui-request-min-bytes="2048"`, `data-sdui-request-min-savings-bytes="80"`, `data-sdui-request-min-savings-percent="10"`}},
+		{"disabled", &RequestCompressionOptions{Disabled: true}, []string{`data-sdui-request-compression="off"`, `data-sdui-request-codecs="zstd,gzip"`}},
+		{"no codecs", &RequestCompressionOptions{Codecs: []string{}}, []string{`data-sdui-request-codecs=""`}},
+		{"escaped", &RequestCompressionOptions{Codecs: []string{`"><script>`}}, []string{`data-sdui-request-codecs="&#34;&gt;&lt;script&gt;"`}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := renderTestContext()
+			ctx.RequestCompression = tt.policy
+			var output bytes.Buffer
+			if err := plan.Render(&output, ctx); err != nil {
+				t.Fatal(err)
+			}
+			for _, want := range tt.want {
+				if !strings.Contains(output.String(), want) {
+					t.Errorf("missing %s in %s", want, output.String())
+				}
+			}
+			if tt.policy == nil && strings.Contains(output.String(), "data-sdui-request-") {
+				t.Fatal("nil policy must leave attributes absent")
+			}
+		})
+	}
+}
+
+func TestDefaultRequestCompressionOptionsIndependent(t *testing.T) {
+	a := DefaultRequestCompressionOptions()
+	a.Codecs[0] = "changed"
+	b := DefaultRequestCompressionOptions()
+	if b.Disabled || strings.Join(b.Codecs, ",") != "zstd,gzip" || b.MinBytes != 1024 || b.MinSavingsBytes != 64 || b.MinSavingsPercent != 5 {
+		t.Fatalf("bad defaults: %+v", b)
+	}
+}

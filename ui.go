@@ -13,7 +13,6 @@ import (
 	"path"
 	"reflect"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -64,13 +63,43 @@ func NewTemplates() (*template.Template, error) {
 	return tpl.ParseFS(Files, "templates/*.html")
 }
 
+// CompressionOptions configures encoding of explicitly public assets.
+type CompressionOptions = httpencoding.Options
+
+// DefaultCompressionOptions returns a fresh copy of the static asset defaults.
+func DefaultCompressionOptions() CompressionOptions {
+	options, _ := httpencoding.Normalize(nil, "static")
+	return options
+}
+
+// DefaultDynamicCompressionOptions returns fast settings for explicitly public
+// dynamic data. Applications must separately opt in to compressing that data.
+func DefaultDynamicCompressionOptions() CompressionOptions {
+	return httpencoding.DefaultDynamicCompressionOptions()
+}
+
 // Shared immutable assets are prepared once, even when several muxes bind them.
 var preparedAssets = sync.OnceValues(prepareAssets)
 
 // BindAssets registers shared asset paths without taking over application assets.
 // Public text assets negotiate zstd, Brotli or gzip; dynamic pages are untouched.
 func BindAssets(mux *http.ServeMux) error {
-	handlers, err := preparedAssets()
+	return BindAssetsWithOptions(mux, nil)
+}
+
+// BindAssetsWithOptions registers assets using a private immutable encoding cache.
+// A nil options pointer uses the shared default cache.
+func BindAssetsWithOptions(mux *http.ServeMux, options *CompressionOptions) error {
+	normalized, err := httpencoding.Normalize(options, "static")
+	if err != nil {
+		return err
+	}
+	var handlers map[string]http.Handler
+	if options == nil {
+		handlers, err = preparedAssets()
+	} else {
+		handlers, err = prepareAssetsWithOptions(normalized)
+	}
 	if err != nil {
 		return err
 	}
@@ -81,6 +110,12 @@ func BindAssets(mux *http.ServeMux) error {
 }
 
 func prepareAssets() (map[string]http.Handler, error) {
+	return prepareAssetsWithOptions(DefaultCompressionOptions())
+}
+
+func prepareAssetsWithOptions(options CompressionOptions) (map[string]http.Handler, error) {
+	encoders := httpencoding.NewEncoderSet(options)
+	defer encoders.Close()
 	assets, err := fs.Sub(Files, "assets")
 	if err != nil {
 		return nil, err
@@ -102,30 +137,27 @@ func prepareAssets() (map[string]http.Handler, error) {
 			contentType = http.DetectContentType(data)
 		}
 		codings := []string{"identity"}
-		if strings.HasPrefix(contentType, "text/") || strings.Contains(contentType, "javascript") || strings.Contains(contentType, "json") || strings.Contains(contentType, "svg") {
-			codings = []string{"zstd", "br", "gzip", "identity"}
+		if !options.Disabled && (strings.HasPrefix(contentType, "text/") || strings.Contains(contentType, "javascript") || strings.Contains(contentType, "json") || strings.Contains(contentType, "svg")) {
+			codings = append(append([]string{}, options.Codecs...), "identity")
 		}
 		type representation struct {
 			body []byte
 			etag string
 		}
 		variants := make(map[string]representation)
+		bodies := make(map[string][]byte)
 		for _, coding := range codings {
-			body, err := httpencoding.Encode(data, coding)
+			body, err := encoders.Encode(data, coding)
 			if err != nil {
 				return fmt.Errorf("encode asset %s: %w", name, err)
 			}
 			variants[coding] = representation{body, fmt.Sprintf(`"%x"`, sha256.Sum256(body))}
+			bodies[coding] = body
 		}
-		// With equal client qualities, send the smallest precomputed representation.
-		// NegotiateAvailable still treats implicit identity only as a fallback.
-		sort.SliceStable(codings, func(i, j int) bool {
-			return len(variants[codings[i]].body) < len(variants[codings[j]].body)
-		})
 
 		handlers[name] = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			httpencoding.AddVary(w.Header(), "Accept-Encoding")
-			coding, ok := httpencoding.NegotiateAvailable(strings.Join(r.Header.Values("Accept-Encoding"), ","), codings...)
+			coding, ok := httpencoding.Select(strings.Join(r.Header.Values("Accept-Encoding"), ","), bodies, options)
 			if !ok {
 				http.Error(w, "no acceptable content coding", http.StatusNotAcceptable)
 				return

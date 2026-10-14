@@ -12,15 +12,37 @@ import (
 	"unicode"
 )
 
+// RequestCompressionOptions controls native browser compression of text action
+// requests. Nil Codecs preserves the default order (zstd, gzip); an explicit
+// empty list disables compression. Browsers skip codecs they cannot encode.
+// Byte and percentage thresholds are inclusive; compressed bodies must always
+// be strictly smaller. A nil RenderContext.RequestCompression uses 1024 bytes
+// with 64 bytes and 5 percent minimum savings. Password forms and explicit form opt-outs
+// remain uncompressed regardless of this policy.
+type RequestCompressionOptions struct {
+	Disabled          bool
+	Codecs            []string
+	MinBytes          int
+	MinSavingsBytes   int
+	MinSavingsPercent int
+}
+
+// DefaultRequestCompressionOptions returns a fresh default policy. Mutating its
+// codec slice does not affect other policies.
+func DefaultRequestCompressionOptions() RequestCompressionOptions {
+	return RequestCompressionOptions{Codecs: []string{"zstd", "gzip"}, MinBytes: 1024, MinSavingsBytes: 64, MinSavingsPercent: 5}
+}
+
 // RenderContext is host-owned request data. Endpoint is a same-origin absolute
 // path (no query, fragment or authority); it cannot come from the schema.
 // Bound values are ordinary JSON data. Bindings support dotted object paths and
 // RFC 6901 pointers, without reflection, expressions or coercion to HTML.
 type RenderContext struct {
-	Data     map[string]any
-	CSRF     string
-	Endpoint string
-	Revision string
+	Data               map[string]any
+	CSRF               string
+	Endpoint           string
+	Revision           string
+	RequestCompression *RequestCompressionOptions
 }
 
 // boundedBuffer caps every intermediate fragment, not only the final result.
@@ -115,7 +137,7 @@ func validNodeID(id string) bool {
 
 var structureTemplates = template.Must(template.New("sdui").Parse(`
 {{define "event"}}{{if .}} data-sdui-events="{{.JSON}}"{{if .Single}} data-sdui-on="{{.Single.On}}" data-sdui-action="{{.Single.Action}}" data-sdui-target="{{.Single.Target}}"{{end}}{{end}}{{end}}
-{{define "screen"}}<div id="{{.ID}}" data-sdui-screen="{{.ID}}"{{if .Revision}} data-sdui-revision="{{.Revision}}"{{end}}{{if .Endpoint}} data-sdui-endpoint="{{.Endpoint}}"{{end}}{{if .CSRF}} data-sdui-csrf="{{.CSRF}}"{{end}}>{{.Body}}</div>{{end}}
+{{define "screen"}}<div id="{{.ID}}" data-sdui-screen="{{.ID}}"{{if .Revision}} data-sdui-revision="{{.Revision}}"{{end}}{{if .Endpoint}} data-sdui-endpoint="{{.Endpoint}}"{{end}}{{if .CSRF}} data-sdui-csrf="{{.CSRF}}"{{end}}{{with .RequestCompression}}{{if .Disabled}} data-sdui-request-compression="off"{{end}} data-sdui-request-codecs="{{$.RequestCodecs}}" data-sdui-request-min-bytes="{{.MinBytes}}" data-sdui-request-min-savings-bytes="{{.MinSavingsBytes}}" data-sdui-request-min-savings-percent="{{.MinSavingsPercent}}"{{end}}>{{.Body}}</div>{{end}}
 {{define "stack"}}<div id="{{.ID}}" class="sdui-stack" data-sdui-gap="{{.Props.Gap}}" data-sdui-direction="{{.Props.Direction}}" data-sdui-align="{{.Props.Align}}"{{template "event" .Event}}>{{.Body}}</div>{{end}}
 {{define "region"}}<section id="{{.ID}}" data-sdui-region="{{.ID}}"{{if .Props.Label}} aria-label="{{.Props.Label}}"{{end}}{{template "event" .Event}}>{{.Body}}</section>{{end}}
 {{define "form"}}<form id="{{.ID}}" method="post"{{if .Props.Label}} aria-label="{{.Props.Label}}"{{end}}{{template "event" .Event}}>{{if .CSRF}}<input type="hidden" name="_csrf" value="{{.CSRF}}">{{end}}{{.Body}}</form>{{end}}
@@ -135,7 +157,11 @@ func (p *Plan) Render(w io.Writer, ctx RenderContext) error {
 	if err := p.renderNode(&body, p.root, ctx, renderScope{data: ctx.Data}, &renderBudget{}); err != nil {
 		return err
 	}
-	if err := structureTemplates.ExecuteTemplate(&output, "screen", map[string]any{"ID": p.id, "Revision": ctx.Revision, "Endpoint": ctx.Endpoint, "CSRF": ctx.CSRF, "Body": template.HTML(body.String())}); err != nil {
+	codecs := "zstd,gzip"
+	if ctx.RequestCompression != nil && ctx.RequestCompression.Codecs != nil {
+		codecs = strings.Join(ctx.RequestCompression.Codecs, ",")
+	}
+	if err := structureTemplates.ExecuteTemplate(&output, "screen", map[string]any{"ID": p.id, "Revision": ctx.Revision, "Endpoint": ctx.Endpoint, "CSRF": ctx.CSRF, "Body": template.HTML(body.String()), "RequestCompression": ctx.RequestCompression, "RequestCodecs": codecs}); err != nil {
 		return err
 	}
 	_, err := w.Write(output.Bytes())
