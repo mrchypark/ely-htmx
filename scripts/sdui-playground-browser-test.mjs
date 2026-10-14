@@ -107,7 +107,12 @@ try {
     try { return (await fetch(origin)).ok; } catch { return false; }
   }, `Go playground did not start: ${serverOutput}`, 60_000);
   browser = await chromium.launch();
-  const context = await browser.newContext({viewport: {width: 1440, height: 1000}, serviceWorkers: 'block'});
+  // Playwright's serviceWorkers:'block' init script reads navigator.serviceWorker
+  // inside every frame, which itself throws in our intentionally opaque sandbox.
+  // Use a fresh worker-free context and fail on registration instead; do not
+  // weaken the sandbox or hide genuine page errors to accommodate test injection.
+  const context = await browser.newContext({viewport: {width: 1440, height: 1000}});
+  context.on('serviceworker', worker => pageErrors.push(`Unexpected service worker: ${worker.url()}`));
   await context.route('**/*', async route => {
     const url = route.request().url();
     if (url.startsWith(origin + '/')) return route.continue();
