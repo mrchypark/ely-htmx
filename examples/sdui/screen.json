@@ -1,0 +1,43 @@
+{
+  "version": "1",
+  "id": "profile-screen",
+  "loader": "profile",
+  "root": {
+    "id": "profile-layout",
+    "type": "stack",
+    "props": { "gap": "lg" },
+    "children": [
+      { "id": "demo-title", "type": "text", "props": { "text": "Server-driven profile editor" } },
+      { "id": "demo-warning", "type": "notice", "props": { "title": "Local demo only", "text": "This example creates a temporary local session automatically. It is not production authentication. Uploaded bytes are discarded; only the file name and size appear below." } },
+      {
+        "id": "profile-form",
+        "type": "region",
+        "props": { "label": "Profile editor and server result" },
+        "children": [
+          {
+            "id": "profile-editor",
+            "type": "form",
+            "props": { "label": "Edit profile" },
+            "event": { "on": "submit", "action": "save-profile", "target": "profile-form" },
+            "children": [
+              { "id": "name-label", "type": "text", "props": { "text": "Display name" } },
+              { "id": "display-name", "type": "input", "props": { "name": "name", "label": "Display name", "placeholder": "Ada Lovelace" }, "bindings": { "value": "name" } },
+              { "id": "updates-switch", "type": "switch", "props": { "name": "enabled", "value": "on", "label": "Receive updates (saved immediately)" }, "bindings": { "checked": "enabled" }, "event": { "on": "ely:change", "action": "save-profile", "target": "profile-form" } },
+              { "id": "file-label", "type": "text", "props": { "text": "Optional attachment, up to 64 KiB" } },
+              { "id": "attachment", "type": "input", "props": { "type": "file", "name": "attachment", "label": "Attachment" } },
+              { "id": "tag-one", "type": "input", "props": { "type": "hidden", "name": "tag", "label": "First repeated field", "value": "go" } },
+              { "id": "tag-two", "type": "input", "props": { "type": "hidden", "name": "tag", "label": "Second repeated field", "value": "hypermedia" } },
+              { "id": "response-delay", "type": "input", "props": { "type": "hidden", "name": "delay", "label": "Bounded demo response delay", "value": "0" } },
+              { "id": "save-profile", "type": "button", "props": { "type": "submit", "name": "intent", "value": "save", "label": "Save profile" } }
+            ]
+          },
+          { "id": "profile-error", "type": "notice", "props": { "title": "Validation", "urgent": true }, "bindings": { "text": "error" } },
+          { "id": "profile-result", "type": "text", "bindings": { "text": "message" } },
+          { "id": "attachment-result", "type": "text", "bindings": { "text": "attachment" } },
+          { "id": "tags-result", "type": "text", "bindings": { "text": "tags" } },
+          { "id": "intent-result", "type": "text", "bindings": { "text": "intent" } }
+        ]
+      }
+    ]
+  }
+}

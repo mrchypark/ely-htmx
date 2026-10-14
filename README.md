@@ -24,6 +24,20 @@ go run github.com/mrchypark/ely-htmx/examples/gallery@v0.1.0
 
 The [form example](examples/app) demonstrates server validation, an htmx HTML-fragment response, composite controls initialized after a swap, and a full-page fallback when JavaScript is unavailable. It does not store submitted data.
 
+## Server-driven screens (SDUI)
+
+The opt-in [`sdui`](sdui) package interprets a strict, versioned JSON screen on the server and renders the existing Ely templates. A small shared browser bridge submits native `FormData` and replaces a validated same-ID region; the browser never executes a screen definition. Basic templates and explicitly registered advanced components share property, binding, event and asset contracts.
+
+```sh
+# From this checkout; this feature is not part of the v0.1.0 tag above.
+go run ./examples/sdui
+# http://127.0.0.1:8093
+```
+
+The [runnable example](examples/sdui) demonstrates a basic form, an advanced switch, server validation, uploads, partial updates and per-session state. It uses **local demo sessions, not production authentication**. Host applications must supply authentication, authorization, CSRF and business handlers. The bounded in-memory replay cache does not replace durable transaction-level idempotency.
+
+See the [SDUI guide and verification matrix](docs/sdui.md) for the JSON/API contract, extending the registry, loading external definitions, security responsibilities and explicit v1 limits.
+
 ## Use in a Go application
 
 Initialize templates and asset routes once, before serving requests:
