@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="htmx-config" content='{"history":false,"includeIndicatorCSS":false}'>
+  <title>Shared controls HTMX 4 swap regression</title>
+  <style>
+    body { font: 16px system-ui; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    #fixtures { position: absolute; left: -10000px; width: 800px; }
+    canvas { width: 200px; height: 100px; }
+    [data-status=passed] { color: #087f23; }
+    [data-status=failed] { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>Shared controls HTMX 4 swap regression</h1>
+  <p>Serve the repository root and visit <code>/tests/controls_swap_browser.html</code>,
+    or run <code>node scripts/controls-swap-browser-test.mjs</code> with Playwright and Chromium installed.
+    The HTTP test only requests a fixture from the same local server.</p>
+  <pre id="results" data-status="running">Running against ../assets/htmx.min.js…</pre>
+  <div id="fixtures"><form id="source"></form><main id="host"></main><aside id="oob"></aside></div>
+  <script src="../assets/htmx.min.js"></script>
+  <script src="../assets/ely-controls.js"></script>
+  <script>
+    const output = document.querySelector('#results');
+    const host = document.querySelector('#host');
+    const source = document.querySelector('#source');
+    const lines = [];
+    const assert = (condition, message) => { if (!condition) throw new Error(message); };
+    const q = (root, selector) => root.querySelector(selector);
+    const all = (root, selector) => [...root.querySelectorAll(selector)];
+    const mark = message => { lines.push(`PASS ${message}`); output.textContent = lines.join('\n'); };
+    function markup(prefix, disabled = false) {
+      const off = disabled ? 'disabled' : '';
+      return `<div data-ui-component="pin-input">
+        <input type="hidden" name="${prefix}-pin" value="1234" ${off}>
+        ${[0,1,2,3].map(() => `<input data-ui-pin-slot required ${off}>`).join('')}
+      </div>
+      <div data-ui-component="tag-input" data-ui-required>
+        <input type="hidden" name="${prefix}-tags" value="alpha,beta" ${off}>
+        <span data-ui-tags></span><input data-ui-tag-entry ${off}>
+        <template data-ui-tag-template><span><span data-ui-tag-text></span><button type="button" data-ui-action="remove-tag" ${off}>Remove</button></span></template>
+      </div>
+      <div data-ui-component="combobox">
+        <input type="hidden" name="${prefix}-choice" value="b" disabled ${disabled ? 'data-ui-permanently-disabled' : ''}>
+        <input data-ui-combobox-input required aria-expanded="false" ${off}>
+        <div data-ui-combobox-list hidden>
+          <button type="button" id="${prefix}-a" data-ui-option data-value="a" aria-selected="false">Alpha</button>
+          <button type="button" id="${prefix}-b" data-ui-option data-value="b" aria-selected="true">Beta</button>
+        </div>
+      </div>
+      <div data-ui-component="tabs">
+        <button type="button" data-ui-tab aria-selected="false">First</button>
+        <button type="button" data-ui-tab aria-selected="true">Second</button>
+        <section data-ui-tab-panel>First panel</section><section data-ui-tab-panel>Second panel</section>
+      </div>
+      <div data-ui-component="signature-pad">
+        <canvas data-ui-signature></canvas>
+        <textarea name="${prefix}-signature" required ${off}>Ada</textarea>
+        <input type="hidden" data-ui-signature-value name="${prefix}-signature" value="Ada" disabled>
+        <button type="button" data-ui-signature-clear ${off}>Clear</button>
+      </div>`;
+    }
+    function check(form, prefix, disabled = false) {
+      assert(all(form, '[data-ui-pin-slot]').map(slot => slot.value).join('') === '1234', `${prefix}: PIN digits initialized`);
+      assert(all(form, '[data-ui-tags] [data-ui-tag-text]').map(tag => tag.textContent).join(',') === 'alpha,beta', `${prefix}: tags rendered`);
+      const input = q(form, '[data-ui-combobox-input]');
+      const hidden = q(form, '[data-ui-component=combobox] input[type=hidden]');
+      assert(input.value === 'Beta' && input.getAttribute('aria-activedescendant') === `${prefix}-b`, `${prefix}: combobox selected label and active option`);
+      assert(hidden.disabled === disabled, `${prefix}: combobox disabled state`);
+      const panels = all(form, '[data-ui-tab-panel]');
+      assert(panels[0].hidden && !panels[1].hidden, `${prefix}: tab panels initialized`);
+      const fallback = q(form, 'textarea');
+      assert(!fallback.hasAttribute('name') && !fallback.required, `${prefix}: signature fallback initialized`);
+      const data = new FormData(form);
+      assert(data.getAll(`${prefix}-choice`).join(',') === (disabled ? '' : 'b'), `${prefix}: one enabled combobox form value`);
+      assert(data.getAll(`${prefix}-signature`).join(',') === (disabled ? '' : 'Ada'), `${prefix}: one enabled signature form value`);
+    }
+    let lastSwap;
+    document.addEventListener('htmx:after:swap', event => { lastSwap = event; });
+    const swap = async (target, style, text, from = source) => {
+      const ctx = {sourceElement: from, target, swap: `${style} settle:0`, text};
+      lastSwap = null;
+      await htmx.swap(ctx);
+      assert(lastSwap?.detail.ctx === ctx, 'Bundled HTMX emits the request context');
+      assert(!('target' in lastSwap.detail), 'Bundled HTMX has no top-level detail.target');
+      return ctx;
+    };
+    async function run() {
+      assert(htmx.version === '4.0.0', 'Run against bundled HTMX 4');
+      // Exercise the actual hx-get/fetch lifecycle, not just the public swap API.
+      // The requesting form is a sibling of the target that receives controls.
+      host.innerHTML = '<form id="http-values"><section id="request-target"></section></form>';
+      source.setAttribute('hx-get', './controls_swap_response.html');
+      source.setAttribute('hx-target', '#request-target');
+      source.setAttribute('hx-swap', 'innerHTML');
+      htmx.process(source);
+      const requestedSwap = new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          document.removeEventListener('htmx:after:swap', done);
+          reject(new Error('Real hx-get request did not finish its sibling swap'));
+        }, 5000);
+        function done(event) {
+          if (event.detail?.ctx?.sourceElement !== source) return;
+          clearTimeout(timeout);
+          document.removeEventListener('htmx:after:swap', done);
+          resolve(event);
+        }
+        document.addEventListener('htmx:after:swap', done);
+        source.requestSubmit();
+      });
+      const httpEvent = await requestedSwap;
+      assert(httpEvent.target === source && !('target' in httpEvent.detail), 'Real HTTP after:swap comes from the source with only ctx');
+      assert(httpEvent.detail.ctx.request.method === 'GET' && httpEvent.detail.ctx.response.raw.status === 200, 'Bundled HTMX fetched the HTTP fixture');
+      check(q(host, 'form'), 'http');
+      mark('Real hx-get HTTP response initializes controls in the sibling target');
+
+      for (const style of ['innerHTML', 'outerHTML', 'beforeend', 'afterbegin', 'beforebegin', 'afterend']) {
+        host.innerHTML = '<form id="values"><section id="target"></section></form>';
+        const form = q(host, 'form');
+        const target = q(form, '#target');
+        // Multiple top-level roots, including a nested component, exercise the
+        // outerHTML and adjacent-insertion cases that ctx.target cannot find.
+        const html = markup(style).replace('<div data-ui-component="pin-input">', '<article><div data-ui-component="pin-input">').replace('</div>', '</div></article>');
+        const ctx = await swap(target, style, html);
+        assert(lastSwap.target === source, `${style}: lifecycle event comes from sibling source form`);
+        if (style === 'outerHTML') assert(ctx.target === target && !target.isConnected, 'outerHTML leaves ctx.target detached');
+        check(form, style);
+        const input = q(form, '[data-ui-combobox-input]');
+        const pin = q(form, '[data-ui-pin-slot]');
+        const tag = q(form, '[data-ui-tags]').firstElementChild;
+        input.value = 'Edited'; pin.value = '9';
+        // Real additional swaps, followed by duplicate lifecycle notifications,
+        // must not reset existing controls or register duplicate listeners.
+        await swap(form, 'beforeend', '<span>Another swap</span>');
+        document.dispatchEvent(new CustomEvent('htmx:after:swap', {detail: {ctx}}));
+        assert(input.value === 'Edited' && pin.value === '9', `${style}: repeated swaps preserve edits`);
+        assert(q(form, '[data-ui-tags]').firstElementChild === tag, `${style}: repeated swaps preserve rendered tags`);
+        let changes = 0;
+        const value = q(form, '[data-ui-signature-value]');
+        value.addEventListener('change', () => changes++);
+        const fallback = q(form, 'textarea');
+        fallback.value = 'Grace'; fallback.dispatchEvent(new Event('input', {bubbles: true}));
+        assert(value.value === 'Grace' && changes === 1, `${style}: one signature listener after repeated swaps`);
+        q(form, '[data-ui-option]').click();
+        assert(new FormData(form).get(`${style}-choice`) === 'a', `${style}: inserted controls respond to delegated clicks`);
+        mark(`${style}: initialize sibling content, preserve edits, submit once`);
+      }
+      host.innerHTML = '<form id="replace-source"></form>';
+      const oldSource = q(host, 'form');
+      const ctx = await swap(oldSource, 'outerHTML', `<form id="replacement">${markup('replaced')}</form>`, oldSource);
+      assert(!oldSource.isConnected && ctx.target === oldSource, 'Replaced source context retains detached target');
+      assert(lastSwap.target === q(host, 'form'), 'HTMX retargets source-replacement event to live replacement');
+      check(q(host, 'form'), 'replaced');
+      mark('Source replacement initializes the live replacement');
+
+      host.innerHTML = '<form id="values"><section id="target"></section></form>';
+      const target = q(host, '#target');
+      await swap(target, 'innerHTML', `<span>Main content</span><aside id="oob" hx-swap-oob="outerHTML"><form>${markup('disabled', true)}</form></aside>`);
+      const disabledForm = document.querySelector('#oob form');
+      check(disabledForm, 'disabled', true);
+      q(disabledForm, '[data-ui-option]').click();
+      assert(q(disabledForm, '[data-ui-component=combobox] input[type=hidden]').value === 'b', 'Disabled combo selection stays unchanged');
+      const canvas = q(disabledForm, 'canvas');
+      canvas.dispatchEvent(new PointerEvent('pointerdown', {button: 0, pointerId: 1, clientX: 10, clientY: 10}));
+      canvas.dispatchEvent(new PointerEvent('pointerup', {pointerId: 1}));
+      assert(q(disabledForm, '[data-ui-signature-value]').value === 'Ada', 'Disabled signature cannot draw');
+      mark('OOB inserts initialize and preserve disabled form controls');
+      output.dataset.status = 'passed';
+      output.textContent += '\n\nAll browser regressions passed';
+      window.__controlsSwapResult = {passed: true, tests: lines.length};
+    }
+    run().catch(error => {
+      output.dataset.status = 'failed'; output.textContent += `\nFAIL ${error.stack}`;
+      window.__controlsSwapResult = {passed: false, error: String(error)};
+      console.error(error);
+    });
+  </script>
+</body>
+</html>

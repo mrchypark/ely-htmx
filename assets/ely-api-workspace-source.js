@@ -4,9 +4,27 @@ import {codeSpans} from './ely-code.js';
 export function workspaceMatches(text, query, {caseSensitive = false, word = false} = {}) {
   if (!query) return [];
   const haystack = caseSensitive ? text : text.toLowerCase(), needle = caseSensitive ? query : query.toLowerCase();
+  const starts = [], ends = [];
+  if (haystack.length !== text.length) {
+    let offset = 0;
+    // Keep whole-string lowercasing above for contextual mappings such as final
+    // sigma. Individual mappings supply only lengths for original UTF-16 spans.
+    for (const character of text) {
+      const length = character.toLowerCase().length;
+      for (let unit = 0; unit < length; unit++) {
+        starts.push(offset + Math.min(unit, character.length - 1));
+        ends.push(offset + Math.min(unit + 1, character.length));
+      }
+      offset += character.length;
+    }
+  }
   const found = [], isWord = character => Boolean(character && /[\p{L}\p{N}_]/u.test(character));
   for (let at = 0; (at = haystack.indexOf(needle, at)) >= 0; at += needle.length) {
-    if (!word || (!isWord(text[at - 1]) && !isWord(text[at + needle.length]))) found.push([at, at + needle.length]);
+    const start = starts.length ? starts[at] : at, end = ends.length ? ends[at + needle.length - 1] : at + needle.length;
+    // Different folded matches can cover the same expanded source character.
+    // Return disjoint source ranges so highlighting and replacement stay safe.
+    if (found.length && start < found[found.length - 1][1]) continue;
+    if (!word || (!isWord(text[start - 1]) && !isWord(text[end]))) found.push([start, end]);
   }
   return found;
 }

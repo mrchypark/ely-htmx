@@ -68,7 +68,7 @@ err := ui.RenderComponent(templates, w, ui.Component{
 })
 ```
 
-Include `ui-advanced-assets` with `ui-component-assets`, or select CSS with `{{template "ui-advanced-family-assets" "workspace"}}`. Maps also need `ui-map-assets`. Give each component a unique ID. Host operations use `ely:action` / `ely:change` and the `mount` API in `/assets/ely-api.js`; Go handlers own external requests and business rules. See [component properties](COMPONENTS.md) and the seven `advanced-*.md` guides.
+Include `ui-component-assets` once, then either `ui-advanced-assets` for every family or `{{template "ui-advanced-family-assets" "workspace"}}` for that family’s CSS and JavaScript. Combine family helpers for a page that needs several families; their shared ES modules initialize once. Workspace also loads its nested forms dependency. Preload all families that later HTMX fragments can introduce, or use the all-family helper. See the [asset-loading guide](docs/asset-loading.md) for dependencies, dynamic-page constraints, and reproducible checks. Maps also need `ui-map-assets`. Give each component a unique ID. Host operations use `ely:action` / `ely:change` and the `mount` API in `/assets/ely-api.js`; Go handlers own external requests and business rules. See [component properties](COMPONENTS.md) and the seven `advanced-*.md` guides.
 
 ## Own and customize the source
 
@@ -125,7 +125,7 @@ npm run build:css
 go run ./examples/gallery
 ```
 
-Node and Tailwind are needed only to rebuild CSS or run JavaScript unit checks. Open `/components/usage` for forms and `/components/audit?aliases=1` for the browser behavior harness. Click the run button to check all chapter-qualified names with synthetic data and independent instances. This harness checks local behavior and host request contracts, not live external services. Optional media fixture regeneration: `python3 scripts/fixtures.py` (FFmpeg required).
+Node and Tailwind are needed only for development checks and CSS rebuilding. For browser regressions, run `npx playwright install chromium` and `npm run test:browser` after `npm ci`; CI runs this suite in its browser job. See [asset-loading verification](docs/asset-loading.md#browser-verification-and-measurement) for the cold-cache fixture and interpretation. Open `/components/usage` for forms and `/components/audit?aliases=1` for the browser behavior harness. Click the run button to check all chapter-qualified names with synthetic data and independent instances. This harness checks local behavior and host request contracts, not live external services. Optional media fixture regeneration: `python3 scripts/fixtures.py` (FFmpeg required).
 
 ## License and acknowledgements
 

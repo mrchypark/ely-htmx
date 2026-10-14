@@ -372,6 +372,10 @@
   document.addEventListener('dragover', (event) => { const component = root(event.target); if (component?.dataset.uiComponent === 'file-dropzone' && !component.querySelector('[data-ui-file-input]')?.disabled) event.preventDefault(); });
   document.addEventListener('drop', (event) => { const component = root(event.target); if (component?.dataset.uiComponent === 'file-dropzone' && !component.querySelector('[data-ui-file-input]')?.disabled) { event.preventDefault(); const directory=[...(event.dataTransfer?.items||[])].some(item=>item.webkitGetAsEntry?.()?.isDirectory);if(directory)showFileError(component,'Choose files, not folders.');else setFiles(component,event.dataTransfer.files); } });
 
-  document.addEventListener('htmx:after:swap', (event) => init(event.detail?.target || event.target));
+  // HTMX 4 emits this event from the request source with {ctx}, not the swap
+  // target. ctx.target can also be detached after outerHTML. Scan the live
+  // document so sibling/OOB inserts are included; the WeakSet keeps this safe
+  // for existing controls and repeated swaps.
+  document.addEventListener('htmx:after:swap', () => init());
   init();
 })();

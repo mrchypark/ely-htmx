@@ -20,7 +20,7 @@ err := ui.RenderComponent(templates, writer, ui.Component{
 })
 ```
 
-Go 화면에서는 같은 API를 `{{component (dict "Chapter" "documents" "Name" "MarkdownRenderer" "ID" "source-preview" "Props" (dict "Value" .Source))}}`로 호출한다. `{{template "ui-component-assets"}}`와 `{{template "ui-advanced-assets"}}`를 추가한다. 한 계열만 사용할 때는 `{{template "ui-advanced-family-assets" "workspace"}}`처럼 필요한 CSS만 추가할 수 있다. 지도에는 `ui-map-assets`를 추가한다. 카탈로그의 상세 페이지도 이 API와 호출자 데이터를 사용한다. 
+Go 화면에서는 같은 API를 `{{component (dict "Chapter" "documents" "Name" "MarkdownRenderer" "ID" "source-preview" "Props" (dict "Value" .Source))}}`로 호출한다. `{{template "ui-component-assets"}}`와 `{{template "ui-advanced-assets"}}`를 추가한다. 한 계열만 사용할 때는 `{{template "ui-advanced-family-assets" "workspace"}}`처럼 필요한 계열의 CSS와 JavaScript만 추가할 수 있다. 공유 런타임과 교차 계열 의존성은 자동으로 포함된다. HTMX로 나중에 삽입할 계열도 초기 페이지에서 미리 로드해야 한다. 자세한 내용은 [에셋 로딩 안내](docs/asset-loading.md)를 참고한다. 지도에는 `ui-map-assets`를 추가한다. 카탈로그의 상세 페이지도 이 API와 호출자 데이터를 사용한다.
 
 공통 속성은 `Title`, `Label`, `Name`, `Value`, `Disabled`, `Required`이다. `Items`, `Options`, `Rows`, `Fields`와 SVG 좌표는 컴포넌트별 데이터이다. 문자열은 Go 템플릿이 이스케이프한다. Markdown은 GFM으로 렌더링하며 입력의 HTML과 위험한 링크 스킴을 실행하지 않는다. QR, Code128과 EAN-13은 실제 호출 값으로 인코딩한다. EAN-13은 12자리 숫자의 검증 숫자를 계산하고, 13자리 입력의 검증 숫자를 확인한다.
 

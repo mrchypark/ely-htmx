@@ -28,7 +28,7 @@ func TestLocalFormStoriesWireValidationAndHandler(t *testing.T) {
 			w := httptest.NewRecorder()
 			server.ServeHTTP(w, httptest.NewRequest(http.MethodGet, componentHref(tc.chapter, tc.slug), nil))
 			body := w.Body.String()
-			if w.Code != http.StatusOK || !strings.Contains(body, `data-ely-family="forms"`) || !strings.Contains(body, `src="/assets/ely-api-all.js"`) || (!strings.Contains(body, "data-ely-submit") && !strings.Contains(body, "data-ely-wizard")) {
+			if w.Code != http.StatusOK || !strings.Contains(body, `data-ely-family="forms"`) || !strings.Contains(body, `src="/assets/ely-api-forms-entry.js"`) || strings.Contains(body, `src="/assets/ely-api-all.js"`) || (!strings.Contains(body, "data-ely-submit") && !strings.Contains(body, "data-ely-wizard")) {
 				t.Fatal("local form is not wired to its handler")
 			}
 			if tc.slug == "signupform" && !regexp.MustCompile(`<input\b[^>]*name="terms"[^>]*required`).MatchString(body) {
