@@ -194,7 +194,7 @@ func (p *Plan) renderInstance(w io.Writer, node *compiledNode, ctx RenderContext
 			}
 		}
 	} else if node.definition.Component != "" {
-		if err := ui.RenderComponent(p.templates, &body, ui.Component{Chapter: node.definition.Chapter, Name: node.definition.Component, ID: controlID, Props: props}); err != nil {
+		if err := ui.RenderComponentLimited(p.templates, &body, ui.Component{Chapter: node.definition.Chapter, Name: node.definition.Component, ID: controlID, Props: props}, MaxRenderBytes); err != nil {
 			return err
 		}
 	} else if err := p.templates.ExecuteTemplate(&body, node.definition.Template, props); err != nil {

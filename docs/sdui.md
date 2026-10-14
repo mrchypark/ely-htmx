@@ -457,7 +457,9 @@ node scripts/sdui-catalogue-browser-test.mjs
 | Local host isolation, external schema and multipart behavior | `examples/sdui/main_test.go` |
 | Decode/compile/render fuzz seeds including composition | `sdui/fuzz_test.go` |
 
-These paths describe test coverage, not a claim that the latest expanded commit
-has passed hosted CI. Record final verification against one concrete commit.
+Expanded commit `ed90987a16415920524481eb59278595e1f27ad1` passed both hosted
+Go/JavaScript/race checks and actual Chromium in
+[run 38614498267](https://github.com/mrchypark/ely-htmx/actions/runs/38614498267).
+See the PR checks for verification of any later commit.
 Catalogue mount smoke is distinct from every prop permutation or external
 provider operation; browser launch/setup failures are blockers, never passes.

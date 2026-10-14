@@ -113,6 +113,34 @@ func ResolveComponent(chapter, name string) (ComponentDefinition, error) {
 // RenderComponent renders caller data through a shared, catalogue-resolved API.
 // Use a template set from NewTemplates, including application overrides if needed.
 func RenderComponent(tpl *template.Template, w io.Writer, component Component) error {
+	return renderComponent(tpl, w, component, 0)
+}
+
+// RenderComponentLimited caps both the renderer's intermediate body and its
+// final wrapper output. It stops template execution at the limit rather than
+// allocating an expanded body first. Use a caller buffer for atomic output.
+func RenderComponentLimited(tpl *template.Template, w io.Writer, component Component, maxBytes int) error {
+	if maxBytes <= 0 {
+		return fmt.Errorf("component render limit must be positive")
+	}
+	return renderComponent(tpl, w, component, maxBytes)
+}
+
+type componentLimitWriter struct {
+	writer    io.Writer
+	remaining int
+}
+
+func (w *componentLimitWriter) Write(data []byte) (int, error) {
+	if len(data) > w.remaining {
+		return 0, fmt.Errorf("component rendering exceeds output limit")
+	}
+	n, err := w.writer.Write(data)
+	w.remaining -= n
+	return n, err
+}
+
+func renderComponent(tpl *template.Template, w io.Writer, component Component, maxBytes int) error {
 	if !componentID.MatchString(component.ID) {
 		return fmt.Errorf("component ID must start with a letter and contain at most 128 letters, numbers, underscores or hyphens")
 	}
@@ -130,7 +158,12 @@ func RenderComponent(tpl *template.Template, w io.Writer, component Component) e
 	}
 	props["ID"], props["Chapter"], props["Kind"], props["Variant"], props["ComponentName"] = component.ID, d.Chapter, d.Name, name, name
 	var body bytes.Buffer
-	if err := tpl.ExecuteTemplate(&body, d.Template, props); err != nil {
+	var bodyWriter io.Writer = &body
+	if maxBytes > 0 {
+		bodyWriter = &componentLimitWriter{writer: &body, remaining: maxBytes}
+		w = &componentLimitWriter{writer: w, remaining: maxBytes}
+	}
+	if err := tpl.ExecuteTemplate(bodyWriter, d.Template, props); err != nil {
 		return fmt.Errorf("render %s/%s: %w", d.Chapter, name, err)
 	}
 	if strings.TrimSpace(body.String()) == "" {

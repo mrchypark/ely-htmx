@@ -10,10 +10,13 @@ The core gate passed before catalogue/composition expansion: PR #5 commit
 `cc9cbae920d3c078866b672f835637a9f0ba174b`, including both hosted test and Chromium
 jobs in [run 38599012302](https://github.com/mrchypark/ely-htmx/actions/runs/38599012302).
 
-Expanded local Go, race, generation and JavaScript checks pass. The new hosted
-browser checks must pass on the final PR head before expanded verification is
-complete. Listing a test below describes its assertions, not a claim about an
-unobserved CI execution. See the PR checks for the exact tested commit.
+Expanded verification passed at commit
+`ed90987a16415920524481eb59278595e1f27ad1`: both the general test job and actual
+Chromium job completed successfully in
+[run 38614498267](https://github.com/mrchypark/ely-htmx/actions/runs/38614498267).
+This includes all 1,361 contract mount representatives and the real Go action/
+activation regressions. Later commits must pass their own PR checks; the table
+below states covered cases rather than promising every possible behavior.
 
 ## Catalogue coverage: distinct measurements
 
@@ -26,7 +29,7 @@ unobserved CI execution. See the PR checks for the exact tested commit.
 | Caller-data render fixtures | 2,159 | Strict JSON decode, compile, render and escaping checks |
 | Meaningful caller-data customization | Every generated contract | Per-name mutation probe, excluding wrapper-only Disabled changes |
 | Source fixture accounting | 639 catalogue fixtures +742 preview fixtures | Generator tests and manifest metadata |
-| Browser mount smoke | One caller-data representative per 1,361 contracts | scripts/sdui-catalogue-browser-test.mjs; final hosted run required |
+| Browser mount smoke | One caller-data representative per 1,361 contracts | scripts/sdui-catalogue-browser-test.mjs; hosted run 38614498267 passed |
 | Browser behavior | Explicit representative interactions below | Does not imply every property permutation or provider operation |
 
 Contracts contain recursive meaningful properties derived from actual renderer

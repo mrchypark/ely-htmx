@@ -396,3 +396,26 @@ func TestCatalogueSemanticBoundaries(t *testing.T) {
 		t.Fatal("typed business-key dictionary missing")
 	}
 }
+
+func TestCatalogueExpansionStopsAtRenderBudget(t *testing.T) {
+	registry, err := sdui.CatalogueRegistry()
+	if err != nil {
+		t.Fatal(err)
+	}
+	items := make([]any, 1000)
+	for i := range items {
+		items[i] = map[string]any{"key": "k", "value": "v"}
+	}
+	screen := sdui.Screen{Version: sdui.Version, ID: "bounded-screen", Root: sdui.Node{ID: "many-controls", Type: "forms/KeyValueInput", Props: map[string]any{"items": items, "placeholder": strings.Repeat("x", sdui.MaxStringBytes)}}}
+	plan, err := sdui.Compile(screen, registry)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var output bytes.Buffer
+	if err := plan.Render(&output, sdui.RenderContext{}); err == nil || !strings.Contains(err.Error(), "output limit") {
+		t.Fatalf("expected early intermediate limit: %v", err)
+	}
+	if output.Len() != 0 {
+		t.Fatal("failed expanded render emitted partial HTML")
+	}
+}
