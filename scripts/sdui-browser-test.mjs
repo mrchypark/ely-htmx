@@ -20,7 +20,11 @@ const child = spawn('go', ['run', './examples/sdui'], {
   cwd: repo, env: {...process.env, PORT: String(port), SDUI_SCHEMA: ''},
   detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
 });
-let output = '', startupError, browser;
+let output = '', startupError, browser, page;
+let phase = 'start Go server';
+let releaseHeldResponse = () => {};
+const errors = [], requests = [], postRequests = [], assetResponses = [];
+const checkpoint = value => { phase = value; console.log(`[sdui] ${value}`); };
 child.stdout.on('data', value => { output += value; });
 child.stderr.on('data', value => { output += value; });
 child.once('error', error => { startupError = error; });
@@ -40,16 +44,16 @@ try {
     if (child.exitCode !== null) throw new Error(`Go example exited (${child.exitCode}): ${output}`);
     try { return (await fetch(origin)).ok; } catch { return false; }
   }, `Go example did not start: ${output}`, 60_000);
+  checkpoint('Go server ready; launch Chromium');
   browser = await chromium.launch();
   const context = await browser.newContext({viewport: {width: 1100, height: 1000}, serviceWorkers: 'block'});
-  const page = await context.newPage();
-  const errors = [], requests = [], postRequests = [], assetResponses = [];
+  page = await context.newPage();
   page.on('pageerror', error => errors.push(String(error)));
   page.on('response', response => {
     if (new URL(response.url()).pathname.startsWith('/assets/')) assetResponses.push({url: response.url(), status: response.status()});
   });
   page.on('request', request => {
-    assert.equal(new URL(request.url()).origin, origin, 'browser never calls an external origin');
+    if (new URL(request.url()).origin !== origin) errors.push(`Unexpected external request: ${request.url()}`);
     requests.push(new URL(request.url()).pathname);
     if (request.method() === 'POST') postRequests.push(request);
   });
@@ -63,6 +67,7 @@ try {
     document.addEventListener('ely:error', event => elyErrors.push(String(event.detail.error)));
     document.addEventListener('htmx:after:swap', () => sduiSwaps++);
   });
+  checkpoint('load page and selective bundled assets');
   await page.goto(origin, {waitUntil: 'networkidle'});
   const name = page.locator('#profile-editor input[name="name"]');
   const toggle = page.locator('#updates-switch input[role="switch"]');
@@ -81,6 +86,7 @@ try {
 
   // Server validation replaces the requested region even on HTTP 422, and
   // keyboard focus follows the input's stable generated ID across the swap.
+  checkpoint('assets passed; validate and restore focus');
   await name.focus();
   await name.press('Enter');
   await page.waitForFunction(() => sduiResults.some(result => result.status === 422));
@@ -91,6 +97,7 @@ try {
 
   // Successful native FormData includes repeated names, the clicked submitter,
   // and a real File. File bytes are read by Go, not JSON-serialized or mocked.
+  checkpoint('validation passed; submit real FormData and file');
   await name.fill('Ada Lovelace');
   const contents = Buffer.from('Real browser attachment.\n');
   await page.locator('input[name="attachment"]').setInputFiles({name: 'proof.txt', mimeType: 'text/plain', buffer: contents});
@@ -104,6 +111,7 @@ try {
   assert.equal(await submit.evaluate(node => document.activeElement === node), true, 'submit button focus restored');
 
   // Advanced component change events use the same transport and current form.
+  checkpoint('FormData passed; advanced changes and repeated swaps');
   let before = postRequests.length;
   await toggle.check();
   await page.waitForFunction(() => document.querySelector('#profile-result')?.textContent.includes('Save #2.'));
@@ -132,6 +140,7 @@ try {
   // Repeated in-flight submit events on the same form are suppressed. The
   // server receives one request; later intentional submissions remain allowed.
   before = postRequests.length;
+  checkpoint('advanced swaps passed; suppress duplicate submission');
   await name.fill('Repeated submission');
   await page.locator('input[name="delay"]').evaluate(node => { node.value = '150'; });
   await page.evaluate(() => {
@@ -144,47 +153,71 @@ try {
   await ready();
   assert.equal(postRequests.length, before + 1, 'busy duplicate submit does not reach server');
 
-  // Force actual responses to arrive out of order. Disable AbortController's
-  // cancellation just for this probe: a sequence guard must work even when a
-  // transport cannot abort a request that already committed on the server.
+  // Fetch the older response from the real Go server, then hold its delivery
+  // until the newer response has updated the DOM. This proves the sequence
+  // guard without depending on CI speed or a narrow server delay window.
+  checkpoint('duplicate submission passed; deterministic late-response race');
   await page.evaluate(() => {
     window.realAbort = AbortController.prototype.abort;
     AbortController.prototype.abort = function () {};
   });
   before = postRequests.length;
-  let olderResponseFinished = false;
-  const observeOlder = response => {
-    if (response.request().method() === 'POST' && response.request().postData()?.includes('Older response')) {
-      void response.finished().then(() => { olderResponseFinished = true; });
+  let heldResponse, heldHTML, routeError, olderFulfilled = false, olderHeaders = false;
+  const responseGate = new Promise(resolve => { releaseHeldResponse = resolve; });
+  const oldRequest = request => request.method() === 'POST' && request.postData()?.includes('Older response');
+  const observeOlder = response => { if (oldRequest(response.request())) olderHeaders = true; };
+  page.on('response', observeOlder);
+  const raceRoute = async route => {
+    try {
+      if (!oldRequest(route.request())) { await route.continue(); return; }
+      const response = await route.fetch({maxRedirects: 0, timeout: 15_000});
+      // Reading this APIResponse is separate from the browser Fetch response;
+      // the browser has not received any headers or HTML yet.
+      heldHTML = await response.text();
+      heldResponse = response;
+      await responseGate;
+      await route.fulfill({response});
+      olderFulfilled = true;
+    } catch (error) {
+      routeError = error;
+      await route.abort().catch(() => {});
     }
   };
-  page.on('response', observeOlder);
+  await page.route(origin + '/', raceRoute);
   await name.fill('Older response');
-  await page.locator('input[name="delay"]').evaluate(node => { node.value = '300'; });
+  await page.locator('input[name="delay"]').evaluate(node => { node.value = '0'; });
   await page.evaluate(() => document.querySelector('#profile-editor').requestSubmit(document.querySelector('#save-profile button')));
-  // Poll the authenticated loader, rather than relying on a sleep, to ensure
-  // the older mutation committed before issuing the newer action.
-  await eventually(async () => (await (await context.request.get(origin)).text()).includes('Saved Older response.'), 'older request did not commit');
-  assert.equal(olderResponseFinished, false, 'race probe starts the newer action before the older response arrives');
-  // One browser task avoids scheduling three automation round trips inside the
-  // deliberately short server delay. A native click still runs Ely's handlers.
-  await page.evaluate(() => {
-    document.querySelector('input[name="name"]').value = 'Latest response';
-    document.querySelector('input[name="delay"]').value = '0';
-    document.querySelector('#updates-switch input[role="switch"]').click();
-  });
+  await eventually(() => {
+    if (routeError) throw routeError;
+    return !!heldResponse;
+  }, 'older real Go response was not captured');
+  assert.equal(heldResponse.status(), 200);
+  assert.match(heldHTML, /Saved Older response\./);
+  assert.match(heldHTML, /Save #5\./);
+  assert.equal(olderHeaders, false, 'older response remains withheld from the browser');
+  await name.fill('Latest response');
+  await toggle.check();
   await page.waitForFunction(() => document.querySelector('#profile-result')?.textContent.includes('Saved Latest response.'));
   await ready();
   assert.match(await result.innerText(), /Save #6\./);
-  await eventually(() => olderResponseFinished, 'older response did not finish');
-  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => resolve())));
+  releaseHeldResponse();
+  await eventually(() => {
+    if (routeError) throw routeError;
+    return olderFulfilled && olderHeaders;
+  }, 'held response was not delivered after the newer swap');
+  // The stale response is intentionally not consumed by the runtime. Waiting
+  // on Playwright Response.finished() can hang for that unread fetch stream;
+  // response headers plus two browser animation frames let its guard execute.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
   page.off('response', observeOlder);
+  await page.unroute(origin + '/', raceRoute);
   assert.match(await result.innerText(), /Saved Latest response\./, 'late stale response cannot replace the newest DOM');
   assert.equal(await name.inputValue(), 'Latest response');
   assert.equal(postRequests.length, before + 2);
   await page.evaluate(() => { AbortController.prototype.abort = realAbort; });
   const refreshed = await context.request.get(origin);
   assert.match(await refreshed.text(), /Saved Latest response\./, 'newest server state survives refresh');
+  checkpoint('late-response guard passed; HTTP authorization and replay');
 
   // HTTP negatives use the actual running server and leave the rendered region
   // untouched. The example never creates a session on unauthenticated POST.
@@ -213,6 +246,7 @@ try {
 
   // Normal document history remains usable. A rejected loader URL must not
   // break delegation after Back/Forward, including browsers using bfcache.
+  checkpoint('HTTP checks passed; Back/Forward lifecycle');
   const invalidPage = await page.goto(`${origin}/?unsupported=1`);
   assert.equal(invalidPage.status(), 400);
   await page.goBack();
@@ -229,6 +263,7 @@ try {
   assert.match(await result.innerText(), /Save #8\./, 'server persisted the prior idempotent save exactly once');
   assert.equal(postRequests.length, before + 1, 'history restoration has one active transport handler');
   assert.deepEqual(errors, [], 'no browser errors after Back/Forward');
+  checkpoint('history passed; named-field DOM clobbering');
   // Native forms expose controls as named properties. Real Chromium, unlike
   // the isolated DOM fixture, can shadow these methods with innocent field
   // names. The transport must call native methods and recognize the form.
@@ -249,9 +284,29 @@ try {
   assert.deepEqual(errors, [], 'named fields cause no browser errors');
   if (process.env.SDUI_SCREENSHOT) await page.screenshot({path: process.env.SDUI_SCREENSHOT, fullPage: true});
   console.log('SDUI browser checks passed: real Go server, selective bundled assets, validation, FormData/files/repeated fields/submitter, advanced changes, repeated swaps and cleanup, focus, duplicate suppression, late-response race, Back/Forward, named-field clobbering, auth/CSRF and idempotent replay.');
+} catch (error) {
+  // Print the primary failure before cleanup can close a pending request. Every
+  // asynchronous route path catches its own failure, so diagnostics cannot be
+  // replaced by an unhandled teardown rejection.
+  console.error(`[sdui] FAILED during ${phase}:`, error);
+  console.error('[sdui] diagnostics:', JSON.stringify({
+    phase, errors, posts: postRequests.length,
+    failedAssets: assetResponses.filter(response => response.status !== 200),
+    serverOutput: output.slice(-4000),
+  }));
+  if (page && !page.isClosed()) {
+    const state = await page.evaluate(() => ({
+      url: location.href, results: window.sduiResults, swaps: window.sduiSwaps,
+      elyErrors: window.elyErrors, body: document.body?.innerText.slice(0, 3000),
+    })).catch(error => ({diagnosticError: String(error)}));
+    console.error('[sdui] browser state:', JSON.stringify(state));
+  }
+  throw error;
 } finally {
-  await browser?.close();
+  releaseHeldResponse();
+  await browser?.close().catch(error => console.error('[sdui] browser cleanup:', String(error)));
   if (child.pid && child.exitCode === null) {
-    try { process.kill(process.platform === 'win32' ? child.pid : -child.pid, 'SIGTERM'); } catch (error) { if (error.code !== 'ESRCH') throw error; }
+    try { process.kill(process.platform === 'win32' ? child.pid : -child.pid, 'SIGTERM'); }
+    catch (error) { if (error.code !== 'ESRCH') console.error('[sdui] server cleanup:', String(error)); }
   }
 }
