@@ -268,16 +268,19 @@ try {
   // the isolated DOM fixture, can shadow these methods with innocent field
   // names. The transport must call native methods and recognize the form.
   before = postRequests.length;
+  await name.fill('Named fields remain safe');
   await page.evaluate(() => {
     const form = document.getElementById('profile-editor');
+    const button = document.getElementById('save-profile').querySelector('button');
     for (const name of ['closest', 'getAttribute', 'setAttribute', 'removeAttribute', 'matches', 'querySelector', 'form']) {
       const field = document.createElement('input');
       field.type = 'hidden'; field.name = name; field.value = 'ordinary field value';
       form.appendChild(field);
     }
+    // Playwright's selector evaluator itself uses element.matches. Submit via
+    // the native API until the server replacement removes the named controls.
+    HTMLFormElement.prototype.requestSubmit.call(form, button);
   });
-  await name.fill('Named fields remain safe');
-  await submit.click();
   await page.waitForFunction(() => document.querySelector('#profile-result')?.textContent.includes('Saved Named fields remain safe.'));
   assert.match(await result.innerText(), /Save #9\./, 'named properties do not interfere with native form submission');
   assert.equal(postRequests.length, before + 1, 'clobbering regression submits exactly once');
