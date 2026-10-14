@@ -509,3 +509,75 @@ test('ordinary form field names cannot clobber adapter DOM operations', async ()
   assert.equal(h.notifications.at(-1).type, 'sdui:success');
   assert.equal(Element.prototype.hasAttribute.call(h.form, 'aria-busy'), false);
 });
+
+
+test('screen revision is protected and stale activation never swaps or silently reloads', async () => {
+  const h = harness();
+  h.screen.setAttribute('data-sdui-revision', '1-abc');
+  h.form.append(h.element('input', {name: '_revision', value: 'forged'}));
+  const stale = [];
+  h.document.addEventListener('sdui:stale', event => stale.push(event.detail));
+  h.input.value = 'unsaved draft';
+  h.fire();
+  assert.equal(h.calls[0].options.body.get('_revision'), '1-abc');
+  h.calls[0].resolve({status:409, ok:false, headers:{get: name => ({'X-SDUI-Reload':'required','X-SDUI-Revision':'2-def'}[name] || null)}, text:async()=>fragment('must not swap')});
+  await tick();
+  assert.equal(h.document.getElementById('region'), h.region);
+  assert.equal(h.input.value, 'unsaved draft');
+  assert.equal(stale.length, 1);
+  assert.equal(stale[0].revision, '2-def');
+  assert.equal(h.window.location.href, 'https://example.test/profile');
+  assert.equal(h.notifications.at(-1).type, 'sdui:error');
+  assert.equal(h.form.getAttribute('aria-busy'), null);
+});
+
+test('multiple action mappings select exact source actions and forward only typed selected detail', async () => {
+  const h = harness();
+  const bindings = [
+    {on:'ely:action', sourceAction:'edit', action:'edit-row', target:'region', payload:{row:{path:'/row/id', type:'integer'}, record:{path:'/row', type:'object'}}},
+    {on:'ely:action', sourceAction:'remove', action:'remove-row', target:'region', payload:{row:{path:'/row/id', type:'integer'}}},
+  ];
+  const root = h.element('div', {'data-sdui-events':JSON.stringify(bindings)}); h.screen.append(root);
+  h.fire(root,'ely:action',{action:'unknown',row:{id:7}});
+  assert.equal(h.calls.length,0);
+  h.fire(root,'ely:action',{action:'edit',row:{id:7,label:'hello'},unselected:'private'});
+  assert.equal(h.calls[0].options.body.get('_action'),'edit-row');
+  assert.equal(h.calls[0].options.body.get('row'),'7');
+  assert.equal(h.calls[0].options.body.get('record'),'{"id":7,"label":"hello"}');
+  assert.equal(h.calls[0].options.body.get('unselected'),null);
+  await h.complete(0);
+  h.fire(root,'ely:action',{action:'remove',row:{id:8}});
+  assert.equal(h.calls[1].options.body.get('_action'),'remove-row');
+  await h.complete(1);
+});
+
+test('typed event payload rejects missing, wrong and oversized detail without fetching', async () => {
+  for (const detail of [{}, {value:'not-number'}, {value:Infinity}]) {
+    const h=harness(); const root=h.element('div', {'data-sdui-events':JSON.stringify([{on:'ely:action',action:'save',target:'region',payload:{value:{path:'/value',type:'number'}}}])});h.screen.append(root);
+    h.fire(root,'ely:action',detail); await tick();
+    assert.equal(h.calls.length,0);assert.equal(h.notifications.at(-1).type,'sdui:error');
+  }
+});
+
+test('unknown child action selector cannot fall through to an ancestor wildcard action', async () => {
+ const h=harness();
+ const parent=h.element('div',{'data-sdui-events':JSON.stringify([{on:'ely:action',action:'parent-mutation',target:'region'}])});
+ const child=h.element('div',{'data-sdui-events':JSON.stringify([{on:'ely:action',sourceAction:'known',action:'child-mutation',target:'region'}])});
+ parent.append(child);h.screen.append(parent);
+ h.fire(child,'ely:action',{action:'unknown'});await tick();assert.equal(h.calls.length,0);
+ h.fire(child,'ely:action',{action:'known'});assert.equal(h.calls[0].options.body.get('_action'),'child-mutation');await h.complete(0);
+});
+
+test('validated inert Lottie JSON survives swaps but executable or malformed scripts do not', async () => {
+ for (const [markup, accepted] of [
+  ['<script type="application/json" data-lottie-animation>{"layers":[]}</script>',true],
+  [`<script type="application/json" data-lottie-animation>${JSON.stringify(JSON.stringify({layers:[]}))}</script>`,true],
+  ['<script type="application/json" data-lottie-animation>{bad}</script>',false],
+  ['<script type="application/json" data-lottie-animation src="/code.js">{}</script>',false],
+  ['<script type="text/javascript" data-lottie-animation>{}</script>',false],
+  ['<script type="application/json">{}</script>',false],
+ ]) {
+  const h=harness();h.fire();await h.complete(0,`<section id="region" data-sdui-region>${markup}</section>`);
+  assert.equal(h.notifications.at(-1).type,accepted?'sdui:success':'sdui:error',markup);
+ }
+});

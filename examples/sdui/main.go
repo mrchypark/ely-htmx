@@ -52,13 +52,14 @@ type server struct {
 	mu       sync.Mutex
 	sessions map[string]*session
 	mux      *http.ServeMux
+	screens  *sdui.Store
 }
 
 // NewHandler builds the example with its own isolated, bounded demo state.
 // A real host must replace session bootstrap with its authentication middleware.
 func NewHandler() (http.Handler, error) {
 	s := &server{sessions: make(map[string]*session), mux: http.NewServeMux()}
-	plan, err := compileScreen()
+	screen, registry, err := loadScreen()
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func NewHandler() (http.Handler, error) {
 		}
 		return nil
 	}
-	runtime, err := sdui.NewHandler(plan, sdui.Config{
+	runtime, err := sdui.NewStore(screen, registry, sdui.Config{
 		Endpoint:     "/",
 		Authenticate: s.authenticate,
 		Authorize:    allowSession,
@@ -92,31 +93,35 @@ func NewHandler() (http.Handler, error) {
 		return nil, err
 	}
 	s.mux.HandleFunc("GET /favicon.ico", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
+	s.screens = runtime
 	s.mux.Handle("/{$}", runtime)
 	return s, nil
 }
 
-// An optional external schema is decoded and compiled once, before the server
-// starts. Replacing it takes effect after a restart, without rebuilding Go.
-func compileScreen() (*sdui.Plan, error) {
+// An optional external schema is strictly loaded before serving. SDUI_WATCH=1
+// enables validated atomic activation; invalid updates retain the current plan.
+func loadScreen() (sdui.Screen, *sdui.Registry, error) {
 	var source io.Reader = bytes.NewReader(screenJSON)
 	if path := os.Getenv("SDUI_SCHEMA"); path != "" {
 		file, err := os.Open(path)
 		if err != nil {
-			return nil, fmt.Errorf("open SDUI_SCHEMA: %w", err)
+			return sdui.Screen{}, nil, fmt.Errorf("open SDUI_SCHEMA: %w", err)
 		}
 		defer file.Close()
 		source = file
 	}
 	screen, err := sdui.Decode(source)
 	if err != nil {
-		return nil, err
+		return sdui.Screen{}, nil, err
 	}
-	registry, err := sdui.DefaultRegistry()
+	registry, err := sdui.CatalogueRegistry()
 	if err != nil {
-		return nil, err
+		return sdui.Screen{}, nil, err
 	}
-	return sdui.Compile(screen, registry)
+	if err := registry.Register(sdui.Definition{Name: "profile-summary-card", Template: "card", Properties: map[string]sdui.Property{"title": {Type: sdui.String, Target: "Title", Required: true}}, Slots: map[string]sdui.SlotDefinition{"content": {Target: "Content", AllowedTypes: []string{"text"}, MaxNodes: 16}}}); err != nil {
+		return sdui.Screen{}, nil, err
+	}
+	return screen, registry, nil
 }
 
 func token() (string, error) {
@@ -219,6 +224,8 @@ func data(value profile, problem string) map[string]any {
 	return map[string]any{
 		"name": value.Name, "enabled": value.Enabled, "message": message,
 		"error": problem, "attachment": value.Attachment, "tags": value.Tags, "intent": value.Intent,
+		"hasSaved": value.Count > 0,
+		"summary":  []map[string]any{{"id": "identity", "label": "Profile: " + value.Name}, {"id": "count", "label": fmt.Sprintf("Committed saves: %d", value.Count)}},
 	}
 }
 
@@ -246,7 +253,10 @@ func (s *server) save(_ context.Context, request sdui.Request) (sdui.Result, err
 	}
 	current := value.Profile
 	s.mu.Unlock()
-	current.Name, current.Enabled = name, enabled
+	current.Enabled = enabled
+	if len(name) <= 80 {
+		current.Name = name
+	}
 	invalid := func(message string) (sdui.Result, error) {
 		return sdui.Result{Data: data(current, message), Status: http.StatusUnprocessableEntity}, nil
 	}
@@ -256,11 +266,30 @@ func (s *server) save(_ context.Context, request sdui.Request) (sdui.Result, err
 	if len(name) > 80 {
 		return invalid("Display name must be 80 bytes or less.")
 	}
+	for _, field := range []string{"name", "enabled", "intent", "delay"} {
+		if len(request.Values[field]) > 1 {
+			return invalid("Use one value for " + field + ".")
+		}
+	}
+	if len(request.Values["tag"]) > 16 {
+		return invalid("Choose at most sixteen tags.")
+	}
+	for _, tag := range request.Values["tag"] {
+		if len(tag) > 128 {
+			return invalid("Tags must be 128 bytes or less.")
+		}
+	}
+	if len(request.Values.Get("intent")) > 128 {
+		return invalid("Submitter value must be 128 bytes or less.")
+	}
 	files := request.Files["attachment"]
 	if len(files) > 1 {
 		return invalid("Choose at most one attachment.")
 	}
 	if len(files) == 1 && files[0].Filename != "" {
+		if len(files[0].Filename) > 255 {
+			return invalid("Attachment filename must be 255 bytes or less.")
+		}
 		if files[0].Size > 64<<10 {
 			return invalid("Attachment must be 64 KiB or smaller.")
 		}
@@ -304,6 +333,24 @@ func main() {
 	handler, err := NewHandler()
 	if err != nil {
 		log.Fatal(err)
+	}
+	if os.Getenv("SDUI_WATCH") == "1" {
+		path := os.Getenv("SDUI_SCHEMA")
+		if path == "" {
+			log.Fatal("SDUI_WATCH requires an explicit local SDUI_SCHEMA path")
+		}
+		go func() {
+			err := handler.(*server).screens.WatchFile(context.Background(), path, 250*time.Millisecond, func(snapshot sdui.Snapshot, err error) {
+				if err != nil {
+					log.Printf("Screen update rejected; active screen retained: %v", err)
+				} else {
+					log.Printf("Active screen revision: %s", snapshot.Revision)
+				}
+			})
+			if err != nil {
+				log.Printf("Screen watcher stopped: %v", err)
+			}
+		}()
 	}
 	address := "127.0.0.1:" + strconv.Itoa(number)
 	log.Printf("Ely SDUI demo (local demo sessions only): http://%s", address)

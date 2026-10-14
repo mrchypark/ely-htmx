@@ -227,14 +227,14 @@ func TestRenderLimitsWriterErrorsAndConcurrency(t *testing.T) {
 	screen := schemaScreen()
 	screen.Root.Children = nil
 	for i := 0; i < 200; i++ {
-		screen.Root.Children = append(screen.Root.Children, Node{ID: fmtNodeID(i), Type: "text", Props: map[string]any{"text": strings.Repeat("x", MaxStringBytes)}})
+		screen.Root.Children = append(screen.Root.Children, Node{ID: fmtNodeID(i), Type: "text", Bindings: map[string]string{"text": "text"}})
 	}
 	p, err := Compile(screen, schemaRegistry(t))
 	if err != nil {
 		t.Fatal(err)
 	}
 	var output bytes.Buffer
-	if err := p.Render(&output, RenderContext{}); err == nil || output.Len() != 0 {
+	if err := p.Render(&output, RenderContext{Data: map[string]any{"text": strings.Repeat("x", MaxStringBytes)}}); err == nil || output.Len() != 0 {
 		t.Fatal("render limit ignored or partial output written")
 	}
 	p = renderTestPlan(t)

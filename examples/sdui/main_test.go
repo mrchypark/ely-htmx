@@ -22,9 +22,10 @@ import (
 var csrfAttribute = regexp.MustCompile(`data-sdui-csrf="([^"]+)"`)
 
 type demoClient struct {
-	handler http.Handler
-	cookie  *http.Cookie
-	csrf    string
+	handler  http.Handler
+	cookie   *http.Cookie
+	csrf     string
+	revision string
 }
 
 func client(t *testing.T, handler http.Handler) demoClient {
@@ -42,12 +43,12 @@ func client(t *testing.T, handler http.Handler) demoClient {
 	if len(match) != 2 || len(match[1]) < 32 {
 		t.Fatalf("missing per-session CSRF token: %s", response.Body.String())
 	}
-	return demoClient{handler: handler, cookie: cookies[0], csrf: match[1]}
+	return demoClient{handler: handler, cookie: cookies[0], csrf: match[1], revision: response.Header().Get("X-SDUI-Revision")}
 }
 
 func (c demoClient) form(key, name string) url.Values {
 	return url.Values{
-		"_action": {"save-profile"}, "_target": {"profile-form"}, "_csrf": {c.csrf}, "_request": {key},
+		"_action": {"save-profile"}, "_target": {"profile-form"}, "_csrf": {c.csrf}, "_request": {key}, "_revision": {c.revision},
 		"name": {name}, "enabled": {"on"}, "tag": {"go", "hypermedia"}, "intent": {"save"},
 	}
 }
@@ -276,5 +277,24 @@ func TestDemoConcurrentSavesKeepLiveCount(t *testing.T) {
 	c.handler.ServeHTTP(w, r)
 	if !strings.Contains(w.Body.String(), fmt.Sprintf("Save #%d.", saves)) {
 		t.Fatalf("lost concurrent save count: %s", w.Body.String())
+	}
+}
+
+func TestDemoOversizedDisplayValuesNeverPersist(t *testing.T) {
+	for _, field := range []string{"name", "tag", "intent"} {
+		t.Run(field, func(t *testing.T) {
+			h := handlerForTest(t)
+			c := client(t, h)
+			values := c.form("oversized-"+field, "Ada")
+			values.Set(field, strings.Repeat("x", 17000))
+			response := c.post(values, "oversized-"+field)
+			if response.Code != 422 {
+				t.Fatalf("got %d: %s", response.Code, response.Body.String())
+			}
+			response = c.post(c.form("valid-after-"+field, "Grace"), "valid-after-"+field)
+			if response.Code != 200 || !strings.Contains(response.Body.String(), "Save #1.") {
+				t.Fatalf("invalid value persisted or committed: %d %s", response.Code, response.Body.String())
+			}
+		})
 	}
 }

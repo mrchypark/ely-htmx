@@ -1,53 +1,96 @@
 # Server-driven UI
 
-The optional `github.com/mrchypark/ely-htmx/sdui` package compiles a small,
-versioned JSON screen into the existing Ely Go templates. The server owns
-business data, validation and actions. A delegated browser adapter sends native
-`FormData` and replaces one explicitly named region with server-rendered HTML.
+The optional `github.com/mrchypark/ely-htmx/sdui` package compiles versioned JSON
+screens into Ely's existing Go templates and catalogue components. The server
+owns data, validation and actions. A small delegated browser adapter submits
+native `FormData` and replaces one declared region with server-rendered HTML.
 
-This is a complete bounded v1 path: strict schema decoding → registry-backed
-compilation → host loader → initial page and family assets → authenticated,
-CSRF-protected action → validated same-ID HTML region. It does not turn the whole
-component catalogue into an unrestricted remote renderer.
+The runtime includes strict decoding, recursive property contracts, local
+reusable templates, conditions, stable-key repeats, registered slots,
+multi-event routing, authenticated actions, and atomic screen activation with
+revision-aware requests. Schema values never select arbitrary Go templates,
+execute expressions or grant server capabilities.
+
+Related references:
+
+- [Composition grammar and full examples](sdui-composition.md)
+- [JSON design decisions and primary-source research](sdui-json-design.md)
+- [Catalogue contract generation and review design](sdui-catalogue-contracts.md)
+- [Implementation roadmap and acceptance criteria](sdui-roadmap.md)
+- [Runnable profile example](../examples/sdui/README.md)
+
+## Component surfaces
+
+`DefaultRegistry()` retains the eight compatibility types:
+
+| Type | Role | Registered events |
+| --- | --- | --- |
+| `stack` | Token-based structural layout | none |
+| `region` | Stable replacement boundary | none |
+| `form` | Native form | `submit` |
+| `text` | Escaped paragraph | none |
+| `notice` | Existing alert template | none |
+| `input` | Basic input, including file/hidden modes | `change` |
+| `button` | Basic button | `click` |
+| `switch` | Advanced `forms/Switch` adapter | `change`, `ely:change` |
+
+`CatalogueRegistry()` retains those eight and installs **1,361 additional
+contracts**: 1,313 distinct chapter-qualified primary/alias names, representing
+624 primary stories in 44 chapters, plus 48 public basic templates under
+`basic/<template-name>`. That is 1,369 registered names, not 1,369 independent
+widget implementations. Examples are `forms/TagInput`, `documents/MarkdownRenderer`
+and `basic/card`. Exact aliases retain catalogue spelling, including spaces.
+
+`RegisterCatalogue(registry)` adds the same manifest to an existing compatible
+registry atomically. `Registry.Definitions()`, `CatalogueContracts()` and
+`CatalogueInfo()` return tooling metadata. Each component has its own reviewed
+property graph and explicit exclusions; sharing a property name does not imply
+sharing its type. The production manifest contains no gallery fixture defaults.
+Rendering/payment/AI/device widgets does not implement their external services.
 
 ## Run the example
 
-From the repository root, with Go 1.26 or newer:
+With Go 1.26 or newer:
 
 ```sh
 PORT=8093 go run ./examples/sdui
 ```
 
-Open <http://127.0.0.1:8093>. Try an empty display name, a successful save, the
-advanced switch, and an optional attachment. Both the basic form submit and
-advanced `ely:change` event use the same transport. Its loader rejects
-unsupported query parameters with HTTP 400. The result displays repeated
-form fields and the native submit button's value, as well as file metadata.
+Open <http://127.0.0.1:8093>. Try an invalid display name, a successful save, the
+advanced switch, repeated fields, a native submitter value and an optional
+attachment. The screen also demonstrates a typed reusable summary row,
+stable-key repetition inside a host-registered card content slot, a conditional
+heading and a conditionally shown
+catalogue animation whose assets are included before it becomes visible.
 
-The [example schema](../examples/sdui/screen.json) is embedded by default. To
-change a screen without rebuilding a compiled executable, point the host at an
-external file:
+Use a host-selected external JSON file without rebuilding the executable:
 
 ```sh
 SDUI_SCHEMA=./examples/sdui/screen.json PORT=8093 go run ./examples/sdui
 ```
 
-The file is loaded, strictly decoded and compiled at startup. Invalid input
-prevents startup. Restart after editing the file; there is no live schema reload
-or remote schema fetch. The [example host](../examples/sdui/main.go) composes a
-real loader and action with the reusable HTTP runtime.
+The initial file must decode, compile and resolve its host loader/action
+contracts before startup. Without a watcher, later edits need a restart. Enable
+validated local-file activation with:
 
-**The example is local-only.** Its server binds to `127.0.0.1`; the initial GET
-automatically issues an HTTP-only, same-site random demo session. That is an
-identity-isolation demonstration, not a production login system. Replace it
-with real authentication and resource-level authorization before deployment.
-State is isolated per demo session and disappears on restart. The example keeps
-at most 256 sessions for one hour and 512 replay entries for ten minutes, accepts
-128 KiB HTTP bodies, and only records the name and size of files up to 64 KiB.
-It does not persist uploaded bytes. Its hidden response-delay field is capped at
-300 ms solely to make out-of-order responses testable.
+```sh
+SDUI_SCHEMA=./examples/sdui/screen.json SDUI_WATCH=1 PORT=8093 go run ./examples/sdui
+```
 
-## Schema contract
+The example checks the file every 250 ms. Valid changes activate atomically;
+invalid changes are logged and leave the previous screen active. Existing pages
+keep their DOM and drafts when an old-revision action is rejected. Reload
+explicitly to load the new definition and its assets.
+
+This is a **loopback-only demonstration**, not production authentication. An
+initial GET issues a random HTTP-only, same-site demo session. State is isolated
+per session, kept in memory and lost on restart. Limits are 256 sessions for one
+hour, 512 replay entries for ten minutes, 128 KiB request bodies, and one optional
+file of at most 64 KiB whose escaped name/size are retained but whose bytes are
+discarded. A hidden response delay is capped at 300 ms for race tests. Replace
+the session bootstrap and state store before deployment.
+
+## Wire contract
 
 ```json
 {
@@ -57,98 +100,103 @@ It does not persist uploaded bytes. Its hidden response-delay field is capped at
   "root": {
     "id": "settings-region",
     "type": "region",
-    "props": { "label": "Settings" },
     "children": [
       {
         "id": "settings-form",
         "type": "form",
-        "event": { "on": "submit", "action": "save-settings", "target": "settings-region" },
+        "event": {"on":"submit","action":"save-settings","target":"settings-region"},
         "children": [
           {
             "id": "settings-name",
             "type": "input",
-            "props": { "name": "name", "label": "Display name" },
-            "bindings": { "value": "profile.name" }
+            "props": {"name":"name","label":"Display name"},
+            "bindings": {"value":"/@data/profile/name"}
           },
-          {
-            "id": "settings-save",
-            "type": "button",
-            "props": { "type": "submit", "label": "Save" }
-          }
+          {"id":"settings-save","type":"button","props":{"type":"submit","label":"Save"}}
         ]
-      },
-      { "id": "settings-message", "type": "text", "bindings": { "text": "message" } }
+      }
     ]
   }
 }
 ```
 
-- `version` must be the string `"1"`
-- Every screen and node has a unique, stable ID: a letter followed by letters,
-  numbers, underscores or hyphens, at most 128 characters. The
-  `sdui-internal-` prefix is reserved for generated control IDs
-- `type` is a key in the host's explicit registry. Only structural nodes can
-  have `children`; nested forms are rejected
-- `props` contains registered, typed scalar properties. Strings, booleans,
-  integers and finite numbers are validated without HTML coercion
-- `bindings` maps a property to a dotted path through `map[string]any` loader or
-  action data. No expressions, functions, reflection, array indexing or code
-  evaluation are supported. Missing data and incorrect types fail rendering
-- A property cannot have both a literal and binding. A binding suppresses that
-  property's default; the host must supply its value
-- `event` is optional and singular. Its event type must be supported by that node
-  definition. `action` is a host registry key; `target` must be a `region` node
-  in the same screen and explicitly allowed for that action
-- Loader and action names are capability keys, never URLs
+- `version` is the string `"1"`; existing v1 screens remain compatible
+- Screen/node IDs are letter-led, use letters/digits/underscores/hyphens, and
+  are at most 128 characters. IDs must be unique; `sdui-internal-` is reserved
+- A concrete node selects a registered `type`. A reusable node selects `use`
+  and supplies typed `params` or `paramBindings`
+- `props` and `bindings` are separate. A field cannot be both literal and bound;
+  an explicit binding suppresses its default and must resolve when rendered
+- Contracts support strings, booleans, exact integers, finite numbers, closed
+  objects, bounded arrays, constrained unions, explicitly typed dictionaries,
+  nullable values, defaults and semantic formats. Unknown nested keys fail
+- Bindings support legacy dotted paths and RFC 6901 pointers with arrays and
+  escaped keys. `/@data`, `/@params` and `/@vars/<name>` make scopes explicit
+- `children` belong to structural containers. Named `slots` are allowed only
+  by a host definition and receive internally rendered child markup
+- `when` supports typed `eq`, `ne`, `exists`, `all`, `any` and `not` predicates
+- `repeat` supplies an array path, local variable and stable string/integer key.
+  Duplicate/missing/invalid keys fail rendering; IDs remain stable on reorder
+- Regions must always exist: they cannot be conditional or repeated, including
+  through ancestors, templates or slots. Conditional/repeated content belongs
+  inside a stable region. Nested forms, including form-containing catalogue
+  widgets, are rejected
+- Loaders/actions are capability keys, never URLs. Every event target is a
+  same-screen region and must also be authorized for its host action
 
-`Decode(io.Reader)` rejects unknown JSON fields, duplicate keys, trailing input
-and schemas over 1 MiB. Compilation limits trees to 1,000 nodes and 32 levels;
-individual strings are limited to 16 KiB. Rendering has a separate 2 MiB output
-budget. These bounds do not replace host-level request and business limits.
+See [composition](sdui-composition.md) for exact scoping, missing/null behavior,
+ID rewriting, partial-region parameters and slot constraints.
 
-The default registry is deliberately small:
+`Decode` rejects unknown fields, duplicate keys, trailing input and schemas over
+1 MiB. Compiled expansion and render-time repetition are limited to 1,000 nodes
+and depth 32. Conditions, property metadata, structured values and collection
+sizes have their own budgets. Strings default to 16 KiB; reviewed contracts may
+set a larger bound up to 256 KiB. Normalization has a shared 2 MiB byte budget,
+and every intermediate/final HTML fragment is capped at 2 MiB. These limits
+supplement host request/business limits. Rendering finishes validation before
+writing any output; writer errors are returned normally.
 
-| Type | Purpose | Supported event |
-| --- | --- | --- |
-| `stack` | Layout with enumerated gap, direction and alignment | none |
-| `region` | Stable same-ID partial replacement boundary | none |
-| `form` | Native form containing controls | `submit` |
-| `text` | Escaped paragraph text | none |
-| `notice` | Existing alert template, optional title and urgency | none |
-| `input` | Existing basic input, including file and hidden types | `change` |
-| `button` | Existing basic button, optional name and value | `click` |
-| `switch` | Existing advanced `forms/Switch` component | `change`, `ely:change` |
+## Trust and contextual properties
 
-A node has one event, so choose either the native or advanced change binding for
-a switch. Binding both forms of an event is not supported. Form submit buttons
-normally have no separate click binding. Native successful-control rules apply:
-unchecked checkboxes and disabled controls are omitted, repeated names remain
-repeated, submitter values are preserved, and files stay `File` entries.
-Form field names beginning with `_` are reserved for the transport.
+Ordinary strings remain escaped data. JSON/bindings cannot provide trusted Go
+HTML/CSS/JavaScript values, arbitrary attributes, class names, inline event
+handlers, renderer selectors or unrestricted `hx-*` configuration. Property
+names are reviewed in their actual template context:
 
-The schema cannot supply raw HTML, arbitrary attributes, class names, CSS,
-JavaScript, URLs, `hx-*` configuration, template names or catalogue selectors.
-Unregistered props are rejected. Existing template escaping remains in force.
-A schema's display strings are data, not trusted markup.
+- `url`, `image-url` and `media-url` formats validate resource/navigation sinks.
+  The default policy allows safe local absolute paths, fragments and supported
+  empty values. External HTTP(S) origins need an explicit host `WithURLPolicy`
+- Typed action labels are local widget selectors. They grant no server action
+  until an event maps them to an allowlisted action and region
+- Design fields expose bounded tokens and reviewed values, not arbitrary CSS
+- Registered Markdown input keeps unsafe HTML/links and resource URLs under
+  its reviewed renderer and resource policy
+- The reviewed sandbox-document adapters sanitize their bounded string input
+  and preserve the fixed script-disabled iframe sandbox. This is not a generic
+  trusted-HTML escape hatch
+- Registered slots accept compiled nodes only. Untrusted strings never become
+  slot markup
+
+Definitions and templates are trusted host code. `Registry.Register` validates
+contracts and dangerous passthroughs, but cannot audit arbitrary custom renderer
+logic. Each definition selects exactly one renderer, with explicit properties,
+events, slots, form-content metadata and any supported fixed asset dependencies.
 
 ## Compile once and connect a host
 
 ```go
-registry, err := sdui.DefaultRegistry()
+registry, err := sdui.CatalogueRegistry()
 if err != nil { return err }
 screen, err := sdui.Decode(schemaReader)
 if err != nil { return err }
 plan, err := sdui.Compile(screen, registry)
 if err != nil { return err }
-
 handler, err := sdui.NewHandler(plan, sdui.Config{
     Endpoint: "/settings",
     Authenticate: authenticateRequest,
     Authorize: authorizeSettingsScreen,
     CSRF: csrfTokenForRequest,
-    Loaders: map[string]sdui.Loader{
-        "load-settings": loadSettings,
-    },
+    Loaders: map[string]sdui.Loader{"load-settings": loadSettings},
     Actions: map[string]sdui.Action{
         "save-settings": {
             Targets: []string{"settings-region"},
@@ -162,200 +210,254 @@ if err := ui.BindAssets(mux); err != nil { return err }
 mux.Handle("/settings", handler)
 ```
 
-The compiled `Plan` snapshots the schema and registry definitions. Do not mutate
-the trusted template set after constructing a registry, or mutate request data
-while rendering it. A plan can be shared between concurrent requests.
+A `Plan` snapshots definitions and is safe for concurrent rendering. Do not
+mutate its trusted template set or request data during rendering. `Plan.Render`,
+`RenderRegion` and `RenderAssets` also support custom page shells. Assets are
+currently mounted at `/assets/`; subpath hosts must provide matching routes.
 
-Host callbacks:
+Authentication, screen authorization, per-action authorization and CSRF issuance
+are mandatory. The CSRF callback reads expected tokens from trusted session
+state, never submitted input; comparisons are constant time. Keep a page's token
+stable until a full render. Use HTTPS, appropriate cookies and resource-level
+authorization in production. Per-action authorization runs before replay lookup
+and must verify the actual record against the authenticated principal.
 
-```go
-type Loader func(context.Context, sdui.Request) (map[string]any, error)
+`Request` contains `Principal`, `Values` (`url.Values`), `Files`
+(`map[string][]*multipart.FileHeader`) and `HTTPRequest`. Validate multiplicity,
+field lengths, structured event values, ownership, uploaded contents and business
+rules in the host. Read/copy retained files during the request; multipart
+resources are cleaned up afterward. File names and content types are untrusted.
 
-// Authenticate(*http.Request) (principal string, err error)
-// Authorize(context.Context, principal string) error
-// CSRF(*http.Request) (expectedToken string, err error)
-// Action.Authorize(context.Context, sdui.Request) error
-// Action.Run(context.Context, sdui.Request) (sdui.Result, error)
-```
+Return `Result{Data: data}` for success or `Result{Data: data, Status: 422}` for
+validation. The complete replacement region needs all its binding data. Validate
+before mutation: a 422 response does not roll back host writes. Only 200
+(including the zero/default status) and 422 produce action HTML. Callback/render
+failures return generic errors rather than partial output.
 
-Authentication, screen authorization, per-action authorization and CSRF token
-issuance are mandatory. `CSRF` returns the expected token from trusted session
-state; it must not echo untrusted submitted input. Keep the token stable for the
-rendered screen; rotating it requires a full-page render. The runtime compares the
-submitted token in constant time. Use HTTPS and appropriate production cookie
-settings in the host, and authorize the actual resource, not merely the fact
-that someone is signed in. Per-action authorization receives parsed values and
-files before replay lookup, so it can check any requested record against the
-authenticated principal on both first execution and retries. The demo only
-edits its own session; it never accepts a user-supplied principal.
+## Events and typed payload extraction
 
-`Request` contains the authenticated `Principal`, parsed `Values` (`url.Values`),
-`Files` (`map[string][]*multipart.FileHeader`) and the original `HTTPRequest`.
-Read or copy retained files inside the action; multipart resources are cleaned
-up when the request ends. Validate field multiplicity, file contents and
-business constraints in the host. Do not trust file names or content types.
+The existing singular `event` is preserved. A node may instead supply up to
+16 `events`; using both nonempty forms is invalid. Every `on` must be supported
+by the registered definition. For advanced multi-action components, an exact
+`sourceAction` restricts `ely:action` to one `event.detail.action` value:
 
-Return `Result{Data: data}` for success, or
-`Result{Data: data, Status: http.StatusUnprocessableEntity}` for validation. The
-entire target subtree must have the binding data it needs. Validate before
-mutating state: returning 422 does not roll back host-side writes. Only status
-200 (including zero/default) and 422 are accepted as rendered action outcomes.
-Callback/render failures return generic failures rather than partial HTML.
-
-The runtime serves an initial full document on GET and only the requested
-region on POST. Assets are bound separately with `ui.BindAssets`. The current
-asset URLs are root-mounted under `/assets/`; a subpath deployment needs a
-matching host asset route. `Plan.Render`, `RenderRegion` and `RenderAssets` are
-also available for hosts that own their page shell.
-
-## Registry extensions
-
-The host can opt in more existing basic templates or catalogue components with
-`Registry.Register(Definition)`. A definition selects exactly one trusted basic
-template, catalogue component or structural primitive. It declares its scalar
-properties, property-to-template mappings, enum tokens or numeric bounds, and
-supported event types. The schema only sees the registered alias.
-
-For example, add a safe alias for an existing foundation component:
-
-```go
-err := registry.Register(sdui.Definition{
-    Name: "host-label",
-    Chapter: "typography",
-    Component: "Label",
-    Properties: map[string]sdui.Property{
-        "text": {Type: sdui.String, Target: "Label", Required: true},
+```json
+{
+  "events": [
+    {
+      "on": "ely:action",
+      "sourceAction": "edit",
+      "action": "edit-record",
+      "target": "results",
+      "payload": {"recordID":{"path":"/record/id","type":"integer"}}
     },
-})
+    {
+      "on": "ely:action",
+      "sourceAction": "remove",
+      "action": "remove-record",
+      "target": "results",
+      "payload": {"recordID":{"path":"/record/id","type":"integer"}}
+    }
+  ]
+}
 ```
 
-Definitions and templates are trusted application code. A definition should
-expose only props its template actually supports. The package rejects dangerous
-passthrough keys even in definitions, but does not audit arbitrary custom
-renderer logic. Extending a registry does not grant an action: the host must
-also allowlist its action and target when constructing the handler.
+Use selectors that the chosen widget actually emits. Unknown selectors do not
+choose a host capability. Duplicate/overlapping bindings, including mixing a
+catch-all and a specific selector for one event type, fail compilation. Without
+`sourceAction`, an event maps to its fixed declared action regardless of an
+arbitrary detail action string.
 
-The asset union is computed for the whole compiled screen. The initial page
-loads the needed family entrypoints, their stylesheet dependencies and common
-control assets once; fragments carry no scripts. There is no runtime discovery
-of new schema families after loading a page. Recompile and load a new page when
-the supported screen changes.
+`payload` is a bounded map of explicit fields extracted by JSON Pointer from
+`event.detail`. Types are `string`, `boolean`, `integer`, `number`, `object` and
+`array`. Browser extraction requires the field and checks its type; objects and
+arrays are JSON-encoded, scalars become form strings. Use distinct destination
+field names: an explicit payload mapping replaces that named form value.
+Reserved transport fields cannot be selected. Missing/malformed payloads fail
+before sending the browser request.
 
-## Transport, swaps and lifecycle
+These browser checks are not a security boundary. A caller can forge a POST.
+The host must validate submitted payload strings/JSON, record IDs and business
+permissions exactly as it validates native form values. Node selectors never
+bypass the server action/target allowlist or authorization.
 
-`assets/sdui.js` is optional and separate from the existing component APIs. It
-uses one delegated transport path for basic events and advanced `ely:*` events.
-It deliberately sends vetted `fetch` requests instead of allowing schema-defined
-`hx-*` attributes: this keeps native `FormData` intact and checks request order
-before any DOM mutation.
+Native successful-control semantics remain intact for ordinary form collection:
+unchecked/disabled controls are omitted, repeated names remain repeated,
+submitter values are preserved and uploads remain file entries. Field names
+beginning with `_` are reserved. Avoid binding both a submit button's click and
+its form submission when one mutation is intended.
 
-The adapter reads only server-rendered `data-sdui-*` bindings. It POSTs to a
-same-origin absolute endpoint with cookies, an `Idempotency-Key`, and the
-reserved `_action`, `_target`, `_csrf` and `_request` form fields. It overwrites
-reserved fields rather than allowing a control to override them. It does not
-follow redirects for mutation requests.
+## Draft, activation, history and rollback
 
-- Repeated in-flight submits/clicks/actions from the same source are ignored
-- A newer request for the same target aborts the older one when possible
-- A latest-request/target-identity guard also discards stale responses even when
-  abort cannot stop a response that has already committed
-- Successful 200 and validation 422 responses must contain exactly one element
-  with the requested ID and `data-sdui-region`; malformed or executable response
-  markup is rejected before replacement
-- The region is replaced with `outerHTML` semantics. The adapter calls available
-  HTMX processing and emits `htmx:after:swap` so Ely components initialize and
-  detached component instances are cleaned up
-- Focus is restored to a matching control by stable ID or field identity
-- Values and checked state inside the replaced region are server-authoritative.
-  Focus restoration does not restore stale values. Drafts outside the target
-  remain untouched; there is no generic dirty-field merge
-- Accepted success emits `sdui:success`; 422 emits `sdui:error` with
-  `validation: true`. Other transport failures emit `sdui:error` without swapping
+Use `Store` when definitions change at runtime:
 
-Advanced actions are selected by the node's declared event type and action key,
-not arbitrary `event.detail.action`. A custom multi-action widget therefore
-needs an explicit host-owned adapter or separately registered nodes. A generic
-mapping from arbitrary component action names to server capabilities is not
-provided.
+```go
+store, err := sdui.NewStore(initialScreen, registry, config)
+if err != nil { return err }
+mux.Handle("/settings", store)
+
+// Capture the revision on which the edit is based.
+base := store.Snapshot()
+// Prepare candidateScreen privately; do not change active configuration yet.
+next, err := store.Activate(candidateScreen, base.Revision)
+// Or: next, err := store.Load(candidateReader, base.Revision)
+// Or: next, err := store.LoadFile(hostSelectedPath, base.Revision)
+```
+
+Every candidate is strictly decoded where applicable, compiled, and checked
+against current host loader/action contracts before activation. Invalid
+candidates leave the active snapshot unchanged. `expectedRevision` is required:
+concurrent/stale publishers receive `ErrRevisionConflict`. An unchanged canonical
+configuration is a no-op. Each HTTP request pins one snapshot for its lifecycle;
+activation cannot mix plans or data halfway through that request.
+
+`History()` returns the active revision followed by earlier retained revisions,
+newest first, up to **16 total snapshots**. Roll back an earlier retained revision
+with `Rollback(oldRevision, expectedActiveRevision)`. Changed configurations
+receive a new revision even when restoring old content; old pages do not become
+valid again. Unknown/evicted revisions return `ErrUnknownRevision`. Rollback
+changes screen configuration, not completed business mutations.
+
+`WatchFile(ctx, path, interval, onResult)` watches a host-selected local file,
+with an interval of at least 100 ms. Changed bytes are validated before
+activation, failures are reported without losing the active plan, and context
+cancellation stops the blocking watcher. Schemas cannot choose paths or import
+remote documents. Keep candidate files separate while editing; activate only
+through host-authorized code. No public administration endpoint or durable
+revision database is supplied. Persist drafts/history and authenticate
+administrative operations in the application when needed.
+
+A stored screen emits `data-sdui-revision`; actions include `_revision`. A new
+request with an obsolete revision receives 409 with `X-SDUI-Reload: required`
+and the current `X-SDUI-Revision`, before an action runs. Authentication, screen
+authorization and CSRF checks remain in force. The browser emits `sdui:stale`
+and `sdui:error`, leaves the DOM and current drafts unchanged, and does not reload
+automatically. Offer an explicit reload after the user has preserved any draft.
+Already in-flight requests retain their captured snapshot.
+
+All snapshots share the bounded replay cache. Changing a revision cannot reset
+duplicate-mutation protection; retrying a key with changed transport/input data
+can produce a conflict instead of re-executing. Durable business idempotency
+still belongs to the host.
+
+## Transport, assets and UI lifecycle
+
+The browser adapter reads server-rendered `data-sdui-*` metadata and uses vetted
+same-origin `fetch` requests. Schemas cannot set the endpoint. Requests use
+cookies, an `Idempotency-Key` and reserved `_action`, `_target`, `_csrf`, `_request`
+and, for stored screens, `_revision` fields. Reserved values are overwritten by
+the adapter. Mutation redirects are not followed.
+
+- Duplicate in-flight submits/clicks/actions from the same source are suppressed
+- A newer request for a region aborts the previous request where possible
+- Sequence and target-identity checks reject stale responses even when abort
+  cannot prevent an already committed response
+- Accepted 200/422 responses contain exactly the requested region root. Unsafe
+  executable markup/attributes and duplicate/conflicting IDs fail before a swap
+- Reviewed inert animation JSON and script-disabled sandbox frames have narrow
+  adapter checks; ordinary executable script elements remain rejected
+- Replacement uses whole-region semantics, then invokes available HTMX processing
+  and emits `htmx:after:swap` for component mounting and detached-instance cleanup
+- Focus returns to the matching stable control. Values inside a replaced region
+  are server-authoritative; drafts outside it remain untouched. There is no
+  generic dirty-field, open-widget or optimistic-state merge
+- Success emits `sdui:success`; 422 emits `sdui:error` with `validation: true`.
+  Other failures emit `sdui:error` without swapping
+
+Assets are computed from the complete compiled tree, including hidden,
+repeated, slotted and reusable content. Initial HTML loads common assets,
+registered family entrypoints and fixed dependencies once. Fragments do not
+load executable scripts. A newly activated definition may need different
+assets, which is why old pages must explicitly reload after a revision conflict.
 
 ## Idempotency and failure boundaries
 
-The HTTP handler requires a safe `Idempotency-Key` for every action. Its replay
-key is scoped to principal, action and target. It fingerprints canonical form
-values and uploaded contents, so multipart boundary changes do not change the
-request identity. Identical concurrent or repeated requests receive the cached
-outcome; reusing a key with different input returns 409. Authentication and
-authorization are checked again before replay.
+Replay keys are scoped to principal, action and target. Canonical form values
+and uploaded contents form the input fingerprint, so multipart boundaries do
+not change request identity. Identical concurrent/repeated requests receive the
+cached outcome; reusing a key with changed input returns 409. Authentication and
+authorization are rechecked before replay.
 
-The built-in cache is **single-process, in-memory and best-effort**. Defaults are
-a ten-minute TTL, 1,024 entries and a 64 MiB replay-byte budget. `Config` exposes
-`IdempotencyTTL`, `MaxIdempotencyEntries`, `MaxReplayBytes` and `MaxBodyBytes`
-(default request limit 1 MiB). Capacity is checked before running an action;
-full capacity returns 503. Completed failures are also cached for their key.
-Expired entries are cleaned up on subsequent action requests.
+The cache is single-process, in-memory and best-effort. Defaults are a ten-minute
+TTL, 1,024 entries and 64 MiB of replay bytes. `Config` exposes `IdempotencyTTL`,
+`MaxIdempotencyEntries`, `MaxReplayBytes` and `MaxBodyBytes` (1 MiB by default).
+Capacity is checked before running an action; full capacity returns 503.
+Completed failures are cached too. Later requests clean expired entries.
 
-This is not durable or distributed exactly-once execution. Restart, expiry,
-multiple instances, or a failed response after a host commit can require a new
-request. Production business actions must implement durable idempotency with
-the same transaction as the mutation. Cancellation is a network/lifecycle
-signal, not a rollback. The browser's stale-response guard protects the DOM,
-not the order of business operations; hosts must enforce any required versions
-or concurrency checks themselves.
+Restart, expiry, multiple instances or an uncertain response after a committed
+mutation require durable host idempotency in the same transaction as the write.
+Cancellation never rolls back a mutation. DOM ordering guards do not enforce
+business operation order; use application versions/concurrency checks where
+needed. Other common statuses are 401 unauthenticated, 403 unauthorized/CSRF,
+400 malformed/unknown input, 413 oversized body and 500 callback/render failure.
 
-Other common status codes are 401 for missing authentication, 403 for denied
-authorization or invalid CSRF, 400 for malformed/unknown action input, 413 for an
-oversized body, and 500 for host or rendering failures. Do not use error text as
-a machine-readable application protocol.
-
-## Supported scope
-
-V1 supports scalar bindings, structural composition, one declared event per
-node, host loaders/actions, initial family assets and same-ID region updates.
-It does not provide loops, conditions, slots, arbitrary nested prop objects,
-remote templates, a client expression language, schema hot reload, history or
-routing, optimistic state reconciliation, tenant-aware durable replay storage,
-or a generic multi-action widget bridge. JavaScript is required for the SDUI
-action flow; the separate [basic app example](../examples/app) demonstrates
-progressive full-page form handling.
-
-## Verification
+## CLI and editor tooling
 
 ```sh
-go test ./sdui ./examples/sdui
-go test -race ./sdui ./examples/sdui
+go run ./cmd/ely validate ./examples/sdui/catalogue-screen.json
+go run ./cmd/ely schema > ./sdui.schema.json
+go run ./cmd/ely catalog -type forms/TagInput
+go run ./cmd/ely catalog -registry core
+```
+
+The standalone `catalogue-screen.json` example uses only standard contracts.
+The interactive profile `screen.json` additionally uses the host-only
+`profile-summary-card` slot adapter, so validate that screen through its example
+host or a registry containing the same registration; the generic CLI deliberately
+does not infer host components.
+
+The default tooling registry is the catalogue; `-registry core` selects the
+compatibility types. `ely sdui <command>` is an equivalent spelling. Validation
+compiles only and explicitly reports that host loader/action registration,
+authorization and runtime data were not checked. No host callback executes.
+
+`sdui.JSONSchema(registry)` / `registry.JSONSchema()` export Draft 2020-12 editor
+metadata from the live contracts. Configure editor associations externally;
+`$schema` is not a permitted screen field. Exported constraints aid authoring,
+but semantic references, capability registration, conditional region placement,
+aggregate limits and future loader data still require `Compile` and `Render`.
+See the [composition tooling reference](sdui-composition.md#editor-schema-and-cli).
+
+## Scope and verification
+
+The package supports the existing renderer/data/event surface through explicit
+contracts. External payment, AI, mail, database, device and operating-system
+services remain application integrations. It does not supply remote template
+imports, arbitrary expressions, unrestricted HTML/CSS/JS, automatic routing,
+optimistic reconciliation, production authentication, a visual editor or
+durable multi-tenant revision/replay storage.
+
+Relevant checks:
+
+```sh
+go test ./sdui ./examples/sdui ./cmd/ely
+go test -race ./sdui ./examples/sdui ./cmd/ely
+go run ./cmd/sdui-catalogue -check -root .
+go test ./sdui -run='^$' -fuzz=FuzzDecodeCompileRender -fuzztime=10s -parallel=2
 npm ci
 npx playwright install chromium
 node sdui_runtime_test.mjs
 node scripts/sdui-browser-test.mjs
+node scripts/sdui-catalogue-browser-test.mjs
 ```
 
-The real-browser script launches the Go example on an available loopback port
-and uses the actual bundled modules. It checks initial selective assets,
-validation and successful saves, advanced change events, repeated region swaps
-and cleanup, focus, duplicate submit suppression, files/repeated fields/native
-submitter data, authentication/CSRF rejection and idempotent replay. Its race
-probe temporarily disables transport cancellation while the real server
-returns responses out of order, independently proving the pre-swap sequence
-guard. All traffic remains local. `SDUI_SCREENSHOT=/path/to/image.png` optionally
-saves a full-page screenshot after the checks. Browser installation or launch
-failures are verification blockers, never a successful browser result.
+| Area | Evidence source |
+| --- | --- |
+| Strict decode, compatibility and structural limits | `sdui/schema_test.go`, `registry_test.go` |
+| Recursive properties, formats, policies and snapshots | `sdui/values_test.go` |
+| Templates, pointers, conditions, repeated IDs, slots, forms and budgets | `sdui/composition_test.go` |
+| HTML/asset closure, partial rendering and concurrency | `sdui/render_test.go` |
+| Registered multi-events and payload metadata | `sdui/events_test.go`, `sdui_runtime_test.mjs` |
+| Authentication, CSRF, action allowlists and replay | `sdui/http_test.go` |
+| CAS activation, pinned requests, history/rollback and file watcher | `sdui/store_test.go` |
+| Exact catalogue inventory, generation drift and caller-data fixtures | `sdui/catalogue_test.go` |
+| JSON Schema/CLI authoring workflow | `sdui/jsonschema_test.go`, `cmd/ely/sdui_test.go` |
+| Actual HTTP/modules, swaps, stale responses and local controls | `scripts/sdui-browser-test.mjs` |
+| Registered fixture rendering and family-module browser mount smoke | `scripts/sdui-catalogue-browser-test.mjs` |
+| Local host isolation, external schema and multipart behavior | `examples/sdui/main_test.go` |
+| Decode/compile/render fuzz seeds including composition | `sdui/fuzz_test.go` |
 
-### Regression matrix
-
-| Layer | Cases | Test source |
-| --- | --- | --- |
-| Decode/compile | Unknown versions/fields/components/props, duplicate JSON keys and IDs, nesting/node/string limits, reserved transport names, unsafe bindings, unsupported events/targets, exact numeric conversion | `sdui/schema_test.go`, `registry_test.go` |
-| Render/assets | Escaping and rejected trusted-HTML values, missing/wrong bindings, immutable concurrent rendering, same-ID fragments, output limits, reserved control IDs, all seven family asset dependencies | `sdui/render_test.go` |
-| HTTP/security | Authentication and record authorization before replay, CSRF/multiplicity/query rejection, body/upload limits, unknown action/target, repeated and 32 concurrent identical requests, key conflicts and principal isolation, cancellation/panic handling, cache count/byte/TTL bounds | `sdui/http_test.go` |
-| Browser adapter | Multipart fields/files/submitter, standalone checked/unchecked advanced controls, repeated submits, independent regions, stale fetch and response-body races, malformed/executable responses, focus, swap delegation, pagehide/teardown | `sdui_runtime_test.mjs` |
-| Real browser | Actual Go HTTP server and bundled modules, asset responses, validation/success, advanced switch, repeated swaps/cleanup, files, focus, duplicate suppression, deliberately reordered responses, retries, Back/Forward and subsequent submission | `scripts/sdui-browser-test.mjs` |
-| Demo host | External schema startup validation, session isolation/expiry, validation errors, attachments, URL rejection, replay and auth/CSRF negatives | `examples/sdui/main_test.go` |
-| Fuzz entrypoint | Decode/compile/render arbitrary input without panic or partial output | `sdui/fuzz_test.go` |
-
-Run a bounded exploratory fuzz pass separately with
-`go test ./sdui -run='^$' -fuzz=FuzzDecodeCompileRender -fuzztime=10s -parallel=2`.
-The ordinary test suite executes its seed corpus. These checks cover the stated
-v1 contracts; they are not proof of every host application or arbitrary custom
-template. The repository CI also runs the existing Go and JavaScript suites,
-Go race checks for SDUI and its example, CSS rebuild verification, and all three
-real-browser regression scripts.
+These paths describe test coverage, not a claim that the latest expanded commit
+has passed hosted CI. Record final verification against one concrete commit.
+Catalogue mount smoke is distinct from every prop permutation or external
+provider operation; browser launch/setup failures are blockers, never passes.

@@ -1,4 +1,4 @@
-// Command ely exports editable templates and browser assets.
+// Command ely exports templates/assets and validates or describes SDUI screens.
 package main
 
 import (
@@ -12,8 +12,15 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "sdui", "validate", "schema", "catalog":
+			os.Exit(runSDUI(os.Args[1:], os.Stdin, os.Stdout, os.Stderr))
+		}
+	}
 	if len(os.Args) < 2 || os.Args[1] != "export" {
 		fmt.Fprintln(os.Stderr, "usage: ely export -dir ./ely-ui (destination must not exist)")
+		fmt.Fprint(os.Stderr, sduiUsage)
 		os.Exit(2)
 	}
 	flags := flag.NewFlagSet("export", flag.ExitOnError)

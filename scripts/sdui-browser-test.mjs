@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
+import {mkdtemp, readFile, writeFile, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {createServer} from 'node:net';
 import {fileURLToPath} from 'node:url';
 import {setTimeout as delay} from 'node:timers/promises';
@@ -16,8 +19,12 @@ await new Promise((resolve, reject) => {
 const port = reservation.address().port;
 await new Promise(resolve => reservation.close(resolve));
 const origin = `http://127.0.0.1:${port}`;
+const schemaDirectory = await mkdtemp(join(tmpdir(), 'ely-sdui-'));
+const schemaPath = join(schemaDirectory, 'screen.json');
+const initialSchema = JSON.parse(await readFile(new URL('../examples/sdui/screen.json', import.meta.url), 'utf8'));
+await writeFile(schemaPath, JSON.stringify(initialSchema));
 const child = spawn('go', ['run', './examples/sdui'], {
-  cwd: repo, env: {...process.env, PORT: String(port), SDUI_SCHEMA: ''},
+  cwd: repo, env: {...process.env, PORT: String(port), SDUI_SCHEMA: schemaPath, SDUI_WATCH: '1'},
   detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
 });
 let output = '', startupError, browser, page;
@@ -61,7 +68,7 @@ try {
     window.sduiResults = [];
     window.elyErrors = [];
     window.sduiSwaps = 0;
-    for (const type of ['sdui:success', 'sdui:error']) {
+    for (const type of ['sdui:success', 'sdui:error', 'sdui:stale']) {
       document.addEventListener(type, event => sduiResults.push({type, status: event.detail.status, validation: event.detail.validation}));
     }
     document.addEventListener('ely:error', event => elyErrors.push(String(event.detail.error)));
@@ -79,9 +86,11 @@ try {
   assert.equal(requests.filter(path => path === '/assets/sdui.js').length, 1);
   assert.equal(requests.filter(path => path === '/assets/ely-api-forms-entry.js').length, 1);
   assert.equal(requests.filter(path => path === '/assets/ely-api.js').length, 1);
-  for (const family of ['foundation', 'interaction', 'data', 'workspace', 'communication', 'native']) {
+  for (const family of ['foundation', 'data', 'workspace', 'communication', 'native']) {
     assert(!requests.includes(`/assets/ely-api-${family}-entry.js`), `unused ${family} entrypoint is absent`);
   }
+  assert.equal(requests.filter(path => path === '/assets/ely-api-interaction-entry.js').length, 1, 'conditional branch asset closure is preloaded');
+  assert.equal(await page.locator('#saved-animation').count(), 0, 'conditional component starts absent');
   assert(!requests.includes('/assets/ely-api-all.js'), 'no all-family loader');
 
   // Server validation replaces the requested region even on HTTP 422, and
@@ -110,11 +119,19 @@ try {
   await ready();
   assert.equal(await submit.evaluate(node => document.activeElement === node), true, 'submit button focus restored');
 
+  await page.waitForSelector('#saved-animation [data-ely-ready="true"]');
+  await page.waitForFunction(() => document.querySelector('#saved-animation [data-interaction-lottie-status]')?.textContent === 'Animation ready');
+  await page.locator('#saved-animation [data-interaction-lottie-play]').click();
+  assert.equal(await page.locator('#saved-animation [data-interaction-lottie-status]').innerText(), 'Animation playing');
+  await page.locator('#saved-animation [data-interaction-lottie-pause]').click();
+  assert.equal(await page.locator('#saved-animation [data-interaction-lottie-status]').innerText(), 'Animation paused');
+
   // Advanced component change events use the same transport and current form.
   checkpoint('FormData passed; advanced changes and repeated swaps');
   let before = postRequests.length;
   await toggle.check();
   await page.waitForFunction(() => document.querySelector('#profile-result')?.textContent.includes('Save #2.'));
+  await page.waitForFunction(() => document.querySelector('#saved-animation [data-interaction-lottie-status]')?.textContent === 'Animation ready' && window.lottie.getRegisteredAnimations().length === 1);
   await ready();
   assert.equal(postRequests.length, before + 1, 'one advanced change causes one request');
   assert.equal(await toggle.isChecked(), true);
@@ -223,7 +240,8 @@ try {
   // untouched. The example never creates a session on unauthenticated POST.
   const csrf = await page.locator('[data-sdui-screen]').getAttribute('data-sdui-csrf');
   const post = (values, key) => context.request.post(origin, {form: values, headers: {'Idempotency-Key': key}});
-  const payload = {_action: 'save-profile', _target: 'profile-form', _csrf: csrf, _request: 'browser-retry', name: 'Idempotent request'};
+  const revision = await page.locator('[data-sdui-screen]').getAttribute('data-sdui-revision');
+  const payload = {_revision: revision, _action: 'save-profile', _target: 'profile-form', _csrf: csrf, _request: 'browser-retry', name: 'Idempotent request'};
   assert.equal((await post({...payload, _csrf: 'wrong'}, 'bad-csrf')).status(), 403);
   assert.equal((await post({...payload, _action: 'not-registered'}, 'bad-action')).status(), 400);
   const anonymous = await fetch(origin, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Idempotency-Key': 'anonymous'}, body: new URLSearchParams(payload)});
@@ -285,6 +303,31 @@ try {
   assert.match(await result.innerText(), /Save #9\./, 'named properties do not interfere with native form submission');
   assert.equal(postRequests.length, before + 1, 'clobbering regression submits exactly once');
   assert.deepEqual(errors, [], 'named fields cause no browser errors');
+  await page.waitForFunction(() => window.lottie.getRegisteredAnimations().length === 1);
+  checkpoint('validated atomic file activation and stale-page protection');
+  const oldRevision = await page.locator('[data-sdui-screen]').getAttribute('data-sdui-revision');
+  await name.fill('Unsaved draft survives activation');
+  await writeFile(schemaPath, '{"version":"unsupported","root":{}}');
+  await eventually(() => output.includes('rejected'), 'invalid file update was not rejected');
+  const unchanged = await context.request.get(origin);
+  assert.equal(unchanged.headers()['x-sdui-revision'], oldRevision);
+  const candidate = structuredClone(initialSchema);
+  candidate.root.children.unshift({id:'live-version',type:'text',props:{text:'Validated replacement is active'}});
+  await writeFile(schemaPath, JSON.stringify(candidate));
+  await eventually(async () => (await context.request.get(origin)).headers()['x-sdui-revision'] !== oldRevision,
+    'valid file update did not activate');
+  await submit.click();
+  await page.waitForFunction(() => window.sduiResults.some(item => item.type === 'sdui:stale'));
+  assert.equal(await name.inputValue(), 'Unsaved draft survives activation');
+  assert.equal(await page.locator('#live-version').count(), 0, 'stale page remains unchanged');
+  assert.equal(await page.locator('[data-sdui-screen]').getAttribute('data-sdui-revision'), oldRevision);
+  await page.reload({waitUntil:'networkidle'}); await ready();
+  assert.equal(await page.locator('#live-version').innerText(), 'Validated replacement is active');
+  assert.match(await result.innerText(), /Save #9\./, 'stale action did not mutate business state');
+  await name.fill('After validated replacement'); await submit.click();
+  await page.waitForFunction(() => document.querySelector('#profile-result')?.textContent.includes('Saved After validated replacement.'));
+  assert.match(await result.innerText(), /Save #10\./);
+  assert.deepEqual(errors, []);
   if (process.env.SDUI_SCREENSHOT) await page.screenshot({path: process.env.SDUI_SCREENSHOT, fullPage: true});
   console.log('SDUI browser checks passed: real Go server, selective bundled assets, validation, FormData/files/repeated fields/submitter, advanced changes, repeated swaps and cleanup, focus, duplicate suppression, late-response race, Back/Forward, named-field clobbering, auth/CSRF and idempotent replay.');
 } catch (error) {
@@ -307,6 +350,7 @@ try {
   throw error;
 } finally {
   releaseHeldResponse();
+  await rm(schemaDirectory, {recursive:true, force:true});
   await browser?.close().catch(error => console.error('[sdui] browser cleanup:', String(error)));
   if (child.pid && child.exitCode === null) {
     try { process.kill(process.platform === 'win32' ? child.pid : -child.pid, 'SIGTERM'); }

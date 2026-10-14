@@ -130,7 +130,7 @@ func Funcs() template.FuncMap {
 		},
 		"list":      func(v ...any) []any { return v },
 		"add":       func(a, b int) int { return a + b },
-		"join":      strings.Join,
+		"join":      joinStrings,
 		"attrName":  attrName,
 		"contains":  strings.Contains,
 		"hasPrefix": strings.HasPrefix,
@@ -144,5 +144,26 @@ func Funcs() template.FuncMap {
 			}
 			return v
 		},
+	}
+}
+
+// joinStrings accepts native Go string slices and JSON-decoded string arrays.
+// It deliberately rejects mixed values instead of formatting them as strings.
+func joinStrings(value any, separator string) (string, error) {
+	switch items := value.(type) {
+	case []string:
+		return strings.Join(items, separator), nil
+	case []any:
+		stringsOnly := make([]string, len(items))
+		for i, value := range items {
+			text, ok := value.(string)
+			if !ok {
+				return "", fmt.Errorf("join item %d must be a string", i)
+			}
+			stringsOnly[i] = text
+		}
+		return strings.Join(stringsOnly, separator), nil
+	default:
+		return "", fmt.Errorf("join expects an array of strings")
 	}
 }

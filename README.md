@@ -36,7 +36,9 @@ go run ./examples/sdui
 
 The [runnable example](examples/sdui) demonstrates a basic form, an advanced switch, server validation, uploads, partial updates and per-session state. It uses **local demo sessions, not production authentication**. Host applications must supply authentication, authorization, CSRF and business handlers. The bounded in-memory replay cache does not replace durable transaction-level idempotency.
 
-See the [SDUI guide and verification matrix](docs/sdui.md) for the JSON/API contract, extending the registry, loading external definitions, security responsibilities and explicit v1 limits.
+Use `sdui.CatalogueRegistry()` for 1,313 qualified catalogue names and 48 basic templates with recursive typed contracts. Screens support local typed templates, JSON Pointer bindings, conditions, stable-key repeats, declared slots and multiple action mappings. `sdui.Store` validates atomic file updates and rollback; `ely validate`, `ely schema`, and `ely catalog` provide authoring tools. See the [coverage matrix](docs/sdui-roadmap.md) for tested behavior and explicit integration limits.
+
+See the [SDUI guide](docs/sdui.md) for the JSON/API contract, extending the registry, loading external definitions, security responsibilities and explicit v1 limits.
 
 ## Use in a Go application
 

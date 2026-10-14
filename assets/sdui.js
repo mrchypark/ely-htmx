@@ -94,7 +94,12 @@
     function check(scope) {
       for (const node of [scope, ...all(scope, '*')]) {
         const tag = node.localName;
-        if (['script', 'object', 'embed', 'base'].includes(tag) ||
+        let inertAnimation = false;
+        if (tag === 'script' && attr(node, 'type') === 'application/json' && hasAttr(node, 'data-lottie-animation') && !hasAttr(node, 'src')) {
+          if (node.textContent.length > 262144) throw failure('Animation data exceeds limit');
+          try { let data = JSON.parse(node.textContent); if (typeof data === 'string') data = JSON.parse(data); inertAnimation = data !== null && typeof data === 'object' && !Array.isArray(data); } catch {}
+        }
+        if ((tag === 'script' && !inertAnimation) || ['object', 'embed', 'base'].includes(tag) ||
             (tag === 'meta' && hasAttr(node, 'http-equiv'))) {
           throw failure('SDUI response contains executable markup');
         }
@@ -166,11 +171,11 @@
     release(record);
   }
 
-  async function send(event, source, origin, screen) {
+  async function send(event, source, origin, screen, binding) {
     const repeated = ['submit', 'click', 'ely:action'].includes(event.type);
     if (repeated && busy.has(source)) return;
-    const targetID = attr(source, 'data-sdui-target');
-    const action = attr(source, 'data-sdui-action');
+    const targetID = binding.target;
+    const action = binding.action;
     let record;
     let status = 0;
     try {
@@ -180,6 +185,24 @@
       }
       const endpoint = endpointFor(screen);
       const body = formValues(event, source, origin);
+      for (const [name, spec] of Object.entries(binding.payload || {})) {
+        let value = event.detail;
+        for (const token of spec.path.slice(1).split('/')) {
+          const key = token.replace(/~1/g, '/').replace(/~0/g, '~');
+          if (!value || typeof value !== 'object' || !Object.hasOwn(value, key)) throw failure('Missing event payload field');
+          value = value[key];
+        }
+        const valid = spec.type === 'string' ? typeof value === 'string' :
+          spec.type === 'boolean' ? typeof value === 'boolean' :
+          spec.type === 'integer' ? Number.isSafeInteger(value) :
+          spec.type === 'number' ? typeof value === 'number' && Number.isFinite(value) :
+          spec.type === 'array' ? Array.isArray(value) :
+          spec.type === 'object' ? value !== null && typeof value === 'object' && !Array.isArray(value) : false;
+        if (!valid) throw failure('Invalid event payload type');
+        const encoded = typeof value === 'object' ? JSON.stringify(value) : String(value);
+        if (encoded.length > 16384) throw failure('Event payload exceeds limit');
+        body.set(name, encoded);
+      }
       const csrf = attr(screen, 'data-sdui-csrf') || body.get('_csrf') || query(screen, 'input[name="_csrf"]')?.value;
       if (typeof csrf !== 'string' || !csrf) throw failure('SDUI requires a CSRF token');
       const id = requestID();
@@ -187,6 +210,9 @@
       body.set('_target', targetID);
       body.set('_csrf', csrf);
       body.set('_request', id);
+      const revision = attr(screen, 'data-sdui-revision');
+      if (revision) body.set('_revision', revision);
+      else body.delete('_revision');
       if (pending.has(targetID)) abort(pending.get(targetID));
       record = {source, targetID, id, controller: new AbortController(), previousBusy: attr(source, 'aria-busy')};
       pending.set(targetID, record);
@@ -201,6 +227,9 @@
       });
       if (!current()) return;
       status = response.status;
+      if (status === 409 && response.headers.get('X-SDUI-Reload') === 'required') {
+        emit(screen, 'sdui:stale', {action, target: targetID, requestId: id, status, revision: response.headers.get('X-SDUI-Revision')});
+      }
       if (!response.ok && status !== 422) throw failure(`SDUI request failed (${status})`);
       const contentType = response.headers.get('Content-Type');
       if (contentType && !/^text\/html(?:\s*;|$)/i.test(contentType)) throw failure('SDUI response is not HTML');
@@ -230,13 +259,25 @@
   function delegate(event) {
     const origin = event.target instanceof Element ? event.target : event.target?.parentElement;
     if (!origin || event.defaultPrevented) return;
-    const source = closest(origin, `[data-sdui-on="${event.type}"]`);
+    let source = closest(origin, `[data-sdui-events],[data-sdui-on="${event.type}"]`);
+    let binding;
+    while (source) {
+      let bindings;
+      try { bindings = hasAttr(source, 'data-sdui-events') ? JSON.parse(attr(source, 'data-sdui-events')) :
+        [{on: attr(source, 'data-sdui-on'), action: attr(source, 'data-sdui-action'), target: attr(source, 'data-sdui-target')}]; }
+      catch { return; }
+      if (!Array.isArray(bindings)) return;
+      binding = bindings.find(item => item.on === event.type && (!item.sourceAction || item.sourceAction === event.detail?.action));
+      if (binding) break;
+      if (bindings.some(item => item.on === event.type)) return;
+      source = source.parentElement && closest(source.parentElement, `[data-sdui-events],[data-sdui-on="${event.type}"]`);
+    }
     const screen = source && closest(source, '[data-sdui-screen]');
     if (!source || !screen || closest(origin, '[data-sdui-screen]') !== screen) return;
     if (event.type === 'click' && (event.button > 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return;
     event.preventDefault();
     if (closest(origin, ':disabled,[aria-disabled="true"],[data-ely-disabled="true"]')) return;
-    void send(event, source, origin, screen);
+    void send(event, source, origin, screen, binding);
   }
 
   const pagehide = () => { for (const record of [...pending.values()]) abort(record); };

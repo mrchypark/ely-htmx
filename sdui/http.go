@@ -58,12 +58,17 @@ type replay struct {
 	expires     time.Time
 	reserved    int64
 }
-type Handler struct {
-	plan        *Plan
-	config      Config
+type replayCache struct {
 	mu          sync.Mutex
 	replays     map[string]*replay
 	replayBytes int64
+}
+
+type Handler struct {
+	plan     *Plan
+	config   Config
+	revision string
+	*replayCache
 }
 
 var requestKey = regexp.MustCompile(`^[A-Za-z0-9_-]{1,128}$`)
@@ -121,7 +126,7 @@ func NewHandler(plan *Plan, c Config) (*Handler, error) {
 	if plan.Loader() != "" && c.Loaders[plan.Loader()] == nil {
 		return nil, fmt.Errorf("unknown loader %q", plan.Loader())
 	}
-	return &Handler{plan: plan, config: c, replays: make(map[string]*replay)}, nil
+	return &Handler{plan: plan, config: c, replayCache: &replayCache{replays: make(map[string]*replay)}}, nil
 }
 func validEndpoint(path string) bool {
 	return path != "" && validateEndpoint(path) == nil
@@ -131,6 +136,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Vary", "Cookie, Authorization")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
+	if h.revision != "" {
+		w.Header().Set("X-SDUI-Revision", h.revision)
+	}
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		w.Header().Set("Allow", "GET, POST")
 		http.Error(w, "method not allowed", 405)
@@ -177,7 +185,7 @@ func (h *Handler) page(w http.ResponseWriter, r *http.Request, principal, csrf s
 		return
 	}
 	b.WriteString("</head><body>")
-	if err := h.plan.Render(&b, RenderContext{Data: data, CSRF: csrf, Endpoint: h.config.Endpoint}); err != nil {
+	if err := h.plan.Render(&b, RenderContext{Data: data, CSRF: csrf, Endpoint: h.config.Endpoint, Revision: h.revision}); err != nil {
 		http.Error(w, "render failed", 500)
 		return
 	}
@@ -213,6 +221,12 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf
 	}
 	if subtle.ConstantTimeCompare([]byte(one("_csrf")), []byte(csrf)) != 1 {
 		http.Error(w, "invalid CSRF token", 403)
+		return
+	}
+	if h.revision != "" && one("_revision") != h.revision {
+		w.Header().Set("X-SDUI-Reload", "required")
+		w.Header().Set("X-SDUI-Revision", h.revision)
+		http.Error(w, "screen revision changed; reload before submitting", http.StatusConflict)
 		return
 	}
 	name, target := one("_action"), one("_target")
@@ -302,7 +316,7 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request, principal, csrf
 		return
 	}
 	var b bytes.Buffer
-	if err = h.plan.RenderRegion(&b, target, RenderContext{Data: result.Data, CSRF: csrf, Endpoint: h.config.Endpoint}); err != nil {
+	if err = h.plan.RenderRegion(&b, target, RenderContext{Data: result.Data, CSRF: csrf, Endpoint: h.config.Endpoint, Revision: h.revision}); err != nil {
 		return
 	}
 	status, response = result.Status, b.Bytes()

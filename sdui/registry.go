@@ -1,20 +1,17 @@
 package sdui
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
-	"math"
-	"math/big"
-	"strconv"
+	"sort"
 	"strings"
 	"sync"
 
 	ui "github.com/mrchypark/ely-htmx"
 )
 
-// ValueType restricts schema and bound values to ordinary scalar data.
-// Integer normalizes to an exact platform int; Number uses finite float64.
+// ValueType describes ordinary, recursively typed JSON data. Integer preserves
+// exact platform integers; Number normalizes to a finite float64.
 type ValueType string
 
 const (
@@ -22,18 +19,59 @@ const (
 	Boolean ValueType = "boolean"
 	Integer ValueType = "integer"
 	Number  ValueType = "number"
+	Object  ValueType = "object"
+	Array   ValueType = "array"
 )
 
-// Property maps a schema property to a trusted template key. Enum is for
-// string design tokens. Min/Max apply to numbers. A nil Default means absent.
+// Property maps a wire property to a trusted template key. Objects are closed
+// unless AdditionalProperties declares the dictionary value type. OneOf uses
+// exactly-one-match semantics and cannot also specify Type. Defaults are copied.
 type Property struct {
-	Type     ValueType
-	Target   string
-	Required bool
-	Default  any
-	Enum     []string
-	Min, Max *float64
+	Type                 ValueType           `json:"type,omitempty"`
+	Target               string              `json:"target,omitempty"`
+	Required             bool                `json:"required,omitempty"`
+	Default              any                 `json:"default,omitempty"`
+	Enum                 []string            `json:"enum,omitempty"`
+	Min                  *float64            `json:"min,omitempty"`
+	Max                  *float64            `json:"max,omitempty"`
+	Items                *Property           `json:"items,omitempty"`
+	Properties           map[string]Property `json:"properties,omitempty"`
+	AdditionalProperties *Property           `json:"additionalProperties,omitempty"`
+	OneOf                []Property          `json:"oneOf,omitempty"`
+	Nullable             bool                `json:"nullable,omitempty"`
+	Format               string              `json:"format,omitempty"`
+	MaxLength            int                 `json:"maxLength,omitempty"`
+	MaxItems             int                 `json:"maxItems,omitempty"`
+	MaxProperties        int                 `json:"maxProperties,omitempty"`
+	urlPolicy            URLPolicy
+	sandboxHTML          bool
+	inertData            bool
 }
+
+// URLPolicy can authorize an external HTTP(S) URL after the runtime's URL
+// safety checks. It must be safe to call concurrently and must not mutate data.
+// The format distinguishes links, images and media resources. Local absolute
+// paths and fragments do not need authorization; other schemes never reach it.
+type URLPolicy func(format, rawURL string) bool
+
+type RegistryOption func(*Registry)
+
+// WithURLPolicy explicitly permits host-reviewed external origins. Without it,
+// URLs must be local absolute paths, fragments, or empty optional values.
+func WithURLPolicy(policy URLPolicy) RegistryOption {
+	return func(r *Registry) { r.urlPolicy = policy }
+}
+
+// SlotDefinition grants a named template slot only compiled child markup.
+// It is not a property passthrough and cannot be filled with schema strings.
+type SlotDefinition struct {
+	Target       string   `json:"target,omitempty"`
+	Required     bool     `json:"required,omitempty"`
+	AllowedTypes []string `json:"allowedTypes,omitempty"`
+	MaxNodes     int      `json:"maxNodes,omitempty"`
+}
+
+type Slot = SlotDefinition
 
 // ContainerKind is a fixed host-rendered structural primitive.
 type ContainerKind string
@@ -48,10 +86,20 @@ const (
 // structural primitive. Templates and definitions are trusted host code; none
 // of these renderer selectors can be supplied by a screen.
 type Definition struct {
-	Name, Template, Chapter, Component, Family string
-	Container                                  ContainerKind
-	Properties                                 map[string]Property
-	Events                                     []string
+	Name         string                    `json:"name"`
+	Template     string                    `json:"template,omitempty"`
+	Chapter      string                    `json:"chapter,omitempty"`
+	Component    string                    `json:"component,omitempty"`
+	Family       string                    `json:"family,omitempty"`
+	Container    ContainerKind             `json:"container,omitempty"`
+	Properties   map[string]Property       `json:"properties,omitempty"`
+	Events       []string                  `json:"events,omitempty"`
+	Assets       []string                  `json:"assets,omitempty"`
+	ContainsForm bool                      `json:"containsForm,omitempty"`
+	Slots        map[string]SlotDefinition `json:"slots,omitempty"`
+	// SandboxHTML grants the reviewed, fixed sandbox="" iframe srcdoc sink of
+	// misc/WebView and misc/IframeEmbed. It never marks input as trusted HTML.
+	SandboxHTML bool `json:"sandboxHTML,omitempty"`
 }
 
 // Registry is an explicit opt-in surface, independent of the whole catalogue.
@@ -60,10 +108,17 @@ type Registry struct {
 	mu          sync.RWMutex
 	templates   *template.Template
 	definitions map[string]Definition
+	urlPolicy   URLPolicy
 }
 
-func NewRegistry(tpl *template.Template) *Registry {
-	return &Registry{templates: tpl, definitions: map[string]Definition{}}
+func NewRegistry(tpl *template.Template, options ...RegistryOption) *Registry {
+	r := &Registry{templates: tpl, definitions: map[string]Definition{}}
+	for _, option := range options {
+		if option != nil {
+			option(r)
+		}
+	}
+	return r
 }
 
 var knownFamilies = map[string]bool{"foundation": true, "interaction": true, "data": true, "workspace": true, "communication": true, "native": true, "forms": true}
@@ -74,16 +129,47 @@ func reservedProperty(name string) bool {
 	case "id", "attrs", "class", "classname", "style", "html", "innerhtml", "outerhtml", "body", "script", "javascript", "url", "href", "src", "srcset", "srcdoc", "poster", "background", "cite", "codebase", "longdesc", "manifest", "ping", "xlinkhref", "action", "formaction", "form", "formtarget", "target", "template", "chapter", "component", "componentname", "kind", "family":
 		return true
 	}
-	return strings.HasPrefix(key, "on") || strings.HasPrefix(key, "hx") || strings.HasPrefix(key, "data")
+	return strings.HasPrefix(key, "on") || strings.HasPrefix(key, "hx")
 }
 
-// Register validates a trusted definition and copies its scalar defaults and
+// Definitions returns sorted, independent copies for editors and tooling.
+// Mutating a returned property, default, or slot never changes the registry.
+func (r *Registry) Definitions() []Definition {
+	if r == nil {
+		return nil
+	}
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	result := make([]Definition, 0, len(r.definitions))
+	for _, definition := range r.definitions {
+		result = append(result, cloneDefinition(definition))
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i].Name < result[j].Name })
+	return result
+}
+
+func validDefinitionName(name string) bool {
+	if name == "" || len(name) > 192 || strings.TrimSpace(name) != name {
+		return false
+	}
+	if !((name[0] >= 'A' && name[0] <= 'Z') || (name[0] >= 'a' && name[0] <= 'z')) {
+		return false
+	}
+	for _, r := range name {
+		if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || strings.ContainsRune(" _-./()+&,:", r)) {
+			return false
+		}
+	}
+	return true
+}
+
+// Register validates a trusted definition and deeply copies its defaults and
 // property metadata. Duplicate names and dangerous passthrough props fail.
 func (r *Registry) Register(d Definition) error {
 	if r == nil || r.templates == nil {
 		return fmt.Errorf("sdui: registry requires templates")
 	}
-	if !schemaID.MatchString(d.Name) {
+	if !validDefinitionName(d.Name) {
 		return fmt.Errorf("sdui: invalid definition name %q", d.Name)
 	}
 	kinds := 0
@@ -118,65 +204,81 @@ func (r *Registry) Register(d Definition) error {
 	if d.Family != "" && !knownFamilies[d.Family] {
 		return fmt.Errorf("sdui: unknown asset family %q", d.Family)
 	}
+	if d.SandboxHTML {
+		component, err := ui.ResolveComponent(d.Chapter, d.Component)
+		if err != nil || component.Chapter != "misc" || (component.Name != "WebView" && component.Name != "IframeEmbed") {
+			return fmt.Errorf("sdui: sandbox-html requires a reviewed sandboxed document component")
+		}
+	}
 	properties := make(map[string]Property, len(d.Properties))
 	targets := map[string]bool{}
+	if len(d.Properties) > MaxObjectProperties {
+		return fmt.Errorf("sdui: too many declared properties")
+	}
 	for key, p := range d.Properties {
-		if !propertyName.MatchString(key) || reservedProperty(key) {
+		if !propertyAllowed(key, p) {
 			return fmt.Errorf("sdui: reserved or invalid property %q", key)
 		}
 		if p.Target == "" {
 			p.Target = key
 		}
-		if !propertyName.MatchString(p.Target) || reservedProperty(p.Target) {
+		if !propertyAllowed(p.Target, p) {
 			return fmt.Errorf("sdui: reserved or invalid target property %q", p.Target)
 		}
 		if targets[p.Target] {
 			return fmt.Errorf("sdui: duplicate target property %q", p.Target)
 		}
 		targets[p.Target] = true
-		if p.Type != String && p.Type != Boolean && p.Type != Integer && p.Type != Number {
-			return fmt.Errorf("sdui: unknown property type %q", p.Type)
+		inert := false
+		if p.Format == "inert-data" && p.Target == "Devtools" && d.Component != "" {
+			component, err := ui.ResolveComponent(d.Chapter, d.Component)
+			inert = err == nil && component.Chapter == "devtools" && p.Type == Object
 		}
-		if len(p.Enum) > 0 && p.Type != String {
-			return fmt.Errorf("sdui: enum requires string type")
+		validated, err := validatePropertyContext(p, r.urlPolicy, d.SandboxHTML, inert)
+		if err != nil {
+			return fmt.Errorf("sdui: property %s: %w", key, err)
 		}
-		p.Enum = append([]string(nil), p.Enum...)
-		if (p.Min != nil || p.Max != nil) && p.Type != Integer && p.Type != Number {
-			return fmt.Errorf("sdui: bounds require numeric type")
-		}
-		if p.Min != nil {
-			value := *p.Min
-			if math.IsNaN(value) || math.IsInf(value, 0) {
-				return fmt.Errorf("sdui: invalid minimum")
-			}
-			p.Min = &value
-		}
-		if p.Max != nil {
-			value := *p.Max
-			if math.IsNaN(value) || math.IsInf(value, 0) {
-				return fmt.Errorf("sdui: invalid maximum")
-			}
-			p.Max = &value
-		}
-		if p.Min != nil && p.Max != nil && *p.Min > *p.Max {
-			return fmt.Errorf("sdui: reversed property bounds")
-		}
-		if p.Default != nil {
-			value, err := normalize(p, p.Default)
-			if err != nil {
-				return fmt.Errorf("sdui: default %s: %w", key, err)
-			}
-			p.Default = value
-		}
-		properties[key] = p
+		properties[key] = validated
 	}
+	slots := make(map[string]SlotDefinition, len(d.Slots))
+	for key, slot := range d.Slots {
+		if !propertyName.MatchString(key) {
+			return fmt.Errorf("sdui: invalid slot %q", key)
+		}
+		if slot.Target == "" {
+			slot.Target = key
+		}
+		if !propertyName.MatchString(slot.Target) || hardReservedProperty(slot.Target, true) || targets[slot.Target] {
+			return fmt.Errorf("sdui: invalid or conflicting slot target %q", slot.Target)
+		}
+		if slot.MaxNodes < 0 || slot.MaxNodes > MaxNodes {
+			return fmt.Errorf("sdui: invalid slot node limit")
+		}
+		for _, name := range slot.AllowedTypes {
+			if !validDefinitionName(name) {
+				return fmt.Errorf("sdui: invalid slot type %q", name)
+			}
+		}
+		slot.AllowedTypes = append([]string(nil), slot.AllowedTypes...)
+		targets[slot.Target] = true
+		slots[key] = slot
+	}
+	d.Slots = slots
 	d.Properties = properties
+	d.Assets = append([]string(nil), d.Assets...)
+	seenAssets := map[string]bool{}
+	for _, asset := range d.Assets {
+		if asset != "map" || seenAssets[asset] {
+			return fmt.Errorf("sdui: unsupported or duplicate asset %q", asset)
+		}
+		seenAssets[asset] = true
+	}
 	d.Events = append([]string(nil), d.Events...)
 	for _, event := range d.Events {
 		if event != "click" && event != "change" && event != "submit" && event != "ely:action" && event != "ely:change" {
 			return fmt.Errorf("sdui: unsupported event %q", event)
 		}
-		if event == "submit" && d.Container != Form {
+		if event == "submit" && d.Container != Form && !d.ContainsForm {
 			return fmt.Errorf("sdui: submit requires form container")
 		}
 	}
@@ -187,155 +289,6 @@ func (r *Registry) Register(d Definition) error {
 	}
 	r.definitions[d.Name] = d
 	return nil
-}
-
-func normalize(p Property, value any) (any, error) {
-	var number float64
-	switch p.Type {
-	case String:
-		text, ok := value.(string)
-		if !ok {
-			return nil, fmt.Errorf("expected string")
-		}
-		if len(text) > MaxStringBytes {
-			return nil, fmt.Errorf("string exceeds limit")
-		}
-		if len(p.Enum) > 0 {
-			found := false
-			for _, token := range p.Enum {
-				if token == text {
-					found = true
-					break
-				}
-			}
-			if !found {
-				return nil, fmt.Errorf("unsupported token %q", text)
-			}
-		}
-		if p.Target == "Name" && !registryKey.MatchString(text) {
-			return nil, fmt.Errorf("field name must start with a letter and use at most 128 letters, digits, dots, underscores or hyphens; leading underscores are reserved")
-		}
-		return text, nil
-	case Boolean:
-		b, ok := value.(bool)
-		if !ok {
-			return nil, fmt.Errorf("expected boolean")
-		}
-		return b, nil
-	case Integer:
-		integer, err := exactInteger(value)
-		if err != nil {
-			return nil, err
-		}
-		// Compare integer bounds without a float64 round-trip, including values
-		// above 2^53. Bounds themselves are the exact supplied float64 values.
-		exact := new(big.Rat).SetInt64(int64(integer))
-		if p.Min != nil && exact.Cmp(new(big.Rat).SetFloat64(*p.Min)) < 0 {
-			return nil, fmt.Errorf("value is below minimum")
-		}
-		if p.Max != nil && exact.Cmp(new(big.Rat).SetFloat64(*p.Max)) > 0 {
-			return nil, fmt.Errorf("value exceeds maximum")
-		}
-		return integer, nil
-	case Number:
-		switch v := value.(type) {
-		case json.Number:
-			if len(v) > 128 || !jsonNumeric.MatchString(string(v)) {
-				return nil, fmt.Errorf("invalid JSON number")
-			}
-			f, err := v.Float64()
-			if err != nil {
-				return nil, fmt.Errorf("invalid number")
-			}
-			number = f
-		case float64:
-			number = v
-		case float32:
-			number = float64(v)
-		default:
-			integer, err := exactInteger(value)
-			if err != nil {
-				return nil, fmt.Errorf("expected number")
-			}
-			number = float64(integer)
-		}
-		if math.IsNaN(number) || math.IsInf(number, 0) {
-			return nil, fmt.Errorf("number must be finite")
-		}
-		value = number
-	default:
-		return nil, fmt.Errorf("unknown property type")
-	}
-	if p.Min != nil && number < *p.Min {
-		return nil, fmt.Errorf("value is below minimum")
-	}
-	if p.Max != nil && number > *p.Max {
-		return nil, fmt.Errorf("value exceeds maximum")
-	}
-	return value, nil
-}
-
-func exactInteger(value any) (int, error) {
-	var text string
-	switch v := value.(type) {
-	case int:
-		return v, nil
-	case int8:
-		return int(v), nil
-	case int16:
-		return int(v), nil
-	case int32:
-		return int(v), nil
-	case int64:
-		text = strconv.FormatInt(v, 10)
-	case uint:
-		text = strconv.FormatUint(uint64(v), 10)
-	case uint8:
-		return int(v), nil
-	case uint16:
-		return int(v), nil
-	case uint32:
-		text = strconv.FormatUint(uint64(v), 10)
-	case uint64:
-		text = strconv.FormatUint(v, 10)
-	case json.Number:
-		if len(v) > 128 || !jsonNumeric.MatchString(string(v)) {
-			return 0, fmt.Errorf("invalid JSON number")
-		}
-		text = string(v)
-	case float32:
-		return exactInteger(float64(v))
-	case float64:
-		if math.IsNaN(v) || math.IsInf(v, 0) || math.Trunc(v) != v || math.Abs(v) > 9007199254740991 {
-			return 0, fmt.Errorf("expected exact integer")
-		}
-		text = strconv.FormatFloat(v, 'f', 0, 64)
-	default:
-		return 0, fmt.Errorf("expected integer")
-	}
-	if n, err := strconv.Atoi(text); err == nil {
-		return n, nil
-	}
-	// Rat preserves decimals exactly; cap exponent and length before allocation.
-	if len(text) > 128 {
-		return 0, fmt.Errorf("integer exceeds limit")
-	}
-	if index := strings.IndexAny(text, "eE"); index >= 0 {
-		exp, err := strconv.Atoi(text[index+1:])
-		if err != nil || exp < -308 || exp > 308 {
-			return 0, fmt.Errorf("integer exponent exceeds limit")
-		}
-	}
-	rational, ok := new(big.Rat).SetString(text)
-	if !ok || !rational.IsInt() || !rational.Num().IsInt64() {
-		return 0, fmt.Errorf("expected exact integer")
-	}
-	number := rational.Num().Int64()
-	result := int(number)
-	if int64(result) != number {
-		return 0, fmt.Errorf("integer exceeds platform limit")
-	}
-	return result, nil
 }
 
 // DefaultRegistry is a small safe surface, not an implicit catalogue import.
