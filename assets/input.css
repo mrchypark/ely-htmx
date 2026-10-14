@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 /* Frozen benchmark HTML is data, not application utility-class input. */
 @source not '../cmd/sdui-transport-bench/fixtures';
+/* The standalone editor uses its own CSS, not runtime component utilities. */
+@source not '../internal/playground';
 
 @font-face { font-family: 'Inter'; src: url('/assets/ely/fonts/Inter-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Inter'; src: url('/assets/ely/fonts/Inter-Medium.ttf') format('truetype'); font-style: normal; font-weight: 500; font-display: swap; }

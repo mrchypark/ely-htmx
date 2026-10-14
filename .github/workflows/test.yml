@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: go test ./...
       - run: go vet ./...
-      - run: go test -race ./sdui ./examples/sdui
+      - run: go test -race ./sdui ./examples/sdui ./internal/playground
       - run: npm ci
       - run: npm test
       - run: npm run build:css

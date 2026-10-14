@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{.Token}}">
+  <meta name="color-scheme" content="light">
+  <title>Ely Studio · SDUI Playground</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to editor</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Ely Studio home"><span class="brand-icon" aria-hidden="true">e</span><span>ely<span class="brand-light"> / studio</span></span></a>
+    <span class="topbar-caption">SERVER-DRIVEN UI PLAYGROUND</span>
+    <span class="local-pill"><span aria-hidden="true"></span> Local workspace</span>
+  </header>
+  <main id="workspace">
+    <section class="workspace-heading" aria-label="Workspace controls">
+      <div><p class="eyebrow">BUILD / INSPECT / DELIVER</p><h1>Your interface, as data<span class="accent">.</span></h1><p class="subtitle">Compose real Ely components. Inspect the result, down to the byte.</p></div>
+      <div class="document-actions">
+        <div class="example-controls"><label class="sr-only" for="example-select">Example screen</label><select id="example-select" disabled><option>Loading examples…</option></select><button id="load-example" class="button" disabled>Load example</button></div>
+        <div class="file-actions"><button id="import-screen" class="button quiet">Import JSON</button><input id="import-file" type="file" accept=".json,application/json" hidden><button id="export-screen" class="button quiet">Export JSON <span aria-hidden="true">↗</span></button></div>
+      </div>
+    </section>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <div class="studio-grid">
+      <aside class="panel library-panel" aria-label="Component library and screen structure">
+        <section class="library-section">
+          <div class="panel-heading"><h2>Components</h2><span id="catalogue-count" class="count-pill">—</span></div>
+          <div class="search-wrap"><span aria-hidden="true">⌕</span><label class="sr-only" for="component-search">Search component types</label><input id="component-search" type="search" placeholder="Search the catalogue…" autocomplete="off" list="component-suggestions"><datalist id="component-suggestions"></datalist><kbd>/</kbd></div>
+          <p id="catalogue-status" class="micro" role="status">Loading component names…</p>
+          <div id="catalogue-results" class="catalogue-results" aria-label="Matching components"></div>
+          <div id="component-detail" class="component-detail" hidden>
+            <div class="detail-title"><strong id="component-name"></strong><span id="component-family" class="tag"></span></div>
+            <p id="component-help" class="micro"></p>
+            <label class="field-label" for="insert-target">Add to selected node</label><select id="insert-target" disabled><option value="">Select a container</option></select>
+            <div class="row"><button id="add-component" class="button primary" disabled>Add component <span aria-hidden="true">+</span></button><button id="copy-component" class="button" title="Copy component JSON">Copy JSON</button></div>
+            <details><summary>Insertion template &amp; type contract</summary><pre id="component-snippet" tabindex="0"></pre><pre id="component-contract" tabindex="0"></pre></details>
+          </div>
+        </section>
+        <section class="structure-section" aria-label="Screen hierarchy">
+          <div class="panel-heading"><h2>Layers</h2><span id="node-count" class="micro">0 nodes</span></div>
+          <p id="tree-status" class="micro">Select a layer to edit its properties.</p>
+          <div id="node-tree" class="node-tree" aria-label="Screen layers"></div>
+          <div class="layer-actions" aria-label="Selected layer actions"><button id="node-up" class="icon-button" title="Move layer up" aria-label="Move layer up" disabled>↑</button><button id="node-down" class="icon-button" title="Move layer down" aria-label="Move layer down" disabled>↓</button><button id="node-duplicate" class="button small" disabled>Duplicate</button><button id="node-delete" class="button small danger" disabled>Delete</button></div>
+        </section>
+      </aside>
+      <section class="panel editor-panel" aria-label="Screen editor">
+        <div class="panel-heading editor-heading"><div class="tabs" role="tablist" aria-label="Editor mode"><button id="tab-properties" class="tab active" role="tab" aria-selected="true" aria-controls="properties-panel">Properties</button><button id="tab-screen" class="tab" role="tab" aria-selected="false" aria-controls="screen-panel" tabindex="-1">Screen JSON</button><button id="tab-data" class="tab" role="tab" aria-selected="false" aria-controls="data-panel" tabindex="-1">Data</button></div><div class="history-actions"><button id="undo" class="icon-button" aria-label="Undo edit" title="Undo edit" disabled>↶</button><button id="redo" class="icon-button" aria-label="Redo edit" title="Redo edit" disabled>↷</button></div></div>
+        <section id="properties-panel" class="tab-panel inspector" role="tabpanel" aria-labelledby="tab-properties">
+          <div class="inspector-title"><span class="eyebrow">SELECTED LAYER</span><h2 id="selected-type">Choose a layer</h2><p id="selected-path" class="micro"></p></div>
+          <div id="property-fields" class="property-fields"></div>
+          <div id="advanced-note" class="advanced-note" hidden></div>
+          <button id="edit-node-json" class="button quiet">Open screen JSON <span aria-hidden="true">↗</span></button>
+        </section>
+        <section id="screen-panel" class="tab-panel code-panel" role="tabpanel" aria-labelledby="tab-screen" hidden><div class="code-toolbar"><label for="screen-editor">screen.json</label><button id="format-json" class="button small">Format JSON</button></div><textarea id="screen-editor" class="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="editor-help validation-message"></textarea><p id="editor-help" class="editor-help">Full schema access: templates, slots, bindings, conditions and repeats. Ctrl/⌘ + Enter to render.</p></section>
+        <section id="data-panel" class="tab-panel code-panel" role="tabpanel" aria-labelledby="tab-data" hidden><div class="code-toolbar"><label for="data-editor">data.json</label><button id="format-data" class="button small">Format JSON</button></div><textarea id="data-editor" class="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="data-help validation-message"></textarea><p id="data-help" class="editor-help">A JSON object of sample values for data bindings. Changes update the preview automatically.</p></section>
+        <div class="editor-status"><span id="validation-message" role="status" aria-live="polite">Preparing editor…</span><span id="document-size">0 B</span></div>
+      </section>
+      <section class="panel preview-panel" aria-label="Rendered preview and delivery measurements">
+        <div class="panel-heading"><h2>Live preview</h2><div class="viewport-switch" role="group" aria-label="Preview width"><button id="viewport-desktop" class="icon-button active" aria-pressed="true" title="Fit desktop width" aria-label="Fit desktop width">▱</button><button id="viewport-mobile" class="icon-button" aria-pressed="false" title="Mobile width, 390 pixels" aria-label="Mobile width, 390 pixels">▯</button></div></div>
+        <div class="preview-info"><span id="preview-state" class="state-pill" role="status">Waiting for preview</span><span id="viewport-label" class="micro">Responsive</span></div>
+        <div id="preview-stage" class="preview-stage"><div id="preview-placeholder" class="preview-placeholder"><span class="preview-mark" aria-hidden="true">◈</span><strong>A canvas for your ideas</strong><span>Your rendered screen will appear here.</span></div><iframe id="preview-frame" title="Inert rendered screen preview" sandbox="" referrerpolicy="no-referrer" hidden></iframe></div>
+        <p class="sandbox-note"><span aria-hidden="true">◉</span> Safe, inert preview · scripts, forms and navigation disabled</p>
+        <section class="delivery-section" aria-labelledby="delivery-title"><div class="panel-heading"><h2 id="delivery-title">Delivery footprint</h2><span class="tag">MEASURED</span></div><p class="micro">Actual server-encoded sizes of screen JSON and rendered HTML, excluding separate assets.</p><div id="size-comparison" class="size-comparison"><div class="empty-measurement">Render a valid screen to compare encodings.</div></div><div id="delivery-details" class="micro"></div>
+          <details class="compression-settings"><summary>Compression settings</summary><div class="settings-grid"><label>Profile<select id="compression-profile"><option value="dynamic">Dynamic response</option><option value="static">Static payload</option></select></label><label>Strategy<select id="compression-strategy"><option value="smallest">Smallest eligible result</option><option value="preference">Encoding preference</option></select></label><label>Minimum input (bytes)<input id="min-bytes" type="number" min="0" max="2097152" step="1" value="256"></label><label>Minimum saving (bytes)<input id="min-savings-bytes" type="number" min="0" max="2097152" step="1" value="32"></label><label>Minimum saving (%)<input id="min-savings-percent" type="number" min="0" max="100" step="1" value="5"></label></div><p class="micro">These thresholds select the preferred delivery encoding; every column shows a measured result. Identity is the uncompressed payload. The server defines each profile and encoding preference.</p></details>
+        </section>
+      </section>
+    </div>
+    <footer class="workspace-footer"><span>Ely components. Go templates. One source of truth.</span><span id="save-status">Edits stay in this browser</span></footer>
+  </main>
+  <noscript><p class="notice">Enable JavaScript to use the editor. The preview remains sandboxed.</p></noscript>
+</body>
+</html>

@@ -40,6 +40,12 @@ Use `sdui.CatalogueRegistry()` for 1,313 qualified catalogue names and 48 basic 
 
 See the [SDUI guide](docs/sdui.md) for the JSON/API contract, extending the registry, loading external definitions, security responsibilities and explicit v1 limits.
 
+For visual authoring, run `go run ./cmd/sdui-playground` and open
+<http://127.0.0.1:8094>. The [SDUI playground](docs/sdui-playground.md) combines a
+component library, layer tree, typed property editor, lossless JSON editing, inert
+real-renderer preview and measured gzip/Brotli/Zstandard comparisons.
+
+
 ## Use in a Go application
 
 Initialize templates and asset routes once, before serving requests:
