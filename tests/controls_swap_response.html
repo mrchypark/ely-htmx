@@ -1,0 +1,29 @@
+<div data-ui-component="pin-input">
+  <input type="hidden" name="http-pin" value="1234">
+  <input data-ui-pin-slot required><input data-ui-pin-slot required>
+  <input data-ui-pin-slot required><input data-ui-pin-slot required>
+</div>
+<div data-ui-component="tag-input" data-ui-required>
+  <input type="hidden" name="http-tags" value="alpha,beta">
+  <span data-ui-tags></span><input data-ui-tag-entry>
+  <template data-ui-tag-template><span><span data-ui-tag-text></span><button type="button" data-ui-action="remove-tag">Remove</button></span></template>
+</div>
+<div data-ui-component="combobox">
+  <input type="hidden" name="http-choice" value="b" disabled>
+  <input data-ui-combobox-input required aria-expanded="false">
+  <div data-ui-combobox-list hidden>
+    <button type="button" id="http-a" data-ui-option data-value="a" aria-selected="false">Alpha</button>
+    <button type="button" id="http-b" data-ui-option data-value="b" aria-selected="true">Beta</button>
+  </div>
+</div>
+<div data-ui-component="tabs">
+  <button type="button" data-ui-tab aria-selected="false">First</button>
+  <button type="button" data-ui-tab aria-selected="true">Second</button>
+  <section data-ui-tab-panel>First panel</section><section data-ui-tab-panel>Second panel</section>
+</div>
+<div data-ui-component="signature-pad">
+  <canvas data-ui-signature></canvas>
+  <textarea name="http-signature" required>Ada</textarea>
+  <input type="hidden" data-ui-signature-value name="http-signature" value="Ada" disabled>
+  <button type="button" data-ui-signature-clear>Clear</button>
+</div>
