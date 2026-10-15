@@ -24,6 +24,7 @@ type ComponentLink struct{ Href, Name string }
 
 type ComponentPage struct {
 	Chapters       []ComponentChapter
+	Cards          []GalleryCard
 	Chapter        ComponentChapter
 	Story          *ComponentStory
 	Previous, Next *ComponentLink
@@ -43,6 +44,7 @@ type Server struct {
 	templates      *template.Template
 	mux            *http.ServeMux
 	components     []ComponentChapter
+	galleryCards   []GalleryCard
 	referenceNotes map[string]string
 }
 
@@ -70,6 +72,9 @@ func New() (*Server, error) {
 	for _, reference := range references {
 		s.referenceNotes[reference.Key] = reference.Description
 	}
+	if err := s.buildGalleryCards(); err != nil {
+		return nil, err
+	}
 	if err := ui.BindAssets(s.mux); err != nil {
 		return nil, err
 	}
@@ -80,6 +85,9 @@ func New() (*Server, error) {
 	s.mux.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assets))))
 	s.mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/components", http.StatusSeeOther)
+	})
+	s.mux.HandleFunc("GET /playground/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://mrchypark.github.io/ely-htmx/playground/", http.StatusSeeOther)
 	})
 	s.mux.HandleFunc("GET /components", s.componentIndex)
 	s.mux.HandleFunc("GET /components/usage", func(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +135,7 @@ func (s *Server) loadComponents() error {
 func componentHref(chapter, story string) string { return "/components/" + chapter + "/" + story }
 
 func (s *Server) componentPage() ComponentPage {
-	p := ComponentPage{Chapters: s.components}
+	p := ComponentPage{Chapters: s.components, Cards: s.galleryCards}
 	names := map[string]bool{}
 	for _, chapter := range s.components {
 		p.Stories += len(chapter.Stories)
@@ -157,25 +165,7 @@ func (s *Server) componentIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p.Query = query
-	if q := strings.ToLower(query); q != "" {
-		p.Chapters = nil
-		for _, chapter := range s.components {
-			if strings.Contains(strings.ToLower(chapter.Title), q) {
-				p.Chapters = append(p.Chapters, chapter)
-				continue
-			}
-			filtered := chapter
-			filtered.Stories = nil
-			for _, story := range chapter.Stories {
-				if strings.Contains(strings.ToLower(story.Title+" "+strings.Join(story.Components, " ")), q) {
-					filtered.Stories = append(filtered.Stories, story)
-				}
-			}
-			if len(filtered.Stories) > 0 {
-				p.Chapters = append(p.Chapters, filtered)
-			}
-		}
-	}
+
 	s.render(w, http.StatusOK, "components", page{Title: "Ely HTMX UI · 예제", Components: p})
 }
 

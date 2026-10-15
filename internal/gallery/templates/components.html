@@ -3,8 +3,12 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ely HTMX UI · 예제</title>{{template "brand-icon" .}}{{template "font-preloads"}}
-  <link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/components.css"><link rel="stylesheet" href="/assets/ely.css">{{template "ui-component-assets"}}
+  <title>{{if .Components.Story}}{{.Components.Story.Name}} · {{end}}Ely HTMX · Component Gallery</title>{{template "brand-icon" .}}{{template "font-preloads"}}
+  <link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/components.css"><link rel="stylesheet" href="/assets/ely.css">{{if .Components.Story}}{{template "ui-component-assets"}}{{else}}
+  <link rel="stylesheet" href="/assets/ely-controls.css"><link rel="stylesheet" href="/assets/ely-patterns.css">
+  <link rel="stylesheet" href="/assets/ely-api.css">{{range list "foundation" "interaction" "forms" "data" "workspace" "communication" "native"}}<link rel="stylesheet" href="/assets/ely-api-{{.}}.css">{{end}}
+  <link rel="stylesheet" href="/assets/ely-api-calendar-parity.css"><link rel="stylesheet" href="/assets/ely-api-native-tooling.css">
+  <script src="/assets/gallery-index.js" defer></script>{{end}}
   {{if .Components.Story}}{{template "ui-advanced-family-assets" .Components.Family}}<script type="module" src="/assets/advanced-usage.js"></script>{{if eq .Components.Chapter.Slug "maps"}}{{template "ui-map-assets"}}{{end}}{{end}}
   <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false,"selfRequestsOnly":true}'>
   <script src="/assets/htmx.min.js" defer></script><script src="/assets/theme.js"></script>
@@ -19,19 +23,39 @@
       <nav aria-label="컴포넌트 분류">{{range .Components.Chapters}}<details{{if eq .Slug $.Components.Chapter.Slug}} open{{end}}><summary>{{.Title}}</summary><ul>{{$chapter:=.Slug}}{{range .Stories}}<li><a href="/components/{{$chapter}}/{{.Slug}}"{{if and (eq $chapter $.Components.Chapter.Slug) (eq .Slug $.Components.Story.Slug)}} aria-current="page"{{end}}>{{.Name}}</a></li>{{end}}</ul></details>{{end}}</nav>
     </aside>
     <main id="main" class="component-story">
-      <a class="note" href="/components">{{.Components.Chapter.Title}}</a>
+      <nav class="gallery-breadcrumb" aria-label="현재 위치"><a href="/components">갤러리</a><span>/</span><a href="/components?category={{.Components.Chapter.Slug}}">{{.Components.Chapter.Title}}</a></nav>
       <h1 title="{{range $i,$name:=.Components.Story.Components}}{{if $i}} · {{end}}{{$name}}{{end}}">{{.Components.Story.Name}}</h1>
+      <p class="gallery-detail-hint">실제 컴포넌트를 직접 사용해 보세요. <a href="/playground/">플레이그라운드에서 화면 만들기 ↗</a></p>
       <section class="component-live" aria-label="{{.Components.Story.Name}} 예제" data-demo-story="{{.Components.Chapter.Slug}}/{{.Components.Story.Slug}}"><p class="component-description">{{.Components.Description}}</p>{{.Components.Preview}}</section>
       <nav class="component-paging" aria-label="이전과 다음 예제" tabindex="-1" data-after-live>{{if .Components.Previous}}<a href="{{.Components.Previous.Href}}">← {{.Components.Previous.Name}}</a>{{else}}<span></span>{{end}}{{if .Components.Next}}<a href="{{.Components.Next.Href}}">{{.Components.Next.Name}} →</a>{{end}}</nav>
     </main>
   </div>
   {{else}}
-  <main id="main" class="shell component-index">
-    <p class="eyebrow">ELY HTMX / UI LIBRARY</p><h1>Components.</h1>
-    <div class="component-index-intro"><p class="lede">Ely 컴포넌트의 공통 HTML 구현과 사용 예제.</p><span class="note">44개 분류 · {{.Components.Count}}개 컴포넌트 · {{.Components.Stories}}개 예제</span></div>
-    <form class="component-search" action="/components" hx-get="/components" hx-trigger="submit, input changed delay:250ms" hx-target="#main" hx-select="#main" hx-swap="outerHTML"><label class="sr-only" for="component-query">컴포넌트 검색</label><input id="component-query" type="search" name="q" value="{{.Components.Query}}" placeholder="컴포넌트 이름 또는 분류 검색" maxlength="200"><button type="submit">검색 ↗</button></form>
-    {{if .Components.Query}}<p class="note">“{{.Components.Query}}” 검색 결과 · <a href="/components">전체 목록</a></p>{{end}}
-    <ol class="component-chapters">{{range .Components.Chapters}}<li><span class="chapter-number">{{printf "%02d" .Number}}</span><a class="chapter-title" href="/components/{{.Slug}}/{{(index .Stories 0).Slug}}">{{.Title}}</a><span class="chapter-stories">{{$chapter:=.Slug}}{{range .Stories}}<a href="/components/{{$chapter}}/{{.Slug}}">{{.Name}}</a>{{end}}</span></li>{{else}}<li class="component-no-results">일치하는 컴포넌트가 없습니다. 다른 검색어를 입력하세요.</li>{{end}}</ol>
+  <main id="main" class="shell component-index" data-gallery-index>
+    <section class="gallery-hero" aria-labelledby="gallery-title">
+      <div><p class="eyebrow">ELY HTMX / COMPONENT GALLERY</p><h1 id="gallery-title">작은 요소부터,<br>완성된 화면까지.</h1><p class="lede">눈으로 고르고, 직접 사용해 보고, 나만의 화면으로 연결하세요.</p>
+      <div class="gallery-hero-actions"><a class="gallery-primary" href="/playground/">플레이그라운드 열기 ↗</a><a class="gallery-secondary" href="#gallery-browser">컴포넌트 둘러보기 ↓</a></div></div>
+      <aside class="gallery-hero-note"><span class="gallery-spark" aria-hidden="true">✳</span><p>Go + HTML + htmx</p><strong>{{.Components.Stories}}개의 예제.<br>하나의 디자인 언어.</strong><span>{{len .Components.Chapters}}개 분류 · {{.Components.Count}}개 컴포넌트 이름</span></aside>
+    </section>
+    <section id="gallery-browser" aria-label="컴포넌트 탐색">
+      <div class="gallery-section-heading"><div><p class="eyebrow">THE COLLECTION</p><h2>컴포넌트 둘러보기</h2></div><p>카드를 열어 실제 동작과 다양한 예제를 확인하세요.</p></div>
+      <form class="component-search gallery-filters" action="/components" role="search">
+        <div class="gallery-search-field"><label for="component-query">컴포넌트 검색</label><input id="component-query" type="search" name="q" value="{{.Components.Query}}" placeholder="이름, 별칭 또는 분류로 검색" maxlength="200" autocomplete="off"></div>
+        <div class="gallery-category-field"><label for="gallery-category">분류</label><select id="gallery-category" name="category"><option value="">전체 분류</option>{{range .Components.Chapters}}<option value="{{.Slug}}">{{.Title}}</option>{{end}}</select></div>
+        <button id="gallery-reset" type="reset">초기화</button><button class="sr-only" type="submit">검색</button>
+      </form>
+      <p id="gallery-results" class="gallery-results" role="status" aria-live="polite">{{len .Components.Chapters}}개 분류 · {{.Components.Stories}}개 예제</p>
+      <noscript><p class="gallery-results">전체 분류와 예제는 아래에서 볼 수 있습니다. 검색과 분류 필터는 JavaScript를 켜면 사용할 수 있습니다.</p></noscript>
+      <div class="gallery-grid">
+      {{range .Components.Cards}}<article class="gallery-card" data-gallery-card data-category="{{.Chapter.Slug}}" data-search="{{.Search}}">
+        <a class="gallery-preview-link" href="/components/{{.Chapter.Slug}}/{{.Story.Slug}}" aria-label="{{.Chapter.Title}} · {{.Story.Name}} 예제 보기"><div class="gallery-preview" inert aria-hidden="true"><div class="gallery-preview-content">{{.Preview}}</div></div><span class="gallery-preview-label">{{.Story.Name}} <span aria-hidden="true">↗</span></span></a>
+        <div class="gallery-card-body"><div class="gallery-card-title"><h3><a class="chapter-title" href="/components/{{.Chapter.Slug}}/{{.Story.Slug}}">{{.Chapter.Title}}</a></h3><span>{{len .Chapter.Stories}}개</span></div><p class="gallery-card-summary">{{.Chapter.Summary}}</p>
+        <details data-gallery-examples><summary>예제 모두 보기 <span aria-hidden="true">+</span></summary><div class="chapter-stories">{{$chapter:=.Chapter.Slug}}{{range .Chapter.Stories}}<a href="/components/{{$chapter}}/{{.Slug}}" data-search="{{.Name}} {{.Title}} {{range .Components}}{{.}} {{end}}">{{.Name}} <span aria-hidden="true">↗</span></a>{{end}}</div></details></div>
+      </article>{{end}}
+      </div>
+      <div id="gallery-empty" class="gallery-empty" hidden><h3>일치하는 예제가 없습니다.</h3><p>검색어를 바꾸거나 분류를 전체로 선택해 보세요.</p><button type="button" data-gallery-clear>전체 컴포넌트 보기</button></div>
+    </section>
+    <section class="gallery-bottom-cta"><div><p class="eyebrow">MAKE IT YOURS</p><h2>이제, 나만의 화면을 만들어 보세요.</h2><p>플레이그라운드에서 컴포넌트를 조합하고 바로 미리 볼 수 있습니다.</p></div><a class="gallery-primary" href="/playground/">플레이그라운드 열기 ↗</a></section>
   </main>
   {{end}}
   {{template "gallery-footer"}}

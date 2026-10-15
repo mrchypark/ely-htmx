@@ -120,15 +120,15 @@ func TestStandaloneRoutesBoundaryAndEscaping(t *testing.T) {
 		t.Fatalf("root redirect = %d %q", w.Code, w.Header().Get("Location"))
 	}
 	index := request("/components")
-	if index.Code != http.StatusOK || !strings.Contains(index.Body.String(), "1279개 컴포넌트 · 624개 예제") {
+	if index.Code != http.StatusOK || !strings.Contains(index.Body.String(), "1279개 컴포넌트 이름") {
 		t.Fatalf("catalogue response = %d", index.Code)
 	}
 	if strings.Contains(index.Body.String(), "/app/") || strings.Contains(index.Body.String(), "로그아웃") || strings.Contains(index.Body.String(), "연구 노트") {
 		t.Fatal("gallery still contains application navigation")
 	}
 	search := request("/components?q=ClearableInput")
-	if search.Code != http.StatusOK || !strings.Contains(search.Body.String(), "/components/forms/input-textfield-clearableinput") || strings.Contains(search.Body.String(), "/components/tables/") {
-		t.Fatal("alias search is not isolated to matching gallery stories")
+	if search.Code != http.StatusOK || !strings.Contains(search.Body.String(), "/components/forms/input-textfield-clearableinput") || !strings.Contains(search.Body.String(), `value="ClearableInput"`) {
+		t.Fatal("alias query and complete client-searchable catalogue are missing")
 	}
 	story := request("/components/forms/input-textfield-clearableinput")
 	if story.Code != http.StatusOK || !strings.Contains(story.Body.String(), "data-demo-story=\"forms/input-textfield-clearableinput\"") || !strings.Contains(story.Body.String(), "data-slot=\"input\"") {
@@ -256,8 +256,8 @@ func TestStoryLoadsItsDemoStylesheetsAndDependencies(t *testing.T) {
 	}
 	index := httptest.NewRecorder()
 	server.ServeHTTP(index, httptest.NewRequest(http.MethodGet, "/components", nil))
-	if strings.Contains(index.Body.String(), "ely-api-interaction.css") {
-		t.Fatal("catalogue index loads demo styles")
+	if !strings.Contains(index.Body.String(), "ely-api-interaction.css") || strings.Contains(index.Body.String(), "ely-api-interaction-entry.js") {
+		t.Fatal("catalogue thumbnails require styles without interactive demo runtimes")
 	}
 }
 
