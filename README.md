@@ -4,6 +4,10 @@ Ely-inspired components for Go `html/template`, native HTML and htmx. Import a G
 
 We are deeply grateful to the **[Ely GPUI project](https://elygpui.com/)** and its contributors. Its visual design, component organization and examples are the foundation of this adaptation. We studied and referenced [Ely GPUI Component](https://git.zacharyzhang.com/ZacharyZhang-NY/Ely-GPUI-Components) to bring these ideas to Go, HTML and htmx. This is an independent adaptation, with the original MIT attribution retained. The basic templates also adapt [shadcn-htmx](https://github.com/productdevbook/shadcn-htmx).
 
+## Documentation and AI agents
+
+Start with the [documentation map](docs/README.md), [consumer quickstart](docs/getting-started.md), or [contributor workflow](docs/contributing.md). Coding agents should read [AGENTS.md](AGENTS.md) and the reusable [Ely HTMX skill](.agents/skills/ely-htmx/SKILL.md). The [skill reference](.agents/skills/ely-htmx/references/workflows.md#installing-this-skill) explains installation in another project.
+
 ## Install and try
 
 Go **1.26+**. In an existing Go module:
