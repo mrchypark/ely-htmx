@@ -1,30 +1,30 @@
-{{define "component-usage"}}<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>공통 컴포넌트 사용 확인 · Ely HTMX</title>{{template "brand-icon"}}{{template "font-preloads"}}<link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/components.css">{{template "ui-component-assets"}}<link rel="stylesheet" href="/assets/ely-map.css"><script src="/assets/theme.js"></script><script src="/assets/ely-map.js" defer></script><script src="/assets/usage.js" defer></script></head><body>
+{{define "component-usage"}}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Form examples · Ely HTMX</title>{{template "brand-icon"}}{{template "font-preloads"}}<link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/components.css">{{template "ui-component-assets"}}<link rel="stylesheet" href="/assets/ely-map.css"><script src="/assets/theme.js"></script><script src="/assets/ely-map.js" defer></script><script src="/assets/usage.js" defer></script></head><body>
 {{template "gallery-header" "usage"}}
-<main class="shell page component-story"><p class="eyebrow">SHARED UI / CALLER DATA</p><h1 class="project-title">공통 컴포넌트 사용 확인</h1><p class="lede">서로 다른 값과 옵션을 전달한 컴포넌트가 한 화면에서 독립적으로 동작합니다.</p>
+<main class="shell page component-story"><p class="eyebrow">SHARED UI / CALLER DATA</p><h1 class="project-title">Form examples</h1><p class="lede">Shared components work independently on the same page, each with its own values and options.</p>
 <form class="ui-stack" data-usage-form><div class="ui-grid">
-{{template "clearable-input" (dict "ID" "usage-title" "Label" "제목" "Name" "title" "Value" "연구 설계" "Required" true)}}
-{{template "password-input" (dict "ID" "usage-password" "Label" "예제 비밀번호" "Name" "password" "Value" "local-example")}}
-{{template "pin-input" (dict "ID" "usage-pin-a" "Label" "4자리 코드" "Name" "code_a" "Items" (list 1 2 3 4) "Value" "1234" "Required" true)}}
-{{template "pin-input" (dict "ID" "usage-pin-b" "Label" "6자리 코드" "Name" "code_b" "Items" (list 1 2 3 4 5 6) "Value" "654321")}}
-{{template "tag-input" (dict "ID" "usage-tags" "Label" "연구 주제" "Name" "topics" "Value" "연구,설계" "Placeholder" "입력 후 Enter" "Required" true)}}
-{{template "tag-input" (dict "ID" "usage-tags-b" "Label" "다른 태그" "Name" "other_topics" "Value" "분석" "Placeholder" "별도 태그")}}
-{{template "combobox" (dict "ID" "usage-combo" "Label" "연구 방법" "Name" "method" "Value" "mixed" "Required" true "Options" (list (dict "Value" "survey" "Label" "설문 조사") (dict "Value" "interview" "Label" "면담") (dict "Value" "mixed" "Label" "혼합 연구")))}}
-{{template "combobox" (dict "ID" "usage-combo-b" "Label" "자료 유형" "Name" "source" "Options" (list (dict "Value" "paper" "Label" "논문") (dict "Value" "note" "Label" "연구 노트")))}}
-{{template "multi-select" (dict "ID" "usage-multiple" "Label" "검토 항목" "Name" "checks" "Required" true "Options" (list (dict "Value" "question" "Label" "질문") (dict "Value" "variable" "Label" "변수") (dict "Value" "source" "Label" "근거")))}}
-{{template "selectable-list" (dict "ID" "usage-list" "Label" "진행 단계" "Name" "stage" "Value" "draft" "Options" (list (dict "Value" "draft" "Label" "초안") (dict "Value" "review" "Label" "검토")))}}
-{{template "date-picker" (dict "ID" "usage-date" "Label" "검토일" "Name" "due" "Value" "2026-10-20" "Min" "2026-10-01" "Max" "2026-12-31")}}
-{{template "color-picker" (dict "ID" "usage-color" "Label" "표시 색" "Name" "color" "Value" "#335cff")}}
-{{template "hotkey-input" (dict "ID" "usage-hotkey" "Label" "단축키" "Name" "shortcut" "Placeholder" "단축키를 입력하세요")}}
-{{template "file-dropzone" (dict "ID" "usage-files" "Label" "로컬 파일" "Name" "attachments" "Multiple" true)}}
+{{template "clearable-input" (dict "ID" "usage-title" "Label" "Title" "Name" "title" "Value" "Research design" "Required" true)}}
+{{template "password-input" (dict "ID" "usage-password" "Label" "Example password" "Name" "password" "Value" "local-example")}}
+{{template "pin-input" (dict "ID" "usage-pin-a" "Label" "4-digit code" "Name" "code_a" "Items" (list 1 2 3 4) "Value" "1234" "Required" true)}}
+{{template "pin-input" (dict "ID" "usage-pin-b" "Label" "6-digit code" "Name" "code_b" "Items" (list 1 2 3 4 5 6) "Value" "654321")}}
+{{template "tag-input" (dict "ID" "usage-tags" "Label" "Research topics" "Name" "topics" "Value" "Research,Design" "Placeholder" "Type and press Enter" "Required" true)}}
+{{template "tag-input" (dict "ID" "usage-tags-b" "Label" "Other tags" "Name" "other_topics" "Value" "Analysis" "Placeholder" "Add another tag")}}
+{{template "combobox" (dict "ID" "usage-combo" "Label" "Research method" "Name" "method" "Value" "mixed" "Required" true "Options" (list (dict "Value" "survey" "Label" "Survey") (dict "Value" "interview" "Label" "Interview") (dict "Value" "mixed" "Label" "Mixed methods")))}}
+{{template "combobox" (dict "ID" "usage-combo-b" "Label" "Source type" "Name" "source" "Options" (list (dict "Value" "paper" "Label" "Paper") (dict "Value" "note" "Label" "Research notes")))}}
+{{template "multi-select" (dict "ID" "usage-multiple" "Label" "Review items" "Name" "checks" "Required" true "Options" (list (dict "Value" "question" "Label" "Question") (dict "Value" "variable" "Label" "Variable") (dict "Value" "source" "Label" "Evidence")))}}
+{{template "selectable-list" (dict "ID" "usage-list" "Label" "Stage" "Name" "stage" "Value" "draft" "Options" (list (dict "Value" "draft" "Label" "Draft") (dict "Value" "review" "Label" "Review")))}}
+{{template "date-picker" (dict "ID" "usage-date" "Label" "Review date" "Name" "due" "Value" "2026-10-20" "Min" "2026-10-01" "Max" "2026-12-31")}}
+{{template "color-picker" (dict "ID" "usage-color" "Label" "Display color" "Name" "color" "Value" "#335cff")}}
+{{template "hotkey-input" (dict "ID" "usage-hotkey" "Label" "Keyboard shortcut" "Name" "shortcut" "Placeholder" "Press a keyboard shortcut")}}
+{{template "file-dropzone" (dict "ID" "usage-files" "Label" "Local files" "Name" "attachments" "Multiple" true)}}
 </div>
-{{template "key-value-input" (dict "ID" "usage-pairs" "Label" "변수" "Name" "variables" "Items" (list (dict "Key" "sample_size" "Value" "120")))}}
-{{template "signature-pad" (dict "ID" "usage-signature" "Label" "예제 서명" "Name" "signature" "Placeholder" "그리거나 텍스트로 입력하세요")}}
-{{template "button" (dict "Type" "submit" "Label" "제출 값 확인")}}<output data-usage-values class="ui-code" aria-live="polite">입력값은 이 화면에만 표시됩니다.</output></form>
+{{template "key-value-input" (dict "ID" "usage-pairs" "Label" "Variable" "Name" "variables" "Items" (list (dict "Key" "sample_size" "Value" "120")))}}
+{{template "signature-pad" (dict "ID" "usage-signature" "Label" "Example signature" "Name" "signature" "Placeholder" "Draw or type your signature")}}
+{{template "button" (dict "Type" "submit" "Label" "Inspect submitted values")}}<output data-usage-values class="ui-code" aria-live="polite">Submitted values are displayed only on this page.</output></form>
 <hr class="section-rule">
-{{template "tabs" (dict "ID" "usage-tabs" "Value" "design" "Label" "연구 패널" "Items" (list (dict "Value" "design" "Label" "설계" "Content" "첫 번째 연구 설계 패널") (dict "Value" "evidence" "Label" "근거" "Content" "두 번째 근거 패널")))}}
-{{template "button" (dict "Type" "button" "Label" "검토 창 열기" "Attrs" (dict "data-ui-dialog-open" "usage-dialog"))}}{{template "dialog" (dict "ID" "usage-dialog" "Label" "검토" "Content" "이 내용은 호출자가 전달한 텍스트입니다.")}}
-{{template "menu" (dict "ID" "usage-menu" "Label" "작업" "Items" (list (dict "Value" "save" "Label" "저장") (dict "Value" "review" "Label" "검토")))}}
-{{template "data-table" (dict "ID" "usage-table" "Label" "행 검색" "Columns" (list (dict "Label" "연구") (dict "Label" "표본 수")) "Rows" (list (dict "Cells" (list "설문 조사" "120")) (dict "Cells" (list "면담" "20")) (dict "Cells" (list "혼합 연구" "45"))))}}
-{{template "calendar" (dict "ID" "usage-calendar" "Label" "연구 일정" "Name" "calendar_date" "Value" "2026-10-20")}}
-{{template "map-view" (dict "ID" "usage-map" "Label" "예제 위치" "Mode" "location" "Name" "location" "Value" "37.5665,126.9780" "Points" (list (dict "Latitude" 37.5665 "Longitude" 126.9780 "Label" "Seoul" "Value" "Sample")))}}
+{{template "tabs" (dict "ID" "usage-tabs" "Value" "design" "Label" "Research panels" "Items" (list (dict "Value" "design" "Label" "Design" "Content" "The first panel covers research design.") (dict "Value" "evidence" "Label" "Evidence" "Content" "The second panel covers supporting evidence.")))}}
+{{template "button" (dict "Type" "button" "Label" "Open review dialog" "Attrs" (dict "data-ui-dialog-open" "usage-dialog"))}}{{template "dialog" (dict "ID" "usage-dialog" "Label" "Review" "Content" "This text was provided by the host application.")}}
+{{template "menu" (dict "ID" "usage-menu" "Label" "Actions" "Items" (list (dict "Value" "save" "Label" "Save") (dict "Value" "review" "Label" "Review")))}}
+{{template "data-table" (dict "ID" "usage-table" "Label" "Search rows" "Columns" (list (dict "Label" "Research") (dict "Label" "Sample size")) "Rows" (list (dict "Cells" (list "Survey" "120")) (dict "Cells" (list "Interview" "20")) (dict "Cells" (list "Mixed methods" "45"))))}}
+{{template "calendar" (dict "ID" "usage-calendar" "Label" "Research schedule" "Name" "calendar_date" "Value" "2026-10-20")}}
+{{template "map-view" (dict "ID" "usage-map" "Label" "Example location" "Mode" "location" "Name" "location" "Value" "37.5665,126.9780" "Points" (list (dict "Latitude" 37.5665 "Longitude" 126.9780 "Label" "Seoul" "Value" "Sample")))}}
 </main>{{template "ui-client-templates"}}{{template "gallery-footer"}}</body></html>{{end}}

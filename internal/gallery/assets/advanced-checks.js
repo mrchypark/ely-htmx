@@ -48,12 +48,12 @@ document.querySelector('[data-audit-run]')?.addEventListener('click',async event
       result={name:record.dataset.auditName,key:record.dataset.auditKey,status:'passed',assertions:assertionCount,actions:actions.map(action=>({action:action.action,value:action.value,values:action.values?.map(([name,value])=>[name,value instanceof File?value.name:String(value).slice(0,200)])})),milliseconds:Math.round(performance.now()-started)};passed++;
     }catch(error){result={name:record.dataset.auditName,key:record.dataset.auditKey,status:'failed',error:error.message,milliseconds:Math.round(performance.now()-started)};failed++;}
     finally{hostCleanup?.();root?.removeEventListener('ely:action',capture);root?.removeEventListener('ely:error',captureError);window.removeEventListener('error',captureRuntimeError);window.removeEventListener('unhandledrejection',captureRuntimeError);}
-    results.push(result);record.dataset.auditState=result.status;record.querySelector('[data-audit-result]').value=result.status==='passed'?'통과':`실패: ${result.error}`;
-    document.querySelector('[data-audit-status]').value=`${results.length}개 검사 · ${passed}개 통과 · ${failed}개 실패`;
+    results.push(result);record.dataset.auditState=result.status;record.querySelector('[data-audit-result]').value=result.status==='passed'?'Passed':`Failed: ${result.error}`;
+    document.querySelector('[data-audit-status]').value=`${results.length} checks · ${passed} passed · ${failed} failed`;
     await new Promise(resolve=>setTimeout(resolve,0));
   }
   let runtime;try{runtime=await checkRuntime();}catch(error){runtime={name:'runtime/HostCallbacks',status:'failed',error:error.message};}
   document.querySelector('[data-audit-results]').textContent=JSON.stringify({date:new Date().toISOString(),passed,failed,runtime,results},null,2);
-  document.querySelector('[data-audit-status]').value+=` · 호스트 API ${runtime.status==='passed'?'통과':'실패'}`;
+  document.querySelector('[data-audit-status]').value+=` · Host API ${runtime.status==='passed'?'passed':'failed'}`;
   document.querySelector('[data-audit-run]').disabled=false;
 });

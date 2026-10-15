@@ -1,4 +1,4 @@
 {{/* Field labels belong inside a native label wrapping its control. */}}
-{{define "field-label"}}<span data-slot="field-label">{{.Label}} <small>{{if .Required}}필수{{else}}선택{{end}}</small></span>{{end}}
+{{define "field-label"}}<span data-slot="field-label">{{.Label}} <small>{{if .Required}}Required{{else}}Optional{{end}}</small></span>{{end}}
 {{define "field-description"}}<p data-slot="field-description"{{if .ID}} id="{{.ID}}"{{end}}>{{.Text}}</p>{{end}}
 {{define "datalist"}}<datalist id="{{.ID}}">{{range .Options}}<option value="{{.}}">{{end}}</datalist>{{end}}

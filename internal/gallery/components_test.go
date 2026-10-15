@@ -120,7 +120,7 @@ func TestStandaloneRoutesBoundaryAndEscaping(t *testing.T) {
 		t.Fatalf("root redirect = %d %q", w.Code, w.Header().Get("Location"))
 	}
 	index := request("/components")
-	if index.Code != http.StatusOK || !strings.Contains(index.Body.String(), "1279개 컴포넌트 이름") {
+	if index.Code != http.StatusOK || !strings.Contains(index.Body.String(), "1279 component names") {
 		t.Fatalf("catalogue response = %d", index.Code)
 	}
 	if strings.Contains(index.Body.String(), "/app/") || strings.Contains(index.Body.String(), "로그아웃") || strings.Contains(index.Body.String(), "연구 노트") {
@@ -160,7 +160,7 @@ func TestStandaloneRoutesBoundaryAndEscaping(t *testing.T) {
 		}
 	}
 	demo := request("/components/demo?q=ClearableInput")
-	if demo.Code != http.StatusOK || !strings.Contains(demo.Body.String(), "로컬 예제 응답") || strings.Contains(demo.Body.String(), "<html") {
+	if demo.Code != http.StatusOK || !strings.Contains(demo.Body.String(), "Local demo response") || strings.Contains(demo.Body.String(), "<html") {
 		t.Fatal("demo is not an htmx fragment")
 	}
 }

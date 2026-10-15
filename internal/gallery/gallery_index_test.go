@@ -66,6 +66,9 @@ func TestGalleryPlaygroundLinksRespectStaticBase(t *testing.T) {
 		if !strings.Contains(string(output), `href="`+base+`playground/"`) {
 			t.Fatalf("playground lost base %s", base)
 		}
+		if !strings.Contains(string(output), "Static gallery · Browser interactions work locally.") {
+			t.Fatal("static export notice must use English")
+		}
 		if strings.Index(string(output), "gallery-static-notice") > strings.Index(string(output), "</body>") {
 			t.Fatal("static notice must be inside the body")
 		}

@@ -21,7 +21,7 @@
       card.querySelector('[data-gallery-examples]').open = Boolean(q && matches);
       if (matches) { chapters++; stories += matches; }
     }
-    root.querySelector('#gallery-results').textContent = `${chapters}개 분류 · ${stories}개 예제${q ? ' 검색 결과' : ''}`;
+    root.querySelector('#gallery-results').textContent = `${chapters} ${chapters === 1 ? 'category' : 'categories'} · ${stories} ${stories === 1 ? 'example' : 'examples'}${q ? ' found' : ''}`;
     root.querySelector('#gallery-empty').hidden = chapters !== 0;
     if (updateURL) {
       const url = new URL(location.href);

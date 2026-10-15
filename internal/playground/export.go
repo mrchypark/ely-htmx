@@ -36,11 +36,11 @@ func ExportStatic(dir string) error {
 	if err != nil {
 		return err
 	}
-	html := strings.NewReplacer(`content="{{.Token}}"`, `content=""`, `href="/style.css"`, `href="./style.css"`, `src="/app.js"`, `src="./app.js"`, `href="/" aria-label="Ely Studio home"`, `href="../" aria-label="Component gallery"`, `Local workspace`, `Browser-only workspace`, `Actual server-encoded sizes`, `Actual Go/WASM-encoded sizes`, `The server defines each profile`, `The shared Go codec defines each profile`).Replace(string(index))
+	html := strings.NewReplacer(`content="{{.Token}}"`, `content=""`, `href="/style.css"`, `href="./style.css"`, `src="/app.js"`, `src="./app.js"`, `https://mrchypark.github.io/ely-htmx/`, `../`, `href="/" data-playground-home`, `href="./" data-playground-home`, `href="/assets/`, `href="./assets/`, `src="/assets/`, `src="./assets/`, `Local workspace`, `Browser-only workspace`, `Actual server-encoded sizes`, `Actual Go/WASM-encoded sizes`, `The server defines each profile`, `The shared Go codec defines each profile`).Replace(string(index))
 	html = strings.Replace(html, `<script src="./app.js" defer></script>`, `<script src="./static-provider.js" defer></script><script src="./app.js" defer></script>`, 1)
-	html = strings.Replace(html, `<meta name="color-scheme"`, `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src 'self'; img-src 'none'; base-uri 'none'; form-action 'none'"><meta name="color-scheme"`, 1)
+	html = strings.Replace(html, `<meta name="color-scheme"`, `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; font-src 'self'; frame-src 'self'; img-src 'none'; base-uri 'none'; form-action 'none'"><meta name="color-scheme"`, 1)
 	html = strings.Replace(html, `SERVER-DRIVEN UI PLAYGROUND`, `<a href="../">COMPONENT GALLERY ↗</a>`, 1)
-	html = strings.Replace(html, `Compose real Ely components. Inspect the result, down to the byte.`, `Compose real Ely components. Your JSON stays in this browser. The Go renderer loads on first preview; slower devices may take a moment.`, 1)
+	html = strings.Replace(html, `Combine components, edit their properties, and preview your screen.`, `Combine components, edit their properties, and preview your screen. Your JSON stays in this browser. The renderer loads on first preview.`, 1)
 	if err = write("index.html", []byte(html)); err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func ExportStatic(dir string) error {
 		if e != nil {
 			return e
 		}
-		if entry.IsDir() || !strings.HasSuffix(name, ".css") {
+		if entry.IsDir() || !(strings.HasSuffix(name, ".css") || strings.HasSuffix(name, ".ttf") || name == "assets/theme.js") {
 			return nil
 		}
 		b, e := ui.Files.ReadFile(name)
@@ -84,7 +84,9 @@ func ExportStatic(dir string) error {
 		if e = write(name, b); e != nil {
 			return e
 		}
-		styles = append(styles, name)
+		if strings.HasSuffix(name, ".css") {
+			styles = append(styles, name)
+		}
 		return nil
 	})
 	if err != nil {

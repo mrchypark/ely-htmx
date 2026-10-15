@@ -9,11 +9,27 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`;
 let browser;
 try{
- browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1440,height:1000}});
+ browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined});const context=await browser.newContext({viewport:{width:1440,height:1000}});
  await context.route('**/*',route=>{const u=route.request().url();if(u.startsWith(origin+base))return route.continue();bad.push(u);return route.abort();});
  const page=await context.newPage();page.on('pageerror',e=>errors.push(String(e)));page.on('response',r=>{if(r.status()>=400)bad.push(`${r.status()} ${r.url()}`);});
  await page.goto(origin+base);assert((await page.locator('a').count())>40,'gallery links rendered');
+ const expectedNav=['Components','Form examples','Themes','Playground'];
+ const chrome=async()=>page.locator('.site-header').evaluate(el=>({background:getComputedStyle(el).backgroundColor,font:getComputedStyle(el).fontFamily,brand:el.querySelector('.wordmark').textContent.trim()}));
+ assert.equal(await page.locator('html').getAttribute('lang'),'en');
+ assert.deepEqual(await page.locator('.header-nav a').allTextContents(),expectedNav);
+ const galleryChrome=await chrome();
+ for(const width of [1440,768,390]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));}
  await page.goto(origin+base+'playground/');await page.waitForFunction(()=>globalThis.elyRendererMetrics,{},{timeout:120000});
+ assert.equal(await page.locator('html').getAttribute('lang'),'en');
+ assert.deepEqual(await page.locator('.header-nav a').allTextContents(),expectedNav);
+ assert.deepEqual(await chrome(),galleryChrome);
+ assert.equal(await page.locator('.header-nav [aria-current=page]').textContent(),'Playground');
+ for(const url of await page.locator('link[rel=stylesheet],script[src]').evaluateAll(nodes=>nodes.map(el=>el.getAttribute('href')||el.getAttribute('src')))){assert(/\?v=[a-f0-9]{16}$/.test(url),'cache-safe asset: '+url);}
+ await page.locator('[data-theme-toggle]').click();assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ await page.locator('.header-nav a').filter({hasText:'Form examples'}).click();assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ await page.goBack();await page.waitForFunction(()=>globalThis.elyRendererMetrics,{},{timeout:120000});
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');await page.locator('[data-theme-toggle]').click();
+ await page.setViewportSize({width:1440,height:1000});
  const screen={version:'1',id:'static-test',root:{id:'layout',type:'stack',children:[{id:'message',type:'text',props:{text:'Static WASM preview'}}]}};
  await page.locator('#tab-screen').click();await page.locator('#screen-editor').fill(JSON.stringify(screen));await page.locator('#screen-editor').press('Control+Enter');
  await page.waitForFunction(()=>document.querySelector('#preview-frame').srcdoc.includes('Static WASM preview'));

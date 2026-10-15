@@ -1,6 +1,6 @@
 {{define "components"}}
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{if .Components.Story}}{{.Components.Story.Name}} · {{end}}Ely HTMX · Component Gallery</title>{{template "brand-icon" .}}{{template "font-preloads"}}
@@ -14,48 +14,48 @@
   <script src="/assets/htmx.min.js" defer></script><script src="/assets/theme.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <a class="skip-link" href="#main">Skip to content</a>
   {{template "gallery-header" "components"}}
   {{if .Components.Story}}
   <div class="shell component-layout">
-    <aside class="component-sidebar" aria-label="컴포넌트 목록">
-      <form class="component-search" action="/components"><label class="sr-only" for="component-query">컴포넌트 검색</label><input id="component-query" type="search" name="q" placeholder="{{.Components.Count}}개 컴포넌트 검색" maxlength="200"><button class="sr-only" type="submit">검색</button></form>
-      <nav aria-label="컴포넌트 분류">{{range .Components.Chapters}}<details{{if eq .Slug $.Components.Chapter.Slug}} open{{end}}><summary>{{.Title}}</summary><ul>{{$chapter:=.Slug}}{{range .Stories}}<li><a href="/components/{{$chapter}}/{{.Slug}}"{{if and (eq $chapter $.Components.Chapter.Slug) (eq .Slug $.Components.Story.Slug)}} aria-current="page"{{end}}>{{.Name}}</a></li>{{end}}</ul></details>{{end}}</nav>
+    <aside class="component-sidebar" aria-label="Component list">
+      <form class="component-search" action="/components"><label class="sr-only" for="component-query">Search components</label><input id="component-query" type="search" name="q" placeholder="Search {{.Components.Count}} components" maxlength="200"><button class="sr-only" type="submit">Search</button></form>
+      <nav aria-label="Component categories">{{range .Components.Chapters}}<details{{if eq .Slug $.Components.Chapter.Slug}} open{{end}}><summary>{{.Title}}</summary><ul>{{$chapter:=.Slug}}{{range .Stories}}<li><a href="/components/{{$chapter}}/{{.Slug}}"{{if and (eq $chapter $.Components.Chapter.Slug) (eq .Slug $.Components.Story.Slug)}} aria-current="page"{{end}}>{{.Name}}</a></li>{{end}}</ul></details>{{end}}</nav>
     </aside>
     <main id="main" class="component-story">
-      <nav class="gallery-breadcrumb" aria-label="현재 위치"><a href="/components">갤러리</a><span>/</span><a href="/components?category={{.Components.Chapter.Slug}}">{{.Components.Chapter.Title}}</a></nav>
+      <nav class="gallery-breadcrumb" aria-label="Breadcrumb"><a href="/components">Gallery</a><span>/</span><a href="/components?category={{.Components.Chapter.Slug}}">{{.Components.Chapter.Title}}</a></nav>
       <h1 title="{{range $i,$name:=.Components.Story.Components}}{{if $i}} · {{end}}{{$name}}{{end}}">{{.Components.Story.Name}}</h1>
-      <p class="gallery-detail-hint">실제 컴포넌트를 직접 사용해 보세요. <a href="/playground/">플레이그라운드에서 화면 만들기 ↗</a></p>
-      <section class="component-live" aria-label="{{.Components.Story.Name}} 예제" data-demo-story="{{.Components.Chapter.Slug}}/{{.Components.Story.Slug}}"><p class="component-description">{{.Components.Description}}</p>{{.Components.Preview}}</section>
-      <nav class="component-paging" aria-label="이전과 다음 예제" tabindex="-1" data-after-live>{{if .Components.Previous}}<a href="{{.Components.Previous.Href}}">← {{.Components.Previous.Name}}</a>{{else}}<span></span>{{end}}{{if .Components.Next}}<a href="{{.Components.Next.Href}}">{{.Components.Next.Name}} →</a>{{end}}</nav>
+      <p class="gallery-detail-hint">Try the live component below. <a href="/playground/">Build a screen in the playground ↗</a></p>
+      <section class="component-live" aria-label="{{.Components.Story.Name}} example" data-demo-story="{{.Components.Chapter.Slug}}/{{.Components.Story.Slug}}"><p class="component-description">{{.Components.Description}}</p>{{.Components.Preview}}</section>
+      <nav class="component-paging" aria-label="Previous and next examples" tabindex="-1" data-after-live>{{if .Components.Previous}}<a href="{{.Components.Previous.Href}}">← {{.Components.Previous.Name}}</a>{{else}}<span></span>{{end}}{{if .Components.Next}}<a href="{{.Components.Next.Href}}">{{.Components.Next.Name}} →</a>{{end}}</nav>
     </main>
   </div>
   {{else}}
   <main id="main" class="shell component-index" data-gallery-index>
     <section class="gallery-hero" aria-labelledby="gallery-title">
-      <div><p class="eyebrow">ELY HTMX / COMPONENT GALLERY</p><h1 id="gallery-title">작은 요소부터,<br>완성된 화면까지.</h1><p class="lede">눈으로 고르고, 직접 사용해 보고, 나만의 화면으로 연결하세요.</p>
-      <div class="gallery-hero-actions"><a class="gallery-primary" href="/playground/">플레이그라운드 열기 ↗</a><a class="gallery-secondary" href="#gallery-browser">컴포넌트 둘러보기 ↓</a></div></div>
-      <aside class="gallery-hero-note"><span class="gallery-spark" aria-hidden="true">✳</span><p>Go + HTML + htmx</p><strong>{{.Components.Stories}}개의 예제.<br>하나의 디자인 언어.</strong><span>{{len .Components.Chapters}}개 분류 · {{.Components.Count}}개 컴포넌트 이름</span></aside>
+      <div><p class="eyebrow">ELY HTMX / COMPONENT GALLERY</p><h1 id="gallery-title">From small details<br>to complete screens.</h1><p class="lede">Explore the collection, try each component, and bring your own screens to life.</p>
+      <div class="gallery-hero-actions"><a class="gallery-primary" href="/playground/">Open playground ↗</a><a class="gallery-secondary" href="#gallery-browser">Explore components ↓</a></div></div>
+      <aside class="gallery-hero-note"><span class="gallery-spark" aria-hidden="true">✳</span><p>Go + HTML + htmx</p><strong>{{.Components.Stories}} examples.<br>One design language.</strong><span>{{len .Components.Chapters}} categories · {{.Components.Count}} component names</span></aside>
     </section>
-    <section id="gallery-browser" aria-label="컴포넌트 탐색">
-      <div class="gallery-section-heading"><div><p class="eyebrow">THE COLLECTION</p><h2>컴포넌트 둘러보기</h2></div><p>카드를 열어 실제 동작과 다양한 예제를 확인하세요.</p></div>
+    <section id="gallery-browser" aria-label="Browse components">
+      <div class="gallery-section-heading"><div><p class="eyebrow">THE COLLECTION</p><h2>Explore components</h2></div><p>Open a card to explore live components and their variations.</p></div>
       <form class="component-search gallery-filters" action="/components" role="search">
-        <div class="gallery-search-field"><label for="component-query">컴포넌트 검색</label><input id="component-query" type="search" name="q" value="{{.Components.Query}}" placeholder="이름, 별칭 또는 분류로 검색" maxlength="200" autocomplete="off"></div>
-        <div class="gallery-category-field"><label for="gallery-category">분류</label><select id="gallery-category" name="category"><option value="">전체 분류</option>{{range .Components.Chapters}}<option value="{{.Slug}}">{{.Title}}</option>{{end}}</select></div>
-        <button id="gallery-reset" type="reset">초기화</button><button class="sr-only" type="submit">검색</button>
+        <div class="gallery-search-field"><label for="component-query">Search components</label><input id="component-query" type="search" name="q" value="{{.Components.Query}}" placeholder="Search by name, alias, or category" maxlength="200" autocomplete="off"></div>
+        <div class="gallery-category-field"><label for="gallery-category">Category</label><select id="gallery-category" name="category"><option value="">All categories</option>{{range .Components.Chapters}}<option value="{{.Slug}}">{{.Title}}</option>{{end}}</select></div>
+        <button id="gallery-reset" type="reset">Reset</button><button class="sr-only" type="submit">Search</button>
       </form>
-      <p id="gallery-results" class="gallery-results" role="status" aria-live="polite">{{len .Components.Chapters}}개 분류 · {{.Components.Stories}}개 예제</p>
-      <noscript><p class="gallery-results">전체 분류와 예제는 아래에서 볼 수 있습니다. 검색과 분류 필터는 JavaScript를 켜면 사용할 수 있습니다.</p></noscript>
+      <p id="gallery-results" class="gallery-results" role="status" aria-live="polite">{{len .Components.Chapters}} categories · {{.Components.Stories}} examples</p>
+      <noscript><p class="gallery-results">All categories and examples are listed below. Enable JavaScript to search and filter by category.</p></noscript>
       <div class="gallery-grid">
       {{range .Components.Cards}}<article class="gallery-card" data-gallery-card data-category="{{.Chapter.Slug}}" data-search="{{.Search}}">
-        <a class="gallery-preview-link" href="/components/{{.Chapter.Slug}}/{{.Story.Slug}}" aria-label="{{.Chapter.Title}} · {{.Story.Name}} 예제 보기"><div class="gallery-preview" inert aria-hidden="true"><div class="gallery-preview-content">{{.Preview}}</div></div><span class="gallery-preview-label">{{.Story.Name}} <span aria-hidden="true">↗</span></span></a>
-        <div class="gallery-card-body"><div class="gallery-card-title"><h3><a class="chapter-title" href="/components/{{.Chapter.Slug}}/{{.Story.Slug}}">{{.Chapter.Title}}</a></h3><span>{{len .Chapter.Stories}}개</span></div><p class="gallery-card-summary">{{.Chapter.Summary}}</p>
-        <details data-gallery-examples><summary>예제 모두 보기 <span aria-hidden="true">+</span></summary><div class="chapter-stories">{{$chapter:=.Chapter.Slug}}{{range .Chapter.Stories}}<a href="/components/{{$chapter}}/{{.Slug}}" data-search="{{.Name}} {{.Title}} {{range .Components}}{{.}} {{end}}">{{.Name}} <span aria-hidden="true">↗</span></a>{{end}}</div></details></div>
+        <a class="gallery-preview-link" href="/components/{{.Chapter.Slug}}/{{.Story.Slug}}" aria-label="View {{.Chapter.Title}} · {{.Story.Name}} example"><div class="gallery-preview" inert aria-hidden="true"><div class="gallery-preview-content">{{.Preview}}</div></div><span class="gallery-preview-label">{{.Story.Name}} <span aria-hidden="true">↗</span></span></a>
+        <div class="gallery-card-body"><div class="gallery-card-title"><h3><a class="chapter-title" href="/components/{{.Chapter.Slug}}/{{.Story.Slug}}">{{.Chapter.Title}}</a></h3><span>{{len .Chapter.Stories}} examples</span></div><p class="gallery-card-summary">{{.Chapter.Summary}}</p>
+        <details data-gallery-examples><summary>View all examples <span aria-hidden="true">+</span></summary><div class="chapter-stories">{{$chapter:=.Chapter.Slug}}{{range .Chapter.Stories}}<a href="/components/{{$chapter}}/{{.Slug}}" data-search="{{.Name}} {{.Title}} {{range .Components}}{{.}} {{end}}">{{.Name}} <span aria-hidden="true">↗</span></a>{{end}}</div></details></div>
       </article>{{end}}
       </div>
-      <div id="gallery-empty" class="gallery-empty" hidden><h3>일치하는 예제가 없습니다.</h3><p>검색어를 바꾸거나 분류를 전체로 선택해 보세요.</p><button type="button" data-gallery-clear>전체 컴포넌트 보기</button></div>
+      <div id="gallery-empty" class="gallery-empty" hidden><h3>No matching examples.</h3><p>Try another search or choose all categories.</p><button type="button" data-gallery-clear>View all components</button></div>
     </section>
-    <section class="gallery-bottom-cta"><div><p class="eyebrow">MAKE IT YOURS</p><h2>이제, 나만의 화면을 만들어 보세요.</h2><p>플레이그라운드에서 컴포넌트를 조합하고 바로 미리 볼 수 있습니다.</p></div><a class="gallery-primary" href="/playground/">플레이그라운드 열기 ↗</a></section>
+    <section class="gallery-bottom-cta"><div><p class="eyebrow">MAKE IT YOURS</p><h2>Make your next screen your own.</h2><p>Combine components in the playground and preview your screen as you build.</p></div><a class="gallery-primary" href="/playground/">Open playground ↗</a></section>
   </main>
   {{end}}
   {{template "gallery-footer"}}
@@ -63,4 +63,4 @@
 </html>
 {{end}}
 
-{{define "component-demo-response"}}<div class="component-demo-response" role="status"><strong>로컬 예제 응답</strong><p>{{if .Query}}입력: {{.Query}}{{else}}입력을 받았습니다. 실제 데이터는 저장하지 않았습니다.{{end}}</p>{{if .Matches}}<ul>{{range .Matches}}<li>{{.}}</li>{{end}}</ul>{{else}}<p class="component-description">외부 서비스 연결 없이 생성한 샘플 응답입니다.</p>{{end}}</div>{{end}}
+{{define "component-demo-response"}}<div class="component-demo-response" role="status"><strong>Local demo response</strong><p>{{if .Query}}Input: {{.Query}}{{else}}Input received. No data was saved.{{end}}</p>{{if .Matches}}<ul>{{range .Matches}}<li>{{.}}</li>{{end}}</ul>{{else}}<p class="component-description">This sample response was generated without contacting an external service.</p>{{end}}</div>{{end}}

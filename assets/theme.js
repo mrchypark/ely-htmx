@@ -16,16 +16,16 @@
   const copy = value => JSON.parse(JSON.stringify(value));
   const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const save = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
-  const modeOf = value => { if (!['light','dark'].includes(value)) throw new Error('모드는 light 또는 dark여야 합니다.'); return value; };
+  const modeOf = value => { if (!['light','dark'].includes(value)) throw new Error('Mode must be light or dark.'); return value; };
   function validate(theme) {
-    if (!theme || typeof theme.id !== 'string' || !/^[a-z][a-z0-9-]{0,47}$/.test(theme.id) || typeof theme.name !== 'string' || !theme.name.trim() || theme.name.length > 80 || Object.keys(theme).some(key => !['id','name','light','dark'].includes(key))) throw new Error('테마에는 id, name, light, dark가 필요합니다.');
+    if (!theme || typeof theme.id !== 'string' || !/^[a-z][a-z0-9-]{0,47}$/.test(theme.id) || typeof theme.name !== 'string' || !theme.name.trim() || theme.name.length > 80 || Object.keys(theme).some(key => !['id','name','light','dark'].includes(key))) throw new Error('A theme requires id, name, light, and dark.');
     const result = {id:theme.id, name:theme.name.trim()};
     for (const mode of ['light','dark']) {
       const values = theme[mode];
-      if (!values || Object.keys(values).length !== tokens.length || Object.keys(values).some(key => !tokens.includes(key))) throw new Error(`${mode}에는 정해진 색상 역할 19개가 필요합니다.`);
+      if (!values || Object.keys(values).length !== tokens.length || Object.keys(values).some(key => !tokens.includes(key))) throw new Error(`${mode} requires all 19 supported color tokens.`);
       result[mode] = {};
       for (const key of tokens) {
-        if (typeof values[key] !== 'string' || !/^#[0-9a-f]{6}$/i.test(values[key])) throw new Error(`${mode}.${key}: #RRGGBB 형식의 색상을 입력하세요.`);
+        if (typeof values[key] !== 'string' || !/^#[0-9a-f]{6}$/i.test(values[key])) throw new Error(`${mode}.${key}: enter a color in #RRGGBB format.`);
         result[mode][key] = values[key].toUpperCase();
       }
     }
@@ -45,7 +45,7 @@
     }
     return problems;
   }
-  const get = id => { if (!palettes.has(id)) throw new Error('등록되지 않은 테마입니다.'); return copy(palettes.get(id)); };
+  const get = id => { if (!palettes.has(id)) throw new Error('This theme is not registered.'); return copy(palettes.get(id)); };
   function preview(element, value, mode) {
     const theme = typeof value === 'string' ? get(value) : validate(value), colors = theme[modeOf(mode)];
     element.dataset.theme = mode;
@@ -60,19 +60,19 @@
     const darkMode = root.dataset.theme === 'dark';
     document.querySelectorAll('[data-theme-toggle]').forEach(button => {
       button.setAttribute('aria-pressed', String(darkMode));
-      button.setAttribute('aria-label', darkMode ? '밝은 화면으로 전환' : '어두운 화면으로 전환');
+      button.setAttribute('aria-label', darkMode ? 'Switch to light mode' : 'Switch to dark mode');
     });
   };
   function register(value) {
     const theme = validate(value);
-    if (builtins.has(theme.id)) throw new Error('기본 테마를 변경하려면 새 id를 사용하세요.');
-    if (issues(theme).length) throw new Error('글자 또는 입력 경계의 색상 대비를 먼저 수정하세요.');
+    if (builtins.has(theme.id)) throw new Error('Use a new id to customize a built-in theme.');
+    if (issues(theme).length) throw new Error('Fix the text or input border contrast before applying this theme.');
     palettes.set(theme.id,theme);
     return copy(theme);
   }
   function apply(id, mode = root.dataset.theme) {
     const theme = get(id);
-    if (issues(theme).length) throw new Error('글자 또는 입력 경계의 색상 대비를 먼저 수정하세요.');
+    if (issues(theme).length) throw new Error('Fix the text or input border contrast before applying this theme.');
     preview(root,theme,mode);
     save('ely-palette',id);
     save('ely-theme',mode);

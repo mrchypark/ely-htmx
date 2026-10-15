@@ -4,21 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{.Token}}">
-  <meta name="color-scheme" content="light">
-  <title>Ely Studio · SDUI Playground</title>
+  <meta name="color-scheme" content="light dark">
+  <title>Ely HTMX · Playground</title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/assets/site-chrome.css">
+  <script src="/assets/theme.js"></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#workspace">Skip to editor</a>
-  <header class="topbar">
-    <a class="brand" href="/" aria-label="Ely Studio home"><span class="brand-icon" aria-hidden="true">e</span><span>ely<span class="brand-light"> / studio</span></span></a>
-    <span class="topbar-caption">SERVER-DRIVEN UI PLAYGROUND</span>
-    <span class="local-pill"><span aria-hidden="true"></span> Local workspace</span>
-  </header>
+  <header class="site-header"><div class="site-header__inner">
+    <a class="wordmark" href="https://mrchypark.github.io/ely-htmx/" aria-label="Component gallery">Ely HTMX</a>
+    <nav class="header-nav" aria-label="Explore examples">
+      <a href="https://mrchypark.github.io/ely-htmx/components/">Components</a>
+      <a href="https://mrchypark.github.io/ely-htmx/components/usage/">Form examples</a>
+      <a href="https://mrchypark.github.io/ely-htmx/components/themes/">Themes</a>
+      <a href="/" data-playground-home aria-current="page">Playground</a>
+    </nav>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/></svg></button>
+  </div></header>
   <main id="workspace">
     <section class="workspace-heading" aria-label="Workspace controls">
-      <div><p class="eyebrow">BUILD / INSPECT / DELIVER</p><h1>Your interface, as data<span class="accent">.</span></h1><p class="subtitle">Compose real Ely components. Inspect the result, down to the byte.</p></div>
+      <div><p class="eyebrow">ELY HTMX / PLAYGROUND</p><h1>Build your next screen.</h1><p class="subtitle">Combine components, edit their properties, and preview your screen.</p></div>
       <div class="document-actions">
         <div class="example-controls"><label class="sr-only" for="example-select">Example screen</label><select id="example-select" disabled><option>Loading examples…</option></select><button id="load-example" class="button" disabled>Load example</button></div>
         <div class="file-actions"><button id="import-screen" class="button quiet">Import JSON</button><input id="import-file" type="file" accept=".json,application/json" hidden><button id="export-screen" class="button quiet">Export JSON <span aria-hidden="true">↗</span></button></div>
@@ -69,7 +76,7 @@
         </section>
       </section>
     </div>
-    <footer class="workspace-footer"><span>Ely components. Go templates. One source of truth.</span><span id="save-status">Edits stay in this browser</span></footer>
+    <footer class="workspace-footer"><span class="local-pill">Local workspace</span><span>Ely components. Go templates. One source of truth.</span><span id="save-status">Edits stay in this browser</span></footer>
   </main>
   <noscript><p class="notice">Enable JavaScript to use the editor. The preview remains sandboxed.</p></noscript>
 </body>

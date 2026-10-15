@@ -36,7 +36,7 @@
 <section id="{{.ID}}" class="ui-calendar" data-ui-component="calendar" data-ui-calendar-value="{{.Value}}"{{if .Disabled}} data-ui-disabled="true"{{end}}>
   <div class="ui-calendar-header">{{template "button" (dict "Label" "←" "Size" "icon" "Type" "button" "Disabled" .Disabled "Variant" "ghost" "Attrs" (dict "data-ui-calendar-month" "-1" "aria-label" "Previous month"))}}<output data-ui-calendar-title aria-live="polite">{{.Label}}</output>{{template "button" (dict "Label" "→" "Size" "icon" "Type" "button" "Disabled" .Disabled "Variant" "ghost" "Attrs" (dict "data-ui-calendar-month" "1" "aria-label" "Next month"))}}</div>
   <label class="ui-calendar-value">{{or .Label "Date"}}{{template "input" (dict "Type" "date" "Name" .Name "Value" .Value "Min" .Min "Max" .Max "Required" .Required "Disabled" .Disabled "Attrs" (dict "data-ui-calendar-input" ""))}}</label>
-  <div class="ui-calendar-week" aria-hidden="true">{{range list "일" "월" "화" "수" "목" "금" "토"}}<span>{{.}}</span>{{end}}</div>
+  <div class="ui-calendar-week" aria-hidden="true">{{range list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat"}}<span>{{.}}</span>{{end}}</div>
   <div class="ui-calendar-days" role="group" aria-label="Select date"></div>
   <template data-ui-calendar-day>{{template "button" (dict "Type" "button" "Variant" "ghost")}}</template>
 </section>
