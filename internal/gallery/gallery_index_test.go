@@ -2,6 +2,7 @@ package uiexamples
 
 import (
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -20,6 +21,9 @@ func TestVisualGalleryCoversCatalogue(t *testing.T) {
 			t.Fatalf("invalid card: %s", card.Chapter.Slug)
 		}
 		seen[card.Chapter.Slug] = true
+		if !strings.Contains(string(card.Preview), "data-ui-component") && !strings.Contains(string(card.Preview), "data-ely-kind") && !strings.Contains(string(card.Preview), "data-slot") {
+			t.Errorf("card %s lacks rendered component", card.Chapter.Slug)
+		}
 		for _, story := range card.Chapter.Stories {
 			for _, alias := range story.Components {
 				if !strings.Contains(card.Search, alias) {
@@ -64,6 +68,24 @@ func TestGalleryPlaygroundLinksRespectStaticBase(t *testing.T) {
 		}
 		if strings.Index(string(output), "gallery-static-notice") > strings.Index(string(output), "</body>") {
 			t.Fatal("static notice must be inside the body")
+		}
+	}
+}
+
+func TestGalleryUnicodeQueryCanBeReloaded(t *testing.T) {
+	s, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, count := range []int{67, 200, 201} {
+		w := httptest.NewRecorder()
+		s.ServeHTTP(w, httptest.NewRequest("GET", "/components?q="+url.QueryEscape(strings.Repeat("가", count)), nil))
+		want := 200
+		if count > 200 {
+			want = 400
+		}
+		if w.Code != want {
+			t.Errorf("%d Korean characters: got %d want %d", count, w.Code, want)
 		}
 	}
 }

@@ -106,7 +106,9 @@ try {
   assert.equal(await cards().count(), 44, 'all 44 component categories are browsable');
   assert.equal(await page.locator('.chapter-stories a').count(), 624, 'every component story has a link');
   assert.equal(await page.locator('[data-gallery-card] .gallery-preview[inert]').count(), 44, 'thumbnail controls do not intercept gallery navigation');
-  assert(await page.locator('.gallery-preview [data-ui-component], .gallery-preview [data-ely-kind], .gallery-preview [data-slot]').count() >= 44, 'previews contain rendered components');
+  for (const card of await page.locator('[data-gallery-card]').all()) {
+    assert(await card.locator('.gallery-preview [data-ui-component], .gallery-preview [data-ely-kind], .gallery-preview [data-slot]').count() > 0, `rendered preview missing for ${await card.getAttribute('data-category')}`);
+  }
   assert.equal(await page.locator('[data-gallery-examples][open]').count(), 0, 'long example lists start collapsed');
   assert((await page.locator('#gallery-results').innerText()).trim(), 'result count is announced');
   const initialResults = await page.locator('#gallery-results').innerText();
@@ -125,6 +127,7 @@ try {
   }
   await assertNoOverflow('Desktop catalogue');
   await page.screenshot({path: resolve(output, `${mode}-desktop.png`), fullPage: true});
+  await page.screenshot({path: resolve(output, `${mode}-desktop-overview.png`)});
   const firstExamples = cards().first().locator('[data-gallery-examples]');
   await firstExamples.locator('summary').focus();
   await page.keyboard.press('Enter');
@@ -147,6 +150,13 @@ try {
   assert.equal(await query().inputValue(), '');
   assert.equal(await category().inputValue(), '');
   assert.equal(await page.locator('#gallery-empty').isVisible(), false);
+
+  checkpoint('Unicode search survives a shared URL reload');
+  await query().fill('가'.repeat(67));
+  const unicodeResponse = await page.reload({waitUntil: 'networkidle'});
+  assert.equal(unicodeResponse.status(), 200);
+  assert.equal(await query().inputValue(), '가'.repeat(67));
+  await page.locator('#gallery-reset').click();
 
   checkpoint('filtered URL, story navigation and browser back restoration');
   await category().selectOption('forms');
@@ -188,6 +198,7 @@ try {
     await eventually(async () => await cards().count() === 44, `${width}px reset restores gallery`);
     await page.evaluate(() => scrollTo(0, 0));
     await page.screenshot({path: resolve(output, `${mode}-mobile-${width}.png`), fullPage: true});
+    await page.screenshot({path: resolve(output, `${mode}-mobile-${width}-overview.png`)});
   }
   assert.deepEqual(errors, [], 'no uncaught browser errors');
   assert.deepEqual(badRequests, [], 'no failed, root-absolute static or external asset requests');

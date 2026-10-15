@@ -97,12 +97,15 @@ func galleryThumbnail(data []byte) (template.HTML, error) {
 		}
 		attrs := n.Attr[:0]
 		for _, a := range n.Attr {
-			if a.Key == "id" || a.Key == "autofocus" || a.Key == "name" || a.Key == "href" || a.Key == "action" || a.Key == "formaction" || strings.HasPrefix(a.Key, "hx-") || strings.HasPrefix(a.Key, "on") {
+			if a.Key == "loading" || a.Key == "decoding" || a.Key == "id" || a.Key == "autofocus" || a.Key == "name" || a.Key == "href" || a.Key == "action" || a.Key == "formaction" || strings.HasPrefix(a.Key, "hx-") || strings.HasPrefix(a.Key, "on") {
 				continue
 			}
 			attrs = append(attrs, a)
 		}
 		n.Attr = attrs
+		if n.Type == html.ElementNode && n.Data == "img" {
+			n.Attr = append(n.Attr, html.Attribute{Key: "loading", Val: "lazy"}, html.Attribute{Key: "decoding", Val: "async"})
+		}
 	}
 	clean(doc)
 	var out bytes.Buffer

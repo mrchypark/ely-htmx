@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/mrchypark/ely-htmx"
 )
@@ -151,8 +152,8 @@ func (s *Server) componentPage() ComponentPage {
 
 func componentQuery(r *http.Request) (string, error) {
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
-	if len(query) > 200 {
-		return "", fmt.Errorf("query exceeds 200 bytes")
+	if utf8.RuneCountInString(query) > 200 {
+		return "", fmt.Errorf("query exceeds 200 characters")
 	}
 	return query, nil
 }
@@ -161,7 +162,7 @@ func (s *Server) componentIndex(w http.ResponseWriter, r *http.Request) {
 	p := s.componentPage()
 	query, err := componentQuery(r)
 	if err != nil {
-		http.Error(w, "검색어는 200바이트 이내로 입력하세요.", http.StatusBadRequest)
+		http.Error(w, "검색어는 200자 이내로 입력하세요.", http.StatusBadRequest)
 		return
 	}
 	p.Query = query
@@ -250,7 +251,7 @@ type ComponentDemo struct {
 func (s *Server) componentDemo(w http.ResponseWriter, r *http.Request) {
 	query, err := componentQuery(r)
 	if err != nil {
-		http.Error(w, "입력은 200바이트 이내로 입력하세요.", http.StatusBadRequest)
+		http.Error(w, "입력은 200자 이내로 입력하세요.", http.StatusBadRequest)
 		return
 	}
 	p := ComponentDemo{Query: query}
