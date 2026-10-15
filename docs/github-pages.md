@@ -56,10 +56,9 @@ CI runs the static build under `/ely-htmx/` and tests real WASM preview, visual
 editing, source sync, examples, imports/exports, sandbox behavior and responsive
 layout in Chromium. The workflow uploads the built site and browser evidence.
 The repository uses Settings → Pages → GitHub Actions. The deployment job runs
-only on pushes to `feat/sdui-runtime`, after all three test jobs pass, and publishes
+only on pushes to `main`, after all three test jobs pass, and publishes
 the tested artifact with the official Pages actions. Pull-request runs never deploy.
-The `github-pages` environment must permit this source branch; do not weaken an
-existing environment protection rule to deploy. No merge is required. When moving
-to a release branch later, update the explicitly selected deployment branch.
+Merge reviewed changes into `main` to deploy. The `github-pages` environment
+protection rules remain in effect; do not weaken them to deploy a feature branch.
 
 GitHub instructions: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site

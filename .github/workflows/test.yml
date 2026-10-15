@@ -63,7 +63,7 @@ jobs:
           path: dist/
           include-hidden-files: true
   deploy-pages:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/sdui-runtime'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [test, browser, static-pages]
     runs-on: ubuntu-latest
     permissions:
