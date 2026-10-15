@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/mrchypark/ely-htmx"
 )
@@ -24,6 +25,7 @@ type ComponentLink struct{ Href, Name string }
 
 type ComponentPage struct {
 	Chapters       []ComponentChapter
+	Cards          []GalleryCard
 	Chapter        ComponentChapter
 	Story          *ComponentStory
 	Previous, Next *ComponentLink
@@ -43,6 +45,7 @@ type Server struct {
 	templates      *template.Template
 	mux            *http.ServeMux
 	components     []ComponentChapter
+	galleryCards   []GalleryCard
 	referenceNotes map[string]string
 }
 
@@ -70,6 +73,9 @@ func New() (*Server, error) {
 	for _, reference := range references {
 		s.referenceNotes[reference.Key] = reference.Description
 	}
+	if err := s.buildGalleryCards(); err != nil {
+		return nil, err
+	}
 	if err := ui.BindAssets(s.mux); err != nil {
 		return nil, err
 	}
@@ -80,6 +86,9 @@ func New() (*Server, error) {
 	s.mux.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assets))))
 	s.mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/components", http.StatusSeeOther)
+	})
+	s.mux.HandleFunc("GET /playground/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "https://mrchypark.github.io/ely-htmx/playground/", http.StatusSeeOther)
 	})
 	s.mux.HandleFunc("GET /components", s.componentIndex)
 	s.mux.HandleFunc("GET /components/usage", func(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +136,7 @@ func (s *Server) loadComponents() error {
 func componentHref(chapter, story string) string { return "/components/" + chapter + "/" + story }
 
 func (s *Server) componentPage() ComponentPage {
-	p := ComponentPage{Chapters: s.components}
+	p := ComponentPage{Chapters: s.components, Cards: s.galleryCards}
 	names := map[string]bool{}
 	for _, chapter := range s.components {
 		p.Stories += len(chapter.Stories)
@@ -143,8 +152,8 @@ func (s *Server) componentPage() ComponentPage {
 
 func componentQuery(r *http.Request) (string, error) {
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
-	if len(query) > 200 {
-		return "", fmt.Errorf("query exceeds 200 bytes")
+	if utf8.RuneCountInString(query) > 200 {
+		return "", fmt.Errorf("query exceeds 200 characters")
 	}
 	return query, nil
 }
@@ -153,29 +162,11 @@ func (s *Server) componentIndex(w http.ResponseWriter, r *http.Request) {
 	p := s.componentPage()
 	query, err := componentQuery(r)
 	if err != nil {
-		http.Error(w, "검색어는 200바이트 이내로 입력하세요.", http.StatusBadRequest)
+		http.Error(w, "검색어는 200자 이내로 입력하세요.", http.StatusBadRequest)
 		return
 	}
 	p.Query = query
-	if q := strings.ToLower(query); q != "" {
-		p.Chapters = nil
-		for _, chapter := range s.components {
-			if strings.Contains(strings.ToLower(chapter.Title), q) {
-				p.Chapters = append(p.Chapters, chapter)
-				continue
-			}
-			filtered := chapter
-			filtered.Stories = nil
-			for _, story := range chapter.Stories {
-				if strings.Contains(strings.ToLower(story.Title+" "+strings.Join(story.Components, " ")), q) {
-					filtered.Stories = append(filtered.Stories, story)
-				}
-			}
-			if len(filtered.Stories) > 0 {
-				p.Chapters = append(p.Chapters, filtered)
-			}
-		}
-	}
+
 	s.render(w, http.StatusOK, "components", page{Title: "Ely HTMX UI · 예제", Components: p})
 }
 
@@ -260,7 +251,7 @@ type ComponentDemo struct {
 func (s *Server) componentDemo(w http.ResponseWriter, r *http.Request) {
 	query, err := componentQuery(r)
 	if err != nil {
-		http.Error(w, "입력은 200바이트 이내로 입력하세요.", http.StatusBadRequest)
+		http.Error(w, "입력은 200자 이내로 입력하세요.", http.StatusBadRequest)
 		return
 	}
 	p := ComponentDemo{Query: query}

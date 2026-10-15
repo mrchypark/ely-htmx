@@ -25,6 +25,28 @@ registered contracts, including typed slots, bindings, repeats, templates and
 event metadata. Preview actions are deliberately inert: the opaque iframe grants
 no scripts, forms, navigation, same-origin access, or arbitrary network loads.
 
+## Browsing the gallery
+
+The landing page presents 44 visual category cards. Each thumbnail is one
+representative, inert Go-rendered component; full interactive behavior is on the
+linked detail page. All 624 examples remain available through each card's
+expandable list. Search includes component names and aliases, and combines with
+the category selector. Filters are reflected in the URL and restored on reload
+or browser Back. Empty results have a reset action. Without JavaScript, the full
+collection and its example links remain available.
+
+Playground is available from the primary navigation and gallery calls to action.
+On the local gallery server `/playground/` redirects to the public browser-only
+editor; the independent local editor can still be started with
+`go run ./cmd/sdui-playground`. Static exports resolve the link under their
+configured base path. Advanced API and behavior checks remain available under
+Developer tools in the footer.
+
+Gallery regression checks run against the live Go server with
+`node scripts/gallery-browser-test.mjs` and the static export with
+`GALLERY_STATIC=1 node scripts/gallery-browser-test.mjs`. CI uploads gallery
+screenshots at desktop, 390px and 320px widths, alongside editor evidence.
+
 ## Architecture and limits
 
 - Names, examples and per-component contracts are static JSON files. A contract

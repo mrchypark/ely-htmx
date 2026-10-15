@@ -21,17 +21,20 @@ func TestGalleryNavigationIsConsistent(t *testing.T) {
 			t.Fatalf("%s lacks navigation (%d)", path, w.Code)
 		}
 		nav := match[1]
-		if strings.Count(nav, "<a ") != 5 || strings.Count(nav, `aria-current="page"`) != 1 {
+		if strings.Contains(nav, "/components/audit") || !strings.Contains(w.Body.String(), `aria-label="개발자 도구"`) {
+			t.Fatal("developer tools must remain secondary")
+		}
+		if strings.Count(nav, "<a ") != 4 {
 			t.Fatalf("%s inconsistent links or current page: %s", path, nav)
 		}
 		active := path
 		if strings.HasPrefix(path, "/components/forms/") {
 			active = "/components"
 		}
-		if !strings.Contains(nav, `href="`+active+`" aria-current="page"`) {
+		if active != "/components/api" && active != "/components/audit" && !strings.Contains(nav, `href="`+active+`" aria-current="page"`) {
 			t.Errorf("%s has incorrect current page", path)
 		}
-		for _, label := range []string{"컴포넌트", "폼 예제", "테마 제안", "고급 API", "동작 검증"} {
+		for _, label := range []string{"컴포넌트", "폼 예제", "테마 제안", "플레이그라운드"} {
 			if !strings.Contains(nav, ">"+label+"</a>") {
 				t.Errorf("%s lacks %s", path, label)
 			}

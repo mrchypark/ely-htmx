@@ -38,7 +38,7 @@ func ExportStatic(dir, base string) (StaticExport, error) {
 	if err != nil {
 		return result, err
 	}
-	routes := map[string]string{"/components": "components/", "/components/usage": "components/usage/", "/components/themes": "components/themes/", "/components/api": "components/api/", "/components/audit": "components/audit/", "/components/demo": "components/demo/"}
+	routes := map[string]string{"/playground/": "playground/", "/components": "components/", "/components/usage": "components/usage/", "/components/themes": "components/themes/", "/components/api": "components/api/", "/components/audit": "components/audit/", "/components/demo": "components/demo/"}
 	requests := []string{"/components", "/components/usage", "/components/themes", "/components/api", "/components/audit", "/components/demo"}
 	for _, chapter := range s.components {
 		for _, story := range chapter.Stories {
@@ -199,23 +199,23 @@ func staticHTML(data []byte, base string, routes map[string]string) ([]byte, err
 				}
 			}
 		}
-		out.WriteString(token.String())
-		if kind == html.StartTagToken && token.Data == "body" {
-			fmt.Fprintf(&out, `<aside class="gallery-static-notice" role="note">Static component gallery · Browser-side controls work locally. Server submissions and integrations are demonstrations only. <a href="%splayground/">Open SDUI playground ↗</a><span data-static-status role="status"></span></aside>`, base)
+		if kind == html.EndTagToken && token.Data == "body" {
+			fmt.Fprintf(&out, `<aside class="gallery-static-notice" role="note">정적 갤러리 · 브라우저 안의 조작은 직접 사용할 수 있습니다. 서버 전송과 외부 연동은 데모입니다. <a href="%splayground/">Open SDUI playground ↗</a><span data-static-status role="status"></span></aside>`, base)
 		}
+		out.WriteString(token.String())
 	}
 	return staticAssetPaths(out.Bytes(), base), nil
 }
 
-const staticGalleryCSS = `.gallery-static-notice{padding:.65rem 1rem;border-bottom:1px solid var(--border,#ccc);font:13px/1.5 system-ui,sans-serif;background:var(--background,#fff);color:var(--foreground,#222);display:flex;gap:.5rem 1rem;flex-wrap:wrap}.gallery-static-notice a{color:inherit;text-decoration:underline}[data-static-status]:empty{display:none}[data-static-status]{font-weight:600}.component-chapters [hidden],.component-sidebar [hidden]{display:none!important}`
+const staticGalleryCSS = `.gallery-static-notice{padding:.65rem 1rem;border-bottom:1px solid var(--border,#ccc);font:13px/1.5 system-ui,sans-serif;background:var(--background,#fff);color:var(--foreground,#222);display:flex;gap:.5rem 1rem;flex-wrap:wrap}.gallery-static-notice:has([data-static-status]:not(:empty)){position:sticky;bottom:0;z-index:100}.gallery-static-notice a{color:inherit;text-decoration:underline}[data-static-status]:empty{display:none}[data-static-status]{font-weight:600}.component-chapters [hidden],.component-sidebar [hidden]{display:none!important}`
 
 const staticGalleryScript = `(() => {
  const explain=()=>{const status=document.querySelector('[data-static-status]');if(status)status.textContent='This action needs a running Go backend; no data was sent.';};
  document.addEventListener('htmx:beforeRequest',event=>{event.preventDefault();explain();});
- document.addEventListener('submit',event=>{if(event.target.matches('.component-search')){event.preventDefault();filter(event.target.querySelector('input').value);return;}if(event.target.hasAttribute('hx-post')||event.target.hasAttribute('hx-get')||event.target.getAttribute('method')?.toLowerCase()==='post'){event.preventDefault();explain();}},true);
+ document.addEventListener('submit',event=>{if(event.target.matches('.gallery-filters'))return;if(event.target.matches('.component-search')){event.preventDefault();filter(event.target.querySelector('input').value);return;}if(event.target.hasAttribute('hx-post')||event.target.hasAttribute('hx-get')||event.target.getAttribute('method')?.toLowerCase()==='post'){event.preventDefault();explain();}},true);
  function filter(value){const q=value.trim().toLowerCase();document.querySelectorAll('.component-chapters > li').forEach(chapter=>{const title=chapter.querySelector('.chapter-title')?.textContent.toLowerCase()||'';let visible=false;chapter.querySelectorAll('.chapter-stories a').forEach(link=>{link.hidden=!(title.includes(q)||link.textContent.toLowerCase().includes(q));visible ||= !link.hidden;});chapter.hidden=!visible;});document.querySelectorAll('.component-sidebar nav details').forEach(chapter=>{const title=chapter.querySelector('summary').textContent.toLowerCase();let visible=false;chapter.querySelectorAll('li').forEach(item=>{item.hidden=!(title.includes(q)||item.textContent.toLowerCase().includes(q));visible ||= !item.hidden;});chapter.hidden=!visible;if(q&&visible)chapter.open=true;});}
- document.addEventListener('input',event=>{if(event.target.matches('.component-search input'))filter(event.target.value);});
- document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.component-search').forEach(form=>{for(const attribute of [...form.attributes])if(attribute.name.startsWith('hx-'))form.removeAttribute(attribute.name);});const q=new URLSearchParams(location.search).get('q');if(q){document.querySelectorAll('.component-search input').forEach(input=>input.value=q);filter(q);}});
+ document.addEventListener('input',event=>{if(event.target.matches('.component-sidebar .component-search input'))filter(event.target.value);});
+ document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.component-search').forEach(form=>{for(const attribute of [...form.attributes])if(attribute.name.startsWith('hx-'))form.removeAttribute(attribute.name);});const q=new URLSearchParams(location.search).get('q');if(q&&!document.querySelector('[data-gallery-index]')){document.querySelectorAll('.component-search input').forEach(input=>input.value=q);filter(q);}});
 })();`
 
 const staticMarkdownAdapter = `export async function previewMarkdown(detail){const note=document.createElement('p');note.textContent='Static preview: full Markdown rendering requires the Go backend.';const pre=document.createElement('pre');pre.textContent=detail.value||detail.source||'';return {nodes:[note,pre]};}
