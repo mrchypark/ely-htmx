@@ -6,6 +6,24 @@ import {resolve, dirname, relative, sep} from 'node:path';
 // A cached stylesheet from an earlier deployment cannot style newer markup.
 const root = resolve(process.argv[2] || 'dist');
 const base = process.argv[3] || '/ely-htmx/';
+async function files(dir) {
+ const result=[];
+ for (const entry of await readdir(dir,{withFileTypes:true})) {
+  const path=resolve(dir,entry.name);
+  if(entry.isDirectory()) result.push(...await files(path)); else result.push(path);
+ }
+ return result.sort();
+}
+const paths=await files(root);
+// A release key also invalidates transitive module imports and lazy worker assets.
+const release=createHash('sha256');
+for(const path of paths) release.update(relative(root,path)).update(await readFile(path));
+const version=release.digest('hex').slice(0,16);
+for(const path of paths.filter(path=>path.endsWith('.js'))) {
+ let source=await readFile(path,'utf8');
+ source=source.replace(/(\b(?:import|export)\s+(?:[^'"\n]*?\sfrom\s*)?['"])(\.[^'"?]+\.js)(['"])/g,`$1$2?v=${version}$3`);
+ await writeFile(path,`/* Static release ${version} */\n`+source);
+}
 async function walk(dir) {
   for (const entry of await readdir(dir, {withFileTypes:true})) {
     const file = resolve(dir, entry.name);
@@ -26,4 +44,4 @@ async function walk(dir) {
   }
 }
 await walk(root);
-console.log('Versioned exported stylesheets and scripts by content.');
+console.log('Versioned exported stylesheets, scripts and transitive assets.');
