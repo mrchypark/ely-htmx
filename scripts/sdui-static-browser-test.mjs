@@ -27,9 +27,11 @@ try{
  for(const url of await page.locator('link[rel=stylesheet],script[src]').evaluateAll(nodes=>nodes.map(el=>el.getAttribute('href')||el.getAttribute('src')))){assert(/\?v=[a-f0-9]{16}$/.test(url),'cache-safe asset: '+url);}
  await mkdir('test-results/static-pages',{recursive:true});
  await page.setViewportSize({width:1440,height:1000});await page.waitForFunction(()=>document.querySelector('#preview-state').textContent==='Live · validated');
- await page.screenshot({path:'test-results/static-pages/welcome-desktop.png',fullPage:true});
+ await page.screenshot({path:'test-results/static-pages/welcome-desktop.png',fullPage:true,animations:'disabled'});
  await page.locator('[data-theme-toggle]').click();assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
- await page.screenshot({path:'test-results/static-pages/welcome-dark.png',fullPage:true});
+ await page.frameLocator('#preview-frame').getByText('Build something useful.',{exact:true}).waitFor({state:'visible'});
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ await page.screenshot({path:'test-results/static-pages/welcome-dark.png',fullPage:true,animations:'disabled'});
  await page.locator('.header-nav a').filter({hasText:'Form examples'}).click();assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
  await page.goBack();await page.waitForFunction(()=>globalThis.elyRendererMetrics,{},{timeout:120000});
  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');await page.locator('[data-theme-toggle]').click();
@@ -46,7 +48,7 @@ try{
  await page.locator('#node-tree [data-node-path]').last().click();await page.locator('#node-duplicate').click();assert.equal(JSON.parse(await page.locator('#screen-editor').inputValue()).root.children.length,2);
  await page.locator('#undo').click();assert.equal(JSON.parse(await page.locator('#screen-editor').inputValue()).root.children.length,1);
  await page.waitForFunction(()=>document.querySelector('#preview-state').textContent==='Live · validated');
- await mkdir('test-results/static-pages',{recursive:true});await page.screenshot({path:'test-results/static-pages/desktop.png',fullPage:true});
- await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));await page.screenshot({path:'test-results/static-pages/mobile.png',fullPage:true});
+ await mkdir('test-results/static-pages',{recursive:true});await page.screenshot({path:'test-results/static-pages/desktop.png',fullPage:true,animations:'disabled'});
+ await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));await page.screenshot({path:'test-results/static-pages/mobile.png',fullPage:true,animations:'disabled'});
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);console.log('Static gallery and real WASM editor passed',await page.evaluate(()=>elyRendererMetrics));
 }finally{await browser?.close();await new Promise(r=>server.close(r));}
