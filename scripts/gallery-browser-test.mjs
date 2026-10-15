@@ -103,6 +103,7 @@ try {
 
   checkpoint('visual catalogue and prominent playground entry points');
   await page.goto(index, {waitUntil: 'networkidle'});
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en', 'gallery defaults to English');
   assert.equal(await cards().count(), 44, 'all 44 component categories are browsable');
   assert.equal(await page.locator('.chapter-stories a').count(), 624, 'every component story has a link');
   assert.equal(await page.locator('[data-gallery-card] .gallery-preview[inert]').count(), 44, 'thumbnail controls do not intercept gallery navigation');
@@ -112,9 +113,10 @@ try {
   assert.equal(await page.locator('[data-gallery-examples][open]').count(), 0, 'long example lists start collapsed');
   assert((await page.locator('#gallery-results').innerText()).trim(), 'result count is announced');
   const initialResults = await page.locator('#gallery-results').innerText();
+  assert.equal(initialResults, '44 categories · 624 examples', 'result count uses English');
   const playgroundURL = origin + base + 'playground/';
-  const navigationCTA = page.locator('.header-nav').getByRole('link', {name: '플레이그라운드', exact: true});
-  const heroCTA = page.locator('.gallery-hero').getByRole('link', {name: '플레이그라운드 열기 ↗', exact: true});
+  const navigationCTA = page.locator('.header-nav').getByRole('link', {name: 'Playground', exact: true});
+  const heroCTA = page.locator('.gallery-hero').getByRole('link', {name: 'Open playground ↗', exact: true});
   assert.equal(await navigationCTA.evaluate(node => node.href), playgroundURL);
   assert.equal(await heroCTA.evaluate(node => node.href), playgroundURL);
   assert(await heroCTA.isVisible(), 'hero exposes the playground without opening a category');
@@ -139,12 +141,15 @@ try {
   await query().fill('ClearableInput');
   await eventually(async () => await cards().count() === 1, 'alias search narrows to one category');
   assert.equal(await cards().first().getAttribute('data-category'), 'forms');
+  assert.equal(await page.locator('#gallery-results').innerText(), '1 category · 1 example found', 'filtered counts use English singulars');
   const matchingStory = page.locator('.chapter-stories a[href*="input-textfield-clearableinput"]');
   assert.equal(await matchingStory.count(), 1, 'alias resolves to its shared story');
   assert.notEqual(await page.locator('#gallery-results').innerText(), initialResults, 'result status updates after filtering');
   await category().selectOption('buttons');
   await eventually(async () => await cards().count() === 0, 'category and alias filters combine');
   assert(await page.locator('#gallery-empty').isVisible(), 'zero results have an explicit empty state');
+  assert.equal(await page.locator('#gallery-results').innerText(), '0 categories · 0 examples found');
+  assert.equal(await page.locator('#gallery-empty h3').innerText(), 'No matching examples.');
   await page.locator('#gallery-reset').click();
   await eventually(async () => await cards().count() === 44, 'reset restores all categories');
   assert.equal(await query().inputValue(), '');
@@ -200,9 +205,30 @@ try {
     await page.screenshot({path: resolve(output, `${mode}-mobile-${width}.png`), fullPage: true});
     await page.screenshot({path: resolve(output, `${mode}-mobile-${width}-overview.png`)});
   }
+  checkpoint('English theme editor labels, validation, import errors and reset');
+  await page.setViewportSize({width: 1440, height: 1000});
+  await page.goto(origin + base + 'components/themes' + (staticMode ? '/' : ''), {waitUntil: 'networkidle'});
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+  assert.equal(await page.locator('h1').innerText(), 'Find your palette.');
+  assert.equal(await page.locator('[data-theme-hex]').count(), 19, 'all color roles have editable controls');
+  assert.equal(await page.locator('[data-theme-check]').innerText(), 'All 28 light and dark contrast checks passed');
+  await page.getByLabel('Theme name', {exact: true}).fill('');
+  assert.equal(await page.locator('[data-theme-check]').innerText(), 'A theme requires id, name, light, and dark.');
+  assert(await page.getByRole('button', {name: 'Apply theme', exact: true}).isDisabled());
+  await page.getByLabel('Theme name', {exact: true}).fill('Gallery preview');
+  assert.equal(await page.getByRole('button', {name: 'Apply theme', exact: true}).isDisabled(), false);
+  await page.getByLabel('Theme JSON', {exact: true}).fill('{invalid');
+  await page.getByRole('button', {name: 'Import JSON', exact: true}).click();
+  assert.equal(await page.locator('[data-theme-message]').innerText(), 'Import failed: Check that the JSON is valid.');
+  await page.getByRole('button', {name: 'Restore default', exact: true}).click();
+  assert.equal(await page.locator('[data-theme-message]').innerText(), 'Restored the default Ely Neutral theme.');
+  assert.equal(await page.getByLabel('Theme name', {exact: true}).inputValue(), 'Ely Neutral');
+  await assertNoOverflow('Desktop theme editor');
+  await page.setViewportSize({width: 390, height: 844});
+  await assertNoOverflow('390px theme editor');
   assert.deepEqual(errors, [], 'no uncaught browser errors');
   assert.deepEqual(badRequests, [], 'no failed, root-absolute static or external asset requests');
-  console.log(`Gallery ${mode} browser checks passed: visual cards, aliases, categories, empty/reset, URL/history, story links, playground links, keyboard and responsive layouts.`);
+  console.log(`Gallery ${mode} browser checks passed: visual cards, aliases, categories, empty/reset, URL/history, story links, playground links, keyboard, responsive layouts and English theme editor.`);
 } catch (error) {
   console.error('Gallery diagnostics', JSON.stringify({mode, phase, errors, badRequests, server: serverOutput.slice(-5000)}));
   if (page) await page.screenshot({path: resolve(output, `${mode}-failure.png`), fullPage: true}).catch(() => {});

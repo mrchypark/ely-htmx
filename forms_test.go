@@ -194,9 +194,9 @@ func TestSharedFieldLabelAndDatalistEscapeText(t *testing.T) {
 		}
 		requireFormAttr(t, labels[0], "data-slot", "field-label")
 		markers := formNodes(labels[0], "small")
-		want := "선택"
+		want := "Optional"
 		if required {
-			want = "필수"
+			want = "Required"
 		}
 		if len(markers) != 1 || formText(markers[0]) != want {
 			t.Errorf("field-label required=%v marker must be %q", required, want)

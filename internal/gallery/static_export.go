@@ -200,7 +200,7 @@ func staticHTML(data []byte, base string, routes map[string]string) ([]byte, err
 			}
 		}
 		if kind == html.EndTagToken && token.Data == "body" {
-			fmt.Fprintf(&out, `<aside class="gallery-static-notice" role="note">정적 갤러리 · 브라우저 안의 조작은 직접 사용할 수 있습니다. 서버 전송과 외부 연동은 데모입니다. <a href="%splayground/">Open SDUI playground ↗</a><span data-static-status role="status"></span></aside>`, base)
+			fmt.Fprintf(&out, `<aside class="gallery-static-notice" role="note">Static gallery · Browser interactions work locally. Server submissions and external integrations are demos. <a href="%splayground/">Open SDUI playground ↗</a><span data-static-status role="status"></span></aside>`, base)
 		}
 		out.WriteString(token.String())
 	}

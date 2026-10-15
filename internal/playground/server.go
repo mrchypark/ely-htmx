@@ -80,6 +80,8 @@ func NewHandler() (http.Handler, error) {
 			w.Write(b)
 		})
 	}
+	// Serve the same chrome, typography and theme behavior as the gallery.
+	s.mux.Handle("GET /assets/", http.FileServer(http.FS(ui.Files)))
 	s.mux.HandleFunc("GET /api/catalogue", s.catalogue)
 	s.mux.HandleFunc("GET /api/component", s.component)
 	s.mux.HandleFunc("GET /api/examples", func(w http.ResponseWriter, r *http.Request) { respond(w, 200, examples()) })
@@ -98,7 +100,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Referrer-Policy", "no-referrer")
 	w.Header().Set("Cache-Control", "no-store")
-	w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self'; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+	w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self'; font-src 'self'; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
 	if strings.HasPrefix(r.URL.Path, "/api/") {
 		c, e := r.Cookie(cookieName)
 		if e != nil || subtle.ConstantTimeCompare([]byte(c.Value), []byte(s.token)) != 1 {

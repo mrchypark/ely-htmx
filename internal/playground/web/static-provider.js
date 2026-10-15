@@ -2,10 +2,12 @@
 (() => {
   'use strict';
   const base = new URL('./', document.currentScript.src);
+  const version = new URL(document.currentScript.src).search;
+  const assetURL = name => { const url = new URL(name, base); url.search = version; return url; };
   const pending = new Map();
   let catalogue, worker, sequence = 0, ready;
   async function json(name) {
-    const response = await fetch(new URL(name, base));
+    const response = await fetch(assetURL(name));
     if (!response.ok) throw new Error(`Static asset unavailable (${response.status}): ${name}`);
     return response.json();
   }
@@ -13,7 +15,7 @@
     if (ready) return ready;
     ready = new Promise((resolve, reject) => {
       if (!globalThis.Worker || !globalThis.WebAssembly) { reject(new Error('This browser needs Web Workers and WebAssembly. JSON editing/export still works.')); return; }
-      worker = new Worker(new URL('renderer-worker.js', base));
+      worker = new Worker(assetURL('renderer-worker.js'));
       const timeout = setTimeout(() => fail(new Error('Go renderer loading timed out. Reload to retry; export JSON to keep your draft.')), 120000);
       function fail(error) { clearTimeout(timeout); reject(error); for (const item of pending.values()) item.reject(error); pending.clear(); worker.terminate(); }
       worker.onerror = event => fail(new Error(event.message || 'Go renderer could not load. Reload to retry.'));

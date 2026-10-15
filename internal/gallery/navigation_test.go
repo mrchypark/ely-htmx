@@ -20,8 +20,14 @@ func TestGalleryNavigationIsConsistent(t *testing.T) {
 		if w.Code != 200 || len(match) != 2 {
 			t.Fatalf("%s lacks navigation (%d)", path, w.Code)
 		}
+		if !strings.Contains(w.Body.String(), `<html lang="en">`) {
+			t.Errorf("%s must declare English as its default language", path)
+		}
+		if !strings.Contains(match[0], `aria-label="Explore examples"`) {
+			t.Errorf("%s lacks the shared English navigation label", path)
+		}
 		nav := match[1]
-		if strings.Contains(nav, "/components/audit") || !strings.Contains(w.Body.String(), `aria-label="개발자 도구"`) {
+		if strings.Contains(nav, "/components/audit") || !strings.Contains(w.Body.String(), `aria-label="Developer tools"`) {
 			t.Fatal("developer tools must remain secondary")
 		}
 		if strings.Count(nav, "<a ") != 4 {
@@ -34,7 +40,7 @@ func TestGalleryNavigationIsConsistent(t *testing.T) {
 		if active != "/components/api" && active != "/components/audit" && !strings.Contains(nav, `href="`+active+`" aria-current="page"`) {
 			t.Errorf("%s has incorrect current page", path)
 		}
-		for _, label := range []string{"컴포넌트", "폼 예제", "테마 제안", "플레이그라운드"} {
+		for _, label := range []string{"Components", "Form examples", "Themes", "Playground"} {
 			if !strings.Contains(nav, ">"+label+"</a>") {
 				t.Errorf("%s lacks %s", path, label)
 			}
