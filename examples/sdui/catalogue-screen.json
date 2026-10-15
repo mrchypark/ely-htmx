@@ -1,0 +1,32 @@
+{
+  "version": "1",
+  "id": "catalogue-authoring-screen",
+  "root": {
+    "id": "catalogue-authoring-region",
+    "type": "region",
+    "children": [
+      {
+        "id": "intro",
+        "type": "basic/card",
+        "props": {
+          "title": "Catalogue authoring example",
+          "description": "A standalone schema for the generic CLI",
+          "content": "This screen uses only the standard catalogue contracts."
+        }
+      },
+      {
+        "id": "language",
+        "type": "basic/select",
+        "props": {
+          "name": "language",
+          "ariaLabel": "Language",
+          "value": "go",
+          "options": [
+            {"value": "go", "label": "Go"},
+            {"value": "javascript", "label": "JavaScript"}
+          ]
+        }
+      }
+    ]
+  }
+}

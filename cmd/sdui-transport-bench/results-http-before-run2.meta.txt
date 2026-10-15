@@ -1,0 +1,13 @@
+go=go1.26.9 os=linux arch=amd64 GOMAXPROCS=1 target=100ms
+http_primitive=cold_default_BindAssets_new_mux ns_op=451193359 B_op=1664354552 allocs_op=62134 n=1
+http_cold_retained_heap_delta_B=15495896
+http_primitive=warm_default_BindAssets_new_mux ns_op=971972 B_op=420652 allocs_op=4715 n=104
+http_asset=/assets/app.css coding=br encoded_bytes=8437
+http_primitive=cached_asset_GET_200 ns_op=9120 B_op=21372 allocs_op=36 n=10965
+http_primitive=cached_asset_GET_304 ns_op=3215 B_op=2320 allocs_op=30 n=31097
+http_dynamic_dataset=html-large coding=zstd input_bytes=14835 encoded_bytes=543
+http_primitive=dynamic_SelectEncoded_html-large ns_op=81772 B_op=613136 allocs_op=45 n=1223
+http_dynamic_dataset=form-large coding=zstd input_bytes=13646 encoded_bytes=505
+http_primitive=dynamic_SelectEncoded_form-large ns_op=97029 B_op=611280 allocs_op=45 n=1033
+http_embedded_assets_count=422 bytes=8486460 sha256=cdffb7ada36b7840adea754c0d168eae1bfc9345a8421dab95a8cfebf6cef0ae
+http_static_options={Disabled:false Codecs:[zstd br gzip] Strategy:smallest MinBytes:256 MinSavingsBytes:32 MinSavingsPercent:5 GzipLevel:6 BrotliLevel:5 ZstdLevel:3}

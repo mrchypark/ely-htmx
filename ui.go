@@ -4,18 +4,21 @@ package ui
 import (
 	"bytes"
 	"crypto/sha256"
-	"embed"
 	"fmt"
 	"html/template"
 	"io/fs"
+	"mime"
 	"net/http"
+	"path"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
-)
+	"sync"
+	"time"
 
-//go:embed templates/*.html assets/* components.json LICENSE THIRD_PARTY_UI.md
-var Files embed.FS
+	"github.com/mrchypark/ely-htmx/internal/httpencoding"
+)
 
 // Option supplies a submitted value, a label, and optional choice icons.
 type Option struct {
@@ -56,14 +59,65 @@ func NewTemplates() (*template.Template, error) {
 	return tpl.ParseFS(Files, "templates/*.html")
 }
 
+// CompressionOptions configures encoding of explicitly public assets.
+type CompressionOptions = httpencoding.Options
+
+// DefaultCompressionOptions returns a fresh copy of the static asset defaults.
+func DefaultCompressionOptions() CompressionOptions {
+	options, _ := httpencoding.Normalize(nil, "static")
+	return options
+}
+
+// DefaultDynamicCompressionOptions returns fast settings for explicitly public
+// dynamic data. Applications must separately opt in to compressing that data.
+func DefaultDynamicCompressionOptions() CompressionOptions {
+	return httpencoding.DefaultDynamicCompressionOptions()
+}
+
+// Shared immutable assets are prepared once, even when several muxes bind them.
+var preparedAssets = sync.OnceValues(prepareAssets)
+
 // BindAssets registers shared asset paths without taking over application assets.
+// Public text assets negotiate zstd, Brotli or gzip; dynamic pages are untouched.
 func BindAssets(mux *http.ServeMux) error {
-	assets, err := fs.Sub(Files, "assets")
+	return BindAssetsWithOptions(mux, nil)
+}
+
+// BindAssetsWithOptions registers assets using a private immutable encoding cache.
+// A nil options pointer uses the shared default cache.
+func BindAssetsWithOptions(mux *http.ServeMux, options *CompressionOptions) error {
+	normalized, err := httpencoding.Normalize(options, "static")
 	if err != nil {
 		return err
 	}
-	handler := http.StripPrefix("/assets/", http.FileServer(http.FS(assets)))
-	return fs.WalkDir(assets, ".", func(name string, entry fs.DirEntry, err error) error {
+	var handlers map[string]http.Handler
+	if options == nil {
+		handlers, err = preparedAssets()
+	} else {
+		handlers, err = prepareAssetsWithOptions(normalized)
+	}
+	if err != nil {
+		return err
+	}
+	for name, handler := range handlers {
+		mux.Handle("GET /assets/"+name, handler)
+	}
+	return nil
+}
+
+func prepareAssets() (map[string]http.Handler, error) {
+	return prepareAssetsWithOptions(DefaultCompressionOptions())
+}
+
+func prepareAssetsWithOptions(options CompressionOptions) (map[string]http.Handler, error) {
+	encoders := httpencoding.NewEncoderSet(options)
+	defer encoders.Close()
+	assets, err := fs.Sub(Files, "assets")
+	if err != nil {
+		return nil, err
+	}
+	handlers := make(map[string]http.Handler)
+	err = fs.WalkDir(assets, ".", func(name string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -74,15 +128,78 @@ func BindAssets(mux *http.ServeMux) error {
 		if err != nil {
 			return err
 		}
-		etag := fmt.Sprintf(`"%x"`, sha256.Sum256(data))
-		mux.Handle("GET /assets/"+name, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		contentType := mime.TypeByExtension(path.Ext(name))
+		if contentType == "" {
+			contentType = http.DetectContentType(data)
+		}
+		codings := []string{"identity"}
+		if !options.Disabled && (strings.HasPrefix(contentType, "text/") || strings.Contains(contentType, "javascript") || strings.Contains(contentType, "json") || strings.Contains(contentType, "svg")) {
+			codings = append(append([]string{}, options.Codecs...), "identity")
+		}
+		type representation struct {
+			body []byte
+			etag string
+		}
+		variants := make(map[string]representation)
+		bodies := make(map[string][]byte)
+		for _, coding := range codings {
+			body, err := encoders.Encode(data, coding)
+			if err != nil {
+				return fmt.Errorf("encode asset %s: %w", name, err)
+			}
+			variants[coding] = representation{body, fmt.Sprintf(`"%x"`, sha256.Sum256(body))}
+			bodies[coding] = body
+		}
+
+		handlers[name] = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			httpencoding.AddVary(w.Header(), "Accept-Encoding")
+			coding, ok := httpencoding.Select(strings.Join(r.Header.Values("Accept-Encoding"), ","), bodies, options)
+			if !ok {
+				http.Error(w, "no acceptable content coding", http.StatusNotAcceptable)
+				return
+			}
+			variant := variants[coding]
 			w.Header().Set("Cache-Control", "public, no-cache")
-			w.Header().Set("ETag", etag)
-			handler.ServeHTTP(w, r)
-		}))
+			w.Header().Set("ETag", variant.etag)
+			w.Header().Set("Content-Type", contentType)
+			w.Header().Del("Content-Encoding")
+			if coding != "identity" {
+				w.Header().Set("Content-Encoding", coding)
+			}
+			// Ranges are optional. Ignore them for encoded representations rather than
+			// producing multipart framing that is not itself content-encoded. Identity
+			// retains ServeContent's full range and If-Range handling.
+			if coding != "identity" || r.Method == http.MethodHead {
+				r = r.Clone(r.Context())
+				r.Header.Del("Range")
+				r.Header.Del("If-Range")
+			}
+			http.ServeContent(assetResponseWriter{w, len(variant.body)}, r, name, time.Time{}, bytes.NewReader(variant.body))
+		})
 		return nil
 	})
+	return handlers, err
 }
+
+// ServeContent cannot infer encoded length and intentionally leaves it unset.
+// Add it only for successful full responses, never a 304 or failed precondition.
+type assetResponseWriter struct {
+	http.ResponseWriter
+	length int
+}
+
+func (w assetResponseWriter) WriteHeader(status int) {
+	if status == http.StatusOK {
+		w.Header().Set("Content-Length", strconv.Itoa(w.length))
+	}
+	if status == http.StatusPreconditionFailed {
+		w.Header().Del("Content-Encoding")
+		w.Header().Del("Content-Length")
+	}
+	w.ResponseWriter.WriteHeader(status)
+}
+
+func (w assetResponseWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 
 func Funcs() template.FuncMap {
 	return template.FuncMap{
@@ -130,7 +247,7 @@ func Funcs() template.FuncMap {
 		},
 		"list":      func(v ...any) []any { return v },
 		"add":       func(a, b int) int { return a + b },
-		"join":      strings.Join,
+		"join":      joinStrings,
 		"attrName":  attrName,
 		"contains":  strings.Contains,
 		"hasPrefix": strings.HasPrefix,
@@ -144,5 +261,26 @@ func Funcs() template.FuncMap {
 			}
 			return v
 		},
+	}
+}
+
+// joinStrings accepts native Go string slices and JSON-decoded string arrays.
+// It deliberately rejects mixed values instead of formatting them as strings.
+func joinStrings(value any, separator string) (string, error) {
+	switch items := value.(type) {
+	case []string:
+		return strings.Join(items, separator), nil
+	case []any:
+		stringsOnly := make([]string, len(items))
+		for i, value := range items {
+			text, ok := value.(string)
+			if !ok {
+				return "", fmt.Errorf("join item %d must be a string", i)
+			}
+			stringsOnly[i] = text
+		}
+		return strings.Join(stringsOnly, separator), nil
+	default:
+		return "", fmt.Errorf("join expects an array of strings")
 	}
 }
