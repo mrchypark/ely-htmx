@@ -213,7 +213,7 @@ try {
   assert.equal(await page.locator('[data-theme-hex]').count(), 19, 'all color roles have editable controls');
   assert.equal(await page.locator('[data-theme-check]').innerText(), 'All 28 light and dark contrast checks passed');
   await page.getByLabel('Theme name', {exact: true}).fill('');
-  assert.equal(await page.locator('[data-theme-check]').innerText(), 'Check the name and HEX color values.');
+  assert.equal(await page.locator('[data-theme-check]').innerText(), 'A theme requires id, name, light, and dark.');
   assert(await page.getByRole('button', {name: 'Apply theme', exact: true}).isDisabled());
   await page.getByLabel('Theme name', {exact: true}).fill('Gallery preview');
   assert.equal(await page.getByRole('button', {name: 'Apply theme', exact: true}).isDisabled(), false);
