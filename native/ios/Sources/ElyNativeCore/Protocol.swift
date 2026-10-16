@@ -115,6 +115,7 @@ public enum EnvelopeDecoder {
         guard data.count <= NativeProtocol.maximumResponseBytes else {
             throw ProtocolFailure("The response exceeds the 1 MiB limit.")
         }
+        try rejectAmbiguousJSON(data)
         // Preflight before recursively decoding the tree. This bounds both rendering and decoding.
         let object = try JSONSerialization.jsonObject(with: data)
         guard let root = (object as? [String: Any])?["region"] as? [String: Any] else {
@@ -137,6 +138,47 @@ public enum EnvelopeDecoder {
         let envelope = try JSONDecoder().decode(ProfileEnvelope.self, from: data)
         try validate(envelope)
         return envelope
+    }
+
+    /// Foundation JSON parsers can choose different values for duplicate keys.
+    /// Reject them before either parser sees the document, including escaped keys.
+    /// This scanner only checks keys/nesting; JSONSerialization validates grammar.
+    static func rejectAmbiguousJSON(_ data: Data) throws {
+        let bytes = Array(data)
+        var frames: [Set<String>?] = []
+        var index = 0
+        while index < bytes.count {
+            switch bytes[index] {
+            case 123, 91: // object / array
+                guard frames.count < 100 else { throw ProtocolFailure("JSON nesting limit exceeded.") }
+                frames.append(bytes[index] == 123 ? Set<String>() : nil)
+            case 125, 93:
+                guard !frames.isEmpty else { throw ProtocolFailure("Malformed JSON response.") }
+                frames.removeLast()
+            case 34:
+                let start = index
+                index += 1
+                var closed = false
+                while index < bytes.count {
+                    if bytes[index] == 92 { index += 2; continue }
+                    if bytes[index] == 34 { closed = true; break }
+                    index += 1
+                }
+                guard closed else { throw ProtocolFailure("Malformed JSON string.") }
+                var next = index + 1
+                while next < bytes.count && [UInt8(32), 9, 10, 13].contains(bytes[next]) { next += 1 }
+                if next < bytes.count && bytes[next] == 58 {
+                    guard let frame = frames.indices.last, var keys = frames[frame] else {
+                        throw ProtocolFailure("Malformed JSON object key.")
+                    }
+                    let key = try JSONDecoder().decode(String.self, from: Data(bytes[start...index]))
+                    guard keys.insert(key).inserted else { throw ProtocolFailure("Duplicate JSON object key: \(key).") }
+                    frames[frame] = keys
+                }
+            default: break
+            }
+            index += 1
+        }
     }
 
     public static func validate(_ envelope: ProfileEnvelope) throws {

@@ -119,6 +119,8 @@ func TestResolveNativeFailsClosed(t *testing.T) {
 		{"switch", Node{ID: "toggle", Type: "switch", Props: map[string]any{"name": "enabled", "label": "Enabled"}}},
 		{"file", Node{ID: "field", Type: "input", Props: map[string]any{"name": "attachment", "label": "Attachment", "type": "file"}}},
 		{"password", Node{ID: "field", Type: "input", Props: map[string]any{"name": "password", "label": "Password", "type": "password"}}},
+		{"default-button", Node{ID: "default-button", Type: "button", Props: map[string]any{"label": "Default"}}},
+		{"non-submit-button", Node{ID: "non-submit-button", Type: "button", Props: map[string]any{"label": "Button", "type": "button"}}},
 		{"reset", Node{ID: "reset", Type: "button", Props: map[string]any{"label": "Reset", "type": "reset"}}},
 		{"submitter", Node{ID: "save", Type: "button", Props: map[string]any{"label": "Save", "name": "intent", "value": "save"}}},
 		{"change-event", Node{ID: "field", Type: "input", Props: map[string]any{"name": "name", "label": "Name"}, Event: &Event{On: "change", Action: "save", Target: "profile-region"}}},

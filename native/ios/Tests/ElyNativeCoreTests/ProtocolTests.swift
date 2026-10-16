@@ -95,6 +95,48 @@ final class ProtocolTests: XCTestCase {
         XCTAssertThrowsError(try EnvelopeDecoder.decode(JSONSerialization.data(withJSONObject: object)))
     }
 
+    func testDuplicateKeysRejectedBeforeTreeDecoding() throws {
+        let original = String(decoding: try encoded(ready()), as: UTF8.self)
+        for duplicate in [#""region":{},"#, #""\u0072egion":{},"#] {
+            let json = "{" + duplicate + String(original.dropFirst())
+            XCTAssertThrowsError(try EnvelopeDecoder.decode(Data(json.utf8))) { error in
+                XCTAssertTrue((error as? ProtocolFailure)?.message.contains("Duplicate JSON") == true)
+            }
+        }
+        for json in [#"{"a":{"label":"first","label":"last"}}"#,
+                     #"{"a":[{"label":1,"\u006cabel":2}]}"#] {
+            XCTAssertThrowsError(try EnvelopeDecoder.rejectAmbiguousJSON(Data(json.utf8)))
+        }
+        XCTAssertNoThrow(try EnvelopeDecoder.rejectAmbiguousJSON(Data(#"{"a":{"label":"one"},"b":{"label":"two"},"text":"colon: and escaped \" quote"}"#.utf8)))
+    }
+
+    func testDuplicateRegionCannotHideOversizedOrDeepTreeFromPreflight() throws {
+        var response = try ready()
+        let leaf = response.region.children[0].children[0]
+        for index in 0..<1_100 {
+            var node = leaf
+            node.id = "extra-\(index)"
+            response.region.children.append(node)
+        }
+        var deep = response.region.children[0]
+        deep.children = []
+        for index in 0..<40 {
+            var wrapper = deep
+            wrapper.id = "deep-\(index)"
+            wrapper.children = [deep]
+            deep = wrapper
+        }
+        response.region.children.append(deep)
+        let original = String(decoding: try encoded(response), as: UTF8.self)
+        // Before the guard, Foundation parsers disagreed on which region to use.
+        for json in ["{\"region\":{}," + String(original.dropFirst()),
+                     String(original.dropLast()) + ",\"region\":{}}"] {
+            XCTAssertThrowsError(try EnvelopeDecoder.decode(Data(json.utf8))) { error in
+                XCTAssertTrue(error is ProtocolFailure)
+            }
+        }
+    }
+
     func testTransportOriginPolicy() throws {
         XCTAssertNoThrow(try HTTPProfileTransport(baseURL: URL(string: "https://example.com")!))
         XCTAssertNoThrow(try HTTPProfileTransport(baseURL: URL(string: "http://127.0.0.1:8094")!, allowLocalHTTP: true))

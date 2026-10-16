@@ -270,7 +270,7 @@ func (p *Plan) resolveNativeNode(node *compiledNode, scope renderScope, budget *
 		if node.definition.Name == "input" && (props["type"] != "text" || props["multiple"] == true) {
 			return fmt.Errorf("%w: input mode", ErrUnsupportedNative)
 		}
-		if node.definition.Name == "button" && (props["type"] == "reset" || (props["name"] != nil && props["name"] != "")) {
+		if node.definition.Name == "button" && (props["type"] != "submit" || (props["name"] != nil && props["name"] != "")) {
 			return fmt.Errorf("%w: button mode", ErrUnsupportedNative)
 		}
 		events := make([]Event, 0, len(node.events))
