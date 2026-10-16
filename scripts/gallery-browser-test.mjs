@@ -6,6 +6,7 @@ import {extname, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {setTimeout as delay} from 'node:timers/promises';
 import {chromium} from 'playwright';
+import {checkEveryGalleryPage} from './gallery-complete-checks.mjs';
 
 // Exercise the same visual catalogue against the real Go server or its export:
 //   node scripts/gallery-browser-test.mjs
@@ -103,6 +104,7 @@ try {
 
   checkpoint('visual catalogue and prominent playground entry points');
   await page.goto(index, {waitUntil: 'networkidle'});
+  const storyURLs = await page.locator('.chapter-stories a').evaluateAll(nodes => nodes.map(node => node.href));
   assert.equal(await page.locator('html').getAttribute('lang'), 'en', 'gallery defaults to English');
   assert.equal(await cards().count(), 44, 'all 44 component categories are browsable');
   assert.equal(await page.locator('.chapter-stories a').count(), 624, 'every component story has a link');
@@ -226,6 +228,8 @@ try {
   await assertNoOverflow('Desktop theme editor');
   await page.setViewportSize({width: 390, height: 844});
   await assertNoOverflow('390px theme editor');
+  checkpoint('every exported page, every story runtime and every component/alias behavior check');
+  await checkEveryGalleryPage({browser, origin, base, staticMode, storyURLs, output});
   assert.deepEqual(errors, [], 'no uncaught browser errors');
   assert.deepEqual(badRequests, [], 'no failed, root-absolute static or external asset requests');
   console.log(`Gallery ${mode} browser checks passed: visual cards, aliases, categories, empty/reset, URL/history, story links, playground links, keyboard, responsive layouts and English theme editor.`);
