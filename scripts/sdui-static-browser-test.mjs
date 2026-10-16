@@ -12,7 +12,32 @@ try{
  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined});const context=await browser.newContext({viewport:{width:1440,height:1000}});
  await context.route('**/*',route=>{const u=route.request().url();if(u.startsWith(origin+siteBase))return route.continue();bad.push(u);return route.abort();});
  const page=await context.newPage();page.on('pageerror',e=>errors.push(String(e)));page.on('response',r=>{if(r.status()>=400)bad.push(`${r.status()} ${r.url()}`);});
+ // One identity across project hub, gallery and playground, in both themes.
+ await mkdir('test-results/static-pages',{recursive:true});
+ for (const theme of ['light','dark']) {
+  for (const [surface,url] of [['hub',siteBase],['gallery',base],['playground',base+'playground/']]) {
+   await page.goto(origin+url);
+   if(await page.locator('html').getAttribute('data-theme')!==theme) await page.locator('[data-theme-toggle]').click();
+   assert.equal(await page.locator('html').getAttribute('data-theme'),theme);
+   assert.equal(await page.locator('.project-origin').innerText(),'Independent project inspired by Ely GPUI. Not affiliated with or endorsed by Ely GPUI.');
+   assert.equal(await page.locator('.project-origin a').getAttribute('href'),'https://elygpui.com/');
+   assert((await page.locator('link[rel=icon]').getAttribute('href')).endsWith('elysdui-mark.svg'));
+   const brand=page.locator('header .brand-mark');
+   assert.equal(await brand.count(),1);
+   const visual=await brand.evaluate(el=>({mask:getComputedStyle(el).maskImage,color:getComputedStyle(el).backgroundColor}));
+   assert(visual.mask.includes('elysdui-mark.svg'));
+   assert.equal(visual.color,theme==='light'?'rgb(24, 22, 19)':'rgb(243, 241, 240)');
+   for(const width of [1440,390]) {
+    await page.setViewportSize({width,height:1000});
+    await page.evaluate(()=>document.fonts.ready);
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),`${surface} fits ${width}`);
+    await page.screenshot({path:`test-results/static-pages/identity-${surface}-${theme}-${width}.png`,animations:'disabled'});
+   }
+  }
+ }
+ await page.locator('[data-theme-toggle]').click();
  await page.goto(origin+siteBase);
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'light','theme persists across surfaces');
  assert.equal(await page.title(),'elysdui — One definition. Native possibilities.');
  assert.equal(await page.locator('html').getAttribute('lang'),'en');
  assert.deepEqual(await page.locator('#renderers h3').allTextContents(),['Go / HTMX','SwiftUI','Jetpack Compose','Ely / GPUI']);

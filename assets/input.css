@@ -75,6 +75,7 @@
   .site-header__inner > .account, .site-header__inner > .theme-toggle { align-self: center; }
   .wordmark { display: inline-flex; align-items: baseline; gap: .55rem; font-size: 1.3rem; letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
   .wordmark img { align-self: center; width: 1.8rem; height: 1.8rem; }
+  .brand-mark { align-self: center; display: inline-block; width: 1.8rem; height: 1.8rem; flex: none; background: currentColor; mask: url('./elysdui-mark.svg') center/contain no-repeat; -webkit-mask: url('./elysdui-mark.svg') center/contain no-repeat; }
   .wordmark .brand-logo--dark { display: none; }
   .brand-name { color: #14213A; }
   .brand-on { color: inherit; }

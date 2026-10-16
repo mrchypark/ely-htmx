@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <title>elysdui: one definition, shared screens</title>
+  <style>path,rect{stroke:#181613}@media(prefers-color-scheme:dark){path,rect{stroke:#F3F1F0}}</style>
+  <g stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 5H7a2 2 0 0 0-2 2v15"/>
+    <rect x="10" y="10" width="17" height="17" rx="2"/>
+    <path d="M15 16h7m-7 5h4"/>
+  </g>
+</svg>

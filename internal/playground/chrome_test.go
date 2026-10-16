@@ -11,7 +11,7 @@ func TestSharedEnglishChrome(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/", "/assets/site-chrome.css", "/assets/theme.js", "/assets/ely/fonts/Inter-Regular.ttf"} {
+	for _, path := range []string{"/", "/assets/site-chrome.css", "/assets/theme.js", "/assets/elysdui-mark.svg", "/assets/ely/fonts/Inter-Regular.ttf"} {
 		req := httptest.NewRequest("GET", "http://localhost"+path, nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, req)
@@ -19,7 +19,7 @@ func TestSharedEnglishChrome(t *testing.T) {
 			t.Fatalf("%s: %d", path, w.Code)
 		}
 		if path == "/" {
-			for _, want := range []string{`lang="en"`, `elysdui · Playground`, `site-header`, `Explore examples`, `Form examples`, `Themes`, `data-theme-toggle`, `/assets/site-chrome.css`} {
+			for _, want := range []string{`lang="en"`, `elysdui · Playground`, `site-header`, `Explore examples`, `Form examples`, `Themes`, `data-theme-toggle`, `/assets/site-chrome.css`, `brand-mark`, `Independent project inspired by`, `https://elygpui.com/`, `Not affiliated with or endorsed by Ely GPUI.`} {
 				if !strings.Contains(w.Body.String(), want) {
 					t.Errorf("missing %s", want)
 				}

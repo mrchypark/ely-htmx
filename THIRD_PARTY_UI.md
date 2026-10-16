@@ -37,3 +37,9 @@ The gallery uses the Unicode 17 emoji catalogue from `emojis` 0.9.0, the version
 Regional gallery choices are derived from the same pinned upstream dependencies: `isolang` 2.4.0 (184 ISO 639-1 languages), `isocountry` 0.3.2 (249 countries), and `iso_currency` 0.7.1 (154 active currencies, excluding funds and special codes). Their license copies are in `assets/ely/LICENSE-<package-version>.txt`. No Rust runtime dependencies are added.
 
 The default Inter and JetBrains Mono fonts are copied from the same Ely revision above. Their SIL Open Font License notices are included at `assets/ely/fonts/Inter-LICENSE.txt` and `assets/ely/fonts/JetBrainsMono-LICENSE.txt`. The fonts are served locally.
+
+## Project identity
+
+elysdui is an independent project inspired by Ely GPUI, not affiliated with or endorsed by it. The original `assets/elysdui-mark.svg` shows overlapping flat screen frames with a shared definition. It is not Ely's isometric E logo and does not reuse or trace its geometry. The shared neutral colors and Inter / JetBrains Mono typography retain the credited Ely visual foundation. Code licensing is not treated as permission to claim upstream identity or endorsement.
+
+Use this one asset for the hub, gallery, playground and favicon. Its monochrome silhouette follows the active theme in page headers; the standalone SVG follows the system theme. Do not introduce renderer-specific project logos or separate decorative palettes. Platform-specific controls may retain their native appearance.
