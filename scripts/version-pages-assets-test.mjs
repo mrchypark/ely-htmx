@@ -9,18 +9,25 @@ try {
  await mkdir(join(root,'playground'));
  await writeFile(join(root,'index.html'),'<link href="/ely-htmx/assets/ui.css"><script src="/ely-htmx/assets/main.js"></script>');
  await writeFile(join(root,'assets/ui.css'),'body{color:black}');
- await writeFile(join(root,'assets/main.js'),"import './child.js';");
- await writeFile(join(root,'assets/child.js'),'console.log("English")');
+ await writeFile(join(root,'assets/main.js'),"import './ely-api.js';\nimport {mount} from '/ely-htmx/assets/ely-api.js';\nexport {mount} from '/ely-htmx/assets/ely-api.js';\nimport 'https://example.test/external.js';\nimport '/elsewhere/external.js';\nimport './already.js?v=kept';");
+ await writeFile(join(root,'assets/ely-api.js'),'console.log("English")');
  await writeFile(join(root,'playground/index.html'),'<script src="./app.js"></script>');
  await writeFile(join(root,'playground/app.js'),'console.log("editor")');
  execFileSync(process.execPath,['scripts/version-pages-assets.mjs',root,'/ely-htmx/']);
  assert.match(await readFile(join(root,'index.html'),'utf8'),/ui\.css\?v=[a-f0-9]{16}/);
- assert.match(await readFile(join(root,'assets/main.js'),'utf8'),/child\.js\?v=[a-f0-9]{16}/);
+ const module=await readFile(join(root,'assets/main.js'),'utf8');
+ const versions=[...module.matchAll(/ely-api\.js\?v=([a-f0-9]{16})/g)].map(match=>match[1]);
+ assert.equal(versions.length,3,'relative import, absolute import and re-export are all versioned');
+ assert.equal(new Set(versions).size,1,'all import styles share one module registry identity');
+ assert(module.includes("import 'https://example.test/external.js';")&&module.includes("import '/elsewhere/external.js';"),'external dependencies remain unchanged');
  assert.match(await readFile(join(root,'playground/index.html'),'utf8'),/app\.js\?v=[a-f0-9]{16}/);
+ assert(module.includes("import './already.js?v=kept';"),'existing query is not duplicated');
  const provider=await readFile('internal/playground/web/static-provider.js','utf8');
  assert(provider.includes('fetch(assetURL(name))')&&provider.includes("new Worker(assetURL('renderer-worker.js'))"));
  const worker=await readFile('internal/playground/web/renderer-worker.js','utf8');
  for(const dependency of ['./wasm_exec.js','./renderer.wasm','./styles.json']) assert(worker.includes(`assetURL('${dependency}')`));
  assert(worker.includes("fetch(assetURL('./'+path))"));
+ await writeFile(join(root,'assets/split.js'),"import '/ely-htmx/assets/ely-api.js?v=other';");
+ assert.throws(()=>execFileSync(process.execPath,['scripts/version-pages-assets.mjs',root,'/ely-htmx/'],{stdio:'pipe'}),/Split component registry module identities/,'reject two registry identities anywhere in exported modules');
  console.log('Static HTML, module, worker and stylesheet cache version checks passed.');
 }finally{await rm(root,{recursive:true,force:true});}
