@@ -2,6 +2,7 @@ package sdui
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"reflect"
 	"regexp"
@@ -50,13 +51,43 @@ func TestNativeSupportInventoryMatchesPlatformCapabilities(t *testing.T) {
 		if len(match) != 2 {
 			t.Fatalf("cannot locate capabilities in %s", source.path)
 		}
-		var got []string
-		for _, name := range regexp.MustCompile(`"([a-z]+)"`).FindAllSubmatch(match[1], -1) {
-			got = append(got, string(name[1]))
+		got, err := parseNativeCapabilityLiterals(match[1])
+		if err != nil {
+			t.Fatalf("invalid capability literals in %s: %v", source.path, err)
 		}
 		sort.Strings(got)
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("%s capabilities %v differ from inventory %v", source.path, got, want)
+		}
+	}
+}
+
+// The source lists deliberately use plain string literals, a JSON-compatible
+// subset shared by Swift and Kotlin. Reject any unmatched syntax rather than
+// silently dropping future uppercase, qualified or hyphenated capabilities.
+func parseNativeCapabilityLiterals(source []byte) ([]string, error) {
+	var values []string
+	if err := json.Unmarshal(append(append([]byte{'['}, source...), ']'), &values); err != nil {
+		return nil, err
+	}
+	for _, value := range values {
+		if value == "" {
+			return nil, fmt.Errorf("empty or null capability")
+		}
+	}
+	return values, nil
+}
+
+func TestNativeInventoryParsesEveryCapabilityLiteral(t *testing.T) {
+	for _, literal := range []string{"Toggle", "list-detail", "forms/Toggle"} {
+		got, err := parseNativeCapabilityLiterals([]byte(`"text","` + literal + `"`))
+		if err != nil || !reflect.DeepEqual(got, []string{"text", literal}) {
+			t.Fatalf("lost capability %q: %v, %v", literal, got, err)
+		}
+	}
+	for _, invalid := range []string{`"text", SOME_VARIABLE`, `"text", null`, `"text" + "switch"`} {
+		if _, err := parseNativeCapabilityLiterals([]byte(invalid)); err == nil {
+			t.Fatalf("unmatched list syntax accepted: %s", invalid)
 		}
 	}
 }

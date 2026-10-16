@@ -137,6 +137,17 @@ final class ProtocolTests: XCTestCase {
         }
     }
 
+    func testWideJSONObjectPreflightKeepsAllKeysWithoutCopyingSets() throws {
+        // 50,000 ignored members fit below 1 MiB. A value-copy frame caused
+        // quadratic Set copy-on-write before the normal decoder could validate.
+        let members = (0..<50_000).map { "\"metadata\($0)\":0" }.joined(separator: ",")
+        let data = Data(("{" + members + "}").utf8)
+        XCTAssertLessThan(data.count, NativeProtocol.maximumResponseBytes)
+        measure { XCTAssertNoThrow(try EnvelopeDecoder.rejectAmbiguousJSON(data)) }
+        let duplicate = Data(("{" + members + ",\"metadata49999\":1}").utf8)
+        XCTAssertThrowsError(try EnvelopeDecoder.rejectAmbiguousJSON(duplicate))
+    }
+
     func testTransportOriginPolicy() throws {
         XCTAssertNoThrow(try HTTPProfileTransport(baseURL: URL(string: "https://example.com")!))
         XCTAssertNoThrow(try HTTPProfileTransport(baseURL: URL(string: "http://127.0.0.1:8094")!, allowLocalHTTP: true))
