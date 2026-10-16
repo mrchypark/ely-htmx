@@ -13,7 +13,7 @@ execute expressions or grant server capabilities.
 
 Related references:
 
-- [Native SwiftUI/Compose profile transport](../native/README.md) (opt-in, seven-type slice)
+- [Native SwiftUI/Compose profile transport](../native/README.md) (opt-in: original seven-type profile; controls-v1 adds switch as an eighth type)
 
 - [HTTP compression, performance and security](sdui-transport.md)
 

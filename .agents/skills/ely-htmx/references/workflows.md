@@ -30,7 +30,7 @@ getting-started guide. Match documentation to that version.
 
 A skill copied from a newer checkout can mention features absent from the app's
 pinned release. Confirm exported APIs and files before using them. The repository
-is https://github.com/mrchypark/elysdui; browse the selected tag/commit, not an
+is [mrchypark/elysdui](https://github.com/mrchypark/elysdui); browse the selected tag/commit, not an
 unverified latest branch, when local source is unavailable. Report inaccessible
 sources rather than inventing APIs.
 

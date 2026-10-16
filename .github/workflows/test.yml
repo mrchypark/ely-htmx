@@ -16,6 +16,7 @@ jobs:
           cache: npm
       - run: go test ./...
       - run: go vet ./...
+      - run: go run ./cmd/check-doc-links
       - run: go test -race ./sdui ./examples/sdui ./internal/playground
       - run: npm ci
       - run: npm test
@@ -55,6 +56,7 @@ jobs:
       - run: npm ci
       - run: node scripts/sdui-static-unit-test.mjs
       - run: bash scripts/build-pages.sh dist /elysdui/
+      - run: go run ./cmd/check-doc-links -pages dist
       - run: npx playwright install --with-deps chromium
       - run: node scripts/sdui-static-browser-test.mjs
       - run: GALLERY_STATIC=1 node scripts/gallery-browser-test.mjs

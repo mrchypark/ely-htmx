@@ -19,7 +19,7 @@ There is no Ely GPUI runtime adapter in this repository.
 - [Project hub and shared architecture](https://mrchypark.github.io/elysdui/)
 - [Go / HTMX component gallery](https://mrchypark.github.io/elysdui/go-htmx/)
 - [Browser-only SDUI playground](https://mrchypark.github.io/elysdui/go-htmx/playground/)
-- [SwiftUI and Jetpack Compose profile examples](native/README.md): bounded seven-type native profile, not full catalogue coverage
+- [SwiftUI and Jetpack Compose profile examples](native/README.md): original seven-type profile plus an eight-type controls demo with switch; not full catalogue coverage
 - GPUI: a proposed integration, not implemented here. [Ely GPUI Component](https://git.zacharyzhang.com/ZacharyZhang-NY/Ely-GPUI-Components) remains a separate upstream project
 
 ## Documentation and AI agents
@@ -48,7 +48,7 @@ The [form example](examples/app) demonstrates server validation, an htmx HTML-fr
 
 ## Native mobile profile example
 
-The opt-in [native SDUI slice](native/README.md) uses one Go-resolved JSON profile screen with an actual SwiftUI iOS app and Jetpack Compose Android app. It includes text editing, validation, save and retry reconciliation. This is a bounded example, not native support for the full web catalogue.
+The opt-in [native SDUI slice](native/README.md) uses one Go-resolved JSON profile screen with an actual SwiftUI iOS app and Jetpack Compose Android app. It includes text editing, validation, save and retry reconciliation. The separate [controls-v1 demo](examples/native-sdui/README.md#expanded-native-controls) adds multiple fields and native switches. This is a bounded example, not native support for the full web catalogue.
 
 ## Server-driven screens (SDUI)
 
