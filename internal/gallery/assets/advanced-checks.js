@@ -40,12 +40,14 @@ document.querySelector('[data-audit-run]')?.addEventListener('click',async event
       root.querySelectorAll('.ui-calendar-days button').forEach(button=>{const style=getComputedStyle(button);assert(style.paddingLeft==='0px'&&style.paddingRight==='0px'&&style.whiteSpace==='nowrap','Calendar dates must fit narrow columns without wrapping');});
       root.querySelectorAll('[data-ui-tab][aria-selected="true"]').forEach(button=>assert(getComputedStyle(button).color===getComputedStyle(root).color,'Selected tab must keep a visible text color'));
       root.querySelectorAll('button[data-slot="button"][data-variant="default"]').forEach(button=>{const style=getComputedStyle(button);assert(style.backgroundColor!=='rgba(0, 0, 0, 0)'&&style.color!==style.backgroundColor,'Shared primary button lost its visible foreground/background');});
+      const sharedAssertions=assertionCount;
       await test.check({root,twin,actions,assert,waitFor,expectError:message=>expectedErrors.push(message)});
-      assert(assertionCount>0,'No observable behavior assertions.');
+      const componentAssertions=assertionCount-sharedAssertions;
+      assert(componentAssertions>0,'No component-specific observable behavior assertions.');
       assert(state(twin)===before,'An action changed the other instance.');
       assert(!errors.length,errors.join('; '));
       assert(!expectedErrors.length,'Expected host error was not emitted');
-      result={name:record.dataset.auditName,key:record.dataset.auditKey,status:'passed',assertions:assertionCount,actions:actions.map(action=>({action:action.action,value:action.value,values:action.values?.map(([name,value])=>[name,value instanceof File?value.name:String(value).slice(0,200)])})),milliseconds:Math.round(performance.now()-started)};passed++;
+      result={name:record.dataset.auditName,key:record.dataset.auditKey,status:'passed',assertions:assertionCount,componentAssertions,actions:actions.map(action=>({action:action.action,value:action.value,values:action.values?.map(([name,value])=>[name,value instanceof File?value.name:String(value).slice(0,200)])})),milliseconds:Math.round(performance.now()-started)};passed++;
     }catch(error){result={name:record.dataset.auditName,key:record.dataset.auditKey,status:'failed',error:error.message,milliseconds:Math.round(performance.now()-started)};failed++;}
     finally{hostCleanup?.();root?.removeEventListener('ely:action',capture);root?.removeEventListener('ely:error',captureError);window.removeEventListener('error',captureRuntimeError);window.removeEventListener('unhandledrejection',captureRuntimeError);}
     results.push(result);record.dataset.auditState=result.status;record.querySelector('[data-audit-result]').value=result.status==='passed'?'Passed':`Failed: ${result.error}`;

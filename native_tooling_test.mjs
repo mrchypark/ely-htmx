@@ -60,3 +60,11 @@ console.log('native tooling: measurement, events, palette math, icons, counters,
  h.win.getComputedStyle=()=>({getPropertyValue:()=>'',margin:'12px',padding:'16px',borderWidth:'2px',display:'block',marginTop:'12px',marginRight:'12px',marginBottom:'12px',marginLeft:'12px',borderTopWidth:'2px',borderRightWidth:'2px',borderBottomWidth:'2px',borderLeftWidth:'2px',paddingTop:'16px',paddingRight:'16px',paddingBottom:'16px',paddingLeft:'16px'});const cleanup=h.start();toggle.fire('click');assert.equal(panel.hidden,false);assert.equal(h.doc.activeElement,close);scope.fire('pointermove',{target:box});assert.equal(highlight.hidden,false);assert.equal(highlight.querySelector('[data-tool-layer="content"]').style.width,'64px');scope.fire('click',{target:box});assert.equal(pick.hidden,false);assert.match(h.root.querySelector('[data-tool-inspect-hint]').textContent,/Held/);panel.fire('keydown',{key:'Tab'});assert.equal(h.doc.activeElement,pick);pick.fire('click');assert.equal(pick.hidden,true);h.doc.fire('keydown',{key:'Escape'});assert.equal(panel.hidden,true);assert.equal(highlight.hidden,true);assert.equal(h.doc.activeElement,toggle);cleanup();assert.equal(h.doc.listeners.get('keydown').length,0);
 }
 console.log('native tooling: contrast ordering/theme refresh and inspector hold/focus/Escape passed');
+
+// Surface status text must not set an implicit minimum grid-track width. The
+// real browser audit also verifies a 16px surface and unchanged-revision cache.
+{
+ const css=await (await import('node:fs/promises')).readFile(new URL('./assets/ely-api-native-tooling.css',import.meta.url),'utf8');
+ assert.match(css,/\.ely-tooling-surface\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(css,/\.ely-tooling-surface canvas\{[^}]*min-width:0/);
+}

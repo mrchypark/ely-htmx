@@ -128,8 +128,12 @@ const markdown = async ({root, actions}) => {
   one(root,'[data-ws-markdown-mode="source"]').click();assert(root.querySelector('[data-ws-markdown-layout]').dataset.wsMarkdownLayout==='source'&&one(root,'[data-ws-markdown-mode="source"]').getAttribute('aria-selected')==='true','markdown mode did not change locally');
   const source = one(root, 'textarea[data-workspace-markdown]'); source.value = '# caller'; source.dispatchEvent(new Event('input', {bubbles: true}));
   action(actions, 'preview-markdown');
-  await waitFor(() => root.querySelector('[data-workspace-markdown-preview] h1')?.textContent === 'caller');
-  assert(one(root, '[data-workspace-markdown-preview] h1').textContent === 'caller', 'host preview did not render caller heading');
+  await waitFor(() => root.querySelector('[data-workspace-markdown-preview] h1')?.textContent === 'caller' || root.querySelector('[data-static-markdown-preview]')?.textContent === '# caller');
+  const staticPreview = root.querySelector('[data-static-markdown-preview]');
+  if (staticPreview) {
+    assert(staticPreview.textContent === '# caller' && root.querySelector('[data-workspace-markdown-preview]').textContent.includes('full Markdown rendering requires the Go backend.'), 'static adapter must show source and explain the unavailable Go renderer');
+    assert(!root.querySelector('[data-workspace-markdown-preview] h1'), 'static adapter must not claim full Markdown rendering');
+  } else assert(one(root, '[data-workspace-markdown-preview] h1').textContent === 'caller', 'host preview did not render caller heading');
 };
 const blockEditor = async ({root,actions}) => {
   const blocks=[...root.querySelectorAll('[data-ws-block]')];assert(blocks.length===3&&blocks.every(block=>block.querySelector('[data-ws-block-handle]')),'block editor caller blocks or handles missing');

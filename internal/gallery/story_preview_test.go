@@ -37,6 +37,7 @@ func TestEveryStoryRendersItsComposedPublicAPI(t *testing.T) {
 		t.Fatal(err)
 	}
 	ids := regexp.MustCompile(`\sid="([^"]+)"`)
+	icons := regexp.MustCompile(`\bdata-(?:native-icon|interaction-icon|tool-icon|icon)="([a-z0-9-]+)"`)
 	for _, chapter := range server.components {
 		for _, story := range chapter.Stories {
 			path := componentHref(chapter.Slug, story.Slug)
@@ -46,6 +47,11 @@ func TestEveryStoryRendersItsComposedPublicAPI(t *testing.T) {
 			if response.Code != http.StatusOK || !strings.Contains(body, "data-ely-family=") {
 				t.Errorf("%s did not render its public API: %d %s", path, response.Code, body)
 				continue
+			}
+			for _, icon := range icons.FindAllStringSubmatch(body, -1) {
+				if _, err := ui.Files.ReadFile("assets/ely/icons/" + icon[1] + ".svg"); err != nil {
+					t.Errorf("%s references unavailable CSS icon %s: %v", path, icon[1], err)
+				}
 			}
 			seen := map[string]bool{}
 			for _, id := range ids.FindAllStringSubmatch(body, -1) {

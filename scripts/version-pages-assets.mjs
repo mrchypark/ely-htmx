@@ -19,11 +19,22 @@ const paths=await files(root);
 const release=createHash('sha256');
 for(const path of paths) release.update(relative(root,path)).update(await readFile(path));
 const version=release.digest('hex').slice(0,16);
+const apiIdentities=new Set();
 for(const path of paths.filter(path=>path.endsWith('.js'))) {
  let source=await readFile(path,'utf8');
- source=source.replace(/(\b(?:import|export)\s+(?:[^'"\n]*?\sfrom\s*)?['"])(\.[^'"?]+\.js)(['"])/g,`$1$2?v=${version}$3`);
+ source=source.replace(/(\b(?:import|export)\s+(?:[^'"\n]*?\sfrom\s*)?['"])([^'"?#]+\.js)(['"])/g,(match,prefix,url,suffix)=>{
+  // Absolute export-base imports and relative imports must resolve to the same
+  // module identity, especially the shared component registry in ely-api.js.
+  if(!url.startsWith('.')&&!url.startsWith(base)) return match;
+  return `${prefix}${url}?v=${version}${suffix}`;
+ });
+ for(const [,specifier] of source.matchAll(/\b(?:import|export)\s+(?:[^'"\n]*?\sfrom\s*)?['"]([^'"]+)['"]/g)) {
+  const url=new URL(specifier,new URL(base+relative(root,path).split(sep).join('/'),'https://static.invalid'));
+  if(url.origin==='https://static.invalid'&&url.pathname.startsWith(base)&&url.pathname.endsWith('/ely-api.js')) apiIdentities.add(url.href);
+ }
  await writeFile(path,`/* Static release ${version} */\n`+source);
 }
+if(apiIdentities.size>1) throw new Error(`Split component registry module identities: ${[...apiIdentities].join(', ')}`);
 async function walk(dir) {
   for (const entry of await readdir(dir, {withFileTypes:true})) {
     const file = resolve(dir, entry.name);
