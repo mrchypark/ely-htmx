@@ -55,5 +55,25 @@ for attempt in $(seq 1 30); do
   sleep 1
 done
 curl --fail --silent http://127.0.0.1:8094/ > /dev/null
+# sys.boot_completed does not guarantee that the guest network is ready. Check
+# the same host-loopback bridge used by the app before launching instrumentation.
+# The favicon route has no session/cookie data and always returns HTTP 204.
+NETWORK_DEADLINE=$((SECONDS + 120))
+NETWORK_READY=false
+while [ "$SECONDS" -lt "$NETWORK_DEADLINE" ]; do
+  response=$(adb -s "$SERIAL" shell "printf 'GET /favicon.ico HTTP/1.0\\r\\nHost: 10.0.2.2:8094\\r\\n\\r\\n' | toybox nc -w 5 -W 5 10.0.2.2 8094" 2>&1 || true)
+  status=$(printf '%s\n' "$response" | tr -d '\r' | head -n 1)
+  printf '%s\n' "$status" >> "$RESULTS/host-connectivity.log"
+  if [[ "$status" == HTTP/*' 204 '* ]]; then NETWORK_READY=true; break; fi
+  sleep 2
+done
+if [ "$NETWORK_READY" != true ]; then
+  echo 'The Android guest could not reach the Go server through 10.0.2.2:8094.' >&2
+  cat "$RESULTS/host-connectivity.log"
+  adb -s "$SERIAL" shell ip address > "$RESULTS/network-addresses.txt" 2>&1 || true
+  adb -s "$SERIAL" shell ip route > "$RESULTS/network-routes.txt" 2>&1 || true
+  exit 1
+fi
+echo 'Android guest reached the Go server through the app host-loopback bridge.'
 cd native/android
 ANDROID_SERIAL="$SERIAL" ./gradlew --no-daemon :app:connectedDebugAndroidTest

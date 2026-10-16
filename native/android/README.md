@@ -88,6 +88,10 @@ The screenshot files are `01-ready.png`, `02-invalid.png`, and `03-saved.png`.
 The test dismisses the real keyboard without invoking its save action, scrolls
 the status into view, and asserts the relevant field, error, button and status
 are displayed before capture.
+On failure it also attempts `99-failure.png` and logs the native semantics tree
+before closing the activity. Debug builds log transport exceptions without
+request bodies, cookies or CSRF tokens. Initial readiness allows cold emulator
+class verification, but an explicit load/save error fails the test immediately.
 
 When Gradle supplies `additionalTestOutputDir`, screenshots are written there so
 UTP can pull them before uninstalling the app. Archive the host directory

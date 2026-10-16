@@ -1,5 +1,6 @@
 package dev.ely.nativeprofile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
@@ -28,8 +29,14 @@ class ProfileViewModel : ViewModel() {
                 val reply = withContext(Dispatchers.IO) { client.load(id) }
                 mutableState.value = mutableState.value.completeLoad(id, reply)
             } catch (e: CancellationException) { throw e }
-            catch (e: ProtocolException) { mutableState.value = mutableState.value.failLoad(id, e.message ?: "Unsupported screen.") }
-            catch (_: IOException) { mutableState.value = mutableState.value.failLoad(id, "Unable to load the profile. Check the demo server and try again.") }
+            catch (e: ProtocolException) {
+                logDemoFailure("load", e)
+                mutableState.value = mutableState.value.failLoad(id, e.message ?: "Unsupported screen.")
+            }
+            catch (e: IOException) {
+                logDemoFailure("load", e)
+                mutableState.value = mutableState.value.failLoad(id, "Unable to load the profile. Check the demo server and try again.")
+            }
         }
     }
 
@@ -55,8 +62,19 @@ class ProfileViewModel : ViewModel() {
                 val reply = withContext(Dispatchers.IO) { client.save(pending) }
                 mutableState.value = mutableState.value.completeSave(id, reply)
             } catch (e: CancellationException) { throw e }
-            catch (e: ProtocolException) { mutableState.value = mutableState.value.hardFailed(id, e.message ?: "Unsupported server response. Reload to continue.") }
-            catch (_: IOException) { mutableState.value = mutableState.value.networkFailed(id) }
+            catch (e: ProtocolException) {
+                logDemoFailure("save", e)
+                mutableState.value = mutableState.value.hardFailed(id, e.message ?: "Unsupported server response. Reload to continue.")
+            }
+            catch (e: IOException) {
+                logDemoFailure("save", e)
+                mutableState.value = mutableState.value.networkFailed(id)
+            }
         }
+    }
+
+    private fun logDemoFailure(operation: String, error: Exception) {
+        // Debug diagnostics only: do not log request bodies, cookies, or CSRF tokens.
+        if (BuildConfig.DEBUG) Log.w("ElyNativeTransport", "Profile $operation failed", error)
     }
 }

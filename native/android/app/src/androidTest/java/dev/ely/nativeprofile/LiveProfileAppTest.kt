@@ -20,10 +20,23 @@ class LiveProfileAppTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     @Test fun realAppLoadsValidatesAndSavesThroughGo() {
+        try {
+            runLifecycle()
+        } catch (failure: Throwable) {
+            // Capture before ActivityScenario tears down the failing real app.
+            runCatching { compose.onRoot(useUnmergedTree = true).printToLog("ElyNativeFailure") }
+            runCatching { screenshot("99-failure.png") }
+            throw failure
+        }
+    }
+
+    private fun runLifecycle() {
         // The debug endpoint is the emulator bridge to the host's Go server.
         val directory = screenshotDirectory()
-        listOf("01-ready.png", "02-invalid.png", "03-saved.png").forEach { File(directory, it).delete() }
-        compose.waitUntil(timeoutMillis = 30_000) {
+        listOf("01-ready.png", "02-invalid.png", "03-saved.png", "99-failure.png").forEach { File(directory, it).delete() }
+        // A cold hosted emulator can spend tens of seconds verifying Compose classes.
+        // Real transport/protocol failures still fail immediately instead of retrying.
+        awaitPhase("initial profile load", timeoutMillis = 90_000) {
             compose.onAllNodesWithTag("display-name").fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithTag("request-status").performScrollTo().assertIsDisplayed()
@@ -35,7 +48,7 @@ class LiveProfileAppTest {
         closeKeyboard()
         compose.onNodeWithTag("save-profile").performScrollTo().assertIsDisplayed().performClick()
         val validation = "Use 2 to 60 characters for your display name."
-        compose.waitUntil(timeoutMillis = 30_000) {
+        awaitPhase("server validation") {
             compose.onAllNodesWithText(validation).fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithTag("request-status").performScrollTo().assertIsDisplayed().assertTextEquals("No changes saved.")
@@ -48,7 +61,7 @@ class LiveProfileAppTest {
         closeKeyboard()
         compose.onNodeWithText(validation).assertDoesNotExist()
         compose.onNodeWithTag("save-profile").performScrollTo().assertIsDisplayed().performClick()
-        compose.waitUntil(timeoutMillis = 30_000) {
+        awaitPhase("canonical save") {
             compose.onAllNodesWithText("Profile saved.").fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithTag("request-status").performScrollTo().assertIsDisplayed().assertTextEquals("Profile saved.")
@@ -59,6 +72,21 @@ class LiveProfileAppTest {
         compose.onNodeWithTag("display-name").assertIsDisplayed()
         compose.onNodeWithTag("save-profile").assertIsEnabled().assertIsDisplayed()
         screenshot("03-saved.png")
+    }
+
+    private fun awaitPhase(phase: String, timeoutMillis: Long = 30_000, condition: () -> Boolean) {
+        try {
+            compose.waitUntil(timeoutMillis = timeoutMillis) {
+                val unavailable = compose.onAllNodesWithText("Profile unavailable").fetchSemanticsNodes().isNotEmpty()
+                val retry = compose.onAllNodesWithTag("retry-save").fetchSemanticsNodes().isNotEmpty()
+                check(!unavailable && !retry) {
+                    "$phase failed in the real app:\n${compose.onRoot(useUnmergedTree = true).printToString()}"
+                }
+                condition()
+            }
+        } catch (failure: Throwable) {
+            throw AssertionError("Did not complete $phase. ${failure.message}", failure)
+        }
     }
 
     private fun closeKeyboard() {
