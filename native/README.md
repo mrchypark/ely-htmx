@@ -33,6 +33,7 @@ authoring compiler/registry remains shared with the HTML adapter; this is not a
 new standalone native schema compiler. No catalogue-wide native support is
 implied.
 
+- [Exact native support inventory and limits](SUPPORT.md)
 - [Protocol and reconciliation rules](PROTOCOL.md)
 - [Machine-readable profile envelope shape](profile-v1.schema.json)
 - [Server example and security boundaries](../examples/native-sdui/README.md)

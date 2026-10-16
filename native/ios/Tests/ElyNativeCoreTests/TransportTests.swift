@@ -45,6 +45,35 @@ final class TransportTests: XCTestCase {
         XCTAssertEqual(reloaded.dataVersion, 1)
     }
 
+    func testHTTPTimeoutKeepsExactRequestRetryable() async throws {
+        for (status, retryable) in [(408, true), (429, true), (503, true), (400, false), (403, false)] {
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.protocolClasses = [StatusProtocol.self]
+            let transport = try HTTPProfileTransport(baseURL: URL(string: "https://\(status).example.com")!, configuration: configuration)
+            var state = ProfileState()
+            let ready = try EnvelopeDecoder.decode(Data(contentsOf: ProfileStateTests.fixtureDirectory.appendingPathComponent("profile-ready.json")))
+            _ = try state.beginLoad(requestID: ready.requestID)
+            try state.receive(ready)
+            state.edit(field: "displayName", value: "Pending save")
+            let pending = try state.beginSave()
+            XCTAssertNotNil(pending.body)
+            do {
+                _ = try await transport.send(pending)
+                XCTFail("HTTP \(status) must fail")
+            } catch let error as TransportFailure {
+                XCTAssertEqual(error.retryable, retryable)
+                state.fail(requestID: pending.requestID, message: error.message, retryable: error.retryable)
+                if retryable {
+                    let retry = try state.retry()
+                    XCTAssertEqual(retry.requestID, pending.requestID)
+                    XCTAssertEqual(retry.body, pending.body)
+                } else {
+                    XCTAssertThrowsError(try state.retry())
+                }
+            }
+        }
+    }
+
     func testChunkedResponseOverLimitIsRejectedBeforeDecode() async throws {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [OversizedProtocol.self]
@@ -67,6 +96,20 @@ private final class OversizedProtocol: URLProtocol, @unchecked Sendable {
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: Data(repeating: 32, count: NativeProtocol.maximumResponseBytes))
         client?.urlProtocol(self, didLoad: Data([32]))
+        client?.urlProtocolDidFinishLoading(self)
+    }
+    override func stopLoading() {}
+}
+
+
+private final class StatusProtocol: URLProtocol, @unchecked Sendable {
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        let status = Int(request.url!.host!.split(separator: ".")[0])!
+        let response = HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: "HTTP/1.1", headerFields: ["Content-Type": "application/json"])!
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Data(#"{"error":{"message":"Request failed"}}"#.utf8))
         client?.urlProtocolDidFinishLoading(self)
     }
     override func stopLoading() {}

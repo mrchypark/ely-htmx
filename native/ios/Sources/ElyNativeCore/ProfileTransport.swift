@@ -70,7 +70,7 @@ public final class HTTPProfileTransport: ProfileTransport, @unchecked Sendable {
                 let error: Detail
             }
             let detail = (try? JSONDecoder().decode(APIError.self, from: data))?.error.message
-            let retryable = response.statusCode == 429 || response.statusCode >= 500
+            let retryable = response.statusCode == 408 || response.statusCode == 429 || response.statusCode >= 500
             throw TransportFailure(detail ?? "The server returned HTTP \(response.statusCode).", retryable: retryable)
         }
         guard response.mimeType?.lowercased() == "application/json" else {
