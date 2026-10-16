@@ -62,7 +62,7 @@ fun ProfileScreen(
             modifier = Modifier.safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text("Ely native profile", style = MaterialTheme.typography.headlineMedium,
+            Text("elysdui Native Profile", style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.semantics { heading() })
             if (state.loadingID != null) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Loading profile" })
@@ -183,6 +183,16 @@ private fun RenderNode(
                         .onFocusChanged { control.focused = it.isFocused }
                         .semantics { if (errorText != null) error(errorText) },
                 )
+            }
+            "switch" -> Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                val name = node.string("name")
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(node.string("label"), modifier = Modifier.weight(1f))
+                    Switch(checked = state.drafts[name] == "true", onCheckedChange = { onEdit(name, it.toString()) },
+                        enabled = !node.boolean("disabled") && state.loadingID == null,
+                        modifier = Modifier.testTag(node.id).semantics { contentDescription = node.string("label") })
+                }
+                state.errors[name]?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { error(it) }) }
             }
             "button" -> NativeSubmitButton(node, state.pending?.inFlight == true, canSubmit, onSave)
             else -> Text("This component is not supported.", color = MaterialTheme.colorScheme.error)

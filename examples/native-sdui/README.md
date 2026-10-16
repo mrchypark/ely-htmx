@@ -122,3 +122,12 @@ UPDATE_NATIVE_FIXTURES=1 go test ./examples/native-sdui -run TestNativeFixtures
 These tests verify Go transport/business behavior. They do not claim that an
 Xcode Simulator or Android Emulator UI was built or exercised; those checks
 belong to the individual native sample projects.
+
+## Expanded native controls
+
+Run `go run ./examples/native-sdui -controls` for a multi-field native screen
+(display name, company and a notification toggle). `-port 8095` runs it beside
+the default demo. Both modes bind only to loopback. The optional controls screen
+requires switch capability, validates all three submitted fields and their
+revisions, and preserves the same CSRF/session/action/idempotency boundaries.
+The HTML screen remains the original display-name form.

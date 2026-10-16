@@ -3,14 +3,66 @@
   "defaultStatus": "unsupported",
   "scope": "Resolved native profile v1; web catalogue membership does not imply native support.",
   "components": [
-    {"type":"region","ios":"VStack","android":"Column","limits":"One root profile-region replacement only."},
-    {"type":"form","ios":"VStack with native submit controls","android":"Column with native submit controls","limits":"One profile-form; only submit/save-profile/profile-region is authorized."},
-    {"type":"stack","ios":"HStack or VStack","android":"Row or Column","limits":"row/column; start/center/end/stretch; none/xs/sm/md/lg spacing."},
-    {"type":"text","ios":"Text","android":"Text","limits":"Plain text; no HTML or executable content."},
-    {"type":"input","ios":"UITextField hosted in SwiftUI","android":"OutlinedTextField","limits":"One plain-text displayName field; no password/file/multiple input."},
-    {"type":"button","ios":"Button","android":"Material3 Button variants","limits":"Explicit type=submit inside the registered form; no click/reset/named submitter."},
-    {"type":"notice","ios":"Text in VStack","android":"Text in Surface","limits":"Plain title/text and urgent accessibility announcement."}
+    {
+      "type": "region",
+      "ios": "VStack",
+      "android": "Column",
+      "limits": "One root profile-region replacement only."
+    },
+    {
+      "type": "form",
+      "ios": "VStack with native submit controls",
+      "android": "Column with native submit controls",
+      "limits": "One profile-form; only submit/save-profile/profile-region is authorized."
+    },
+    {
+      "type": "stack",
+      "ios": "HStack or VStack",
+      "android": "Row or Column",
+      "limits": "row/column; start/center/end/stretch; none/xs/sm/md/lg spacing."
+    },
+    {
+      "type": "text",
+      "ios": "Text",
+      "android": "Text",
+      "limits": "Plain text; no HTML or executable content."
+    },
+    {
+      "type": "input",
+      "ios": "UITextField hosted in SwiftUI",
+      "android": "OutlinedTextField",
+      "limits": "Up to 64 unique envelope-declared plain-text fields; no password/file/multiple input."
+    },
+    {
+      "type": "button",
+      "ios": "Button",
+      "android": "Material3 Button variants",
+      "limits": "Explicit type=submit inside the registered form; no click/reset/named submitter."
+    },
+    {
+      "type": "notice",
+      "ios": "Text in VStack",
+      "android": "Text in Surface",
+      "limits": "Plain title/text and urgent accessibility announcement."
+    },
+    {
+      "type": "switch",
+      "ios": "Toggle",
+      "android": "Switch",
+      "limits": "Boolean form field encoded as canonical true/false strings; disabled supported; no change network event."
+    }
   ],
-  "notImplemented": ["multiple fields or arbitrary forms", "checkbox/toggle", "select/picker", "multiline input", "image", "divider", "progress node", "list/scroll node", "adaptive/list-detail container", "all other catalogue types"],
+  "notImplemented": [
+    "arbitrary form action routes",
+    "checkbox",
+    "select/picker",
+    "multiline input",
+    "image",
+    "divider",
+    "progress node",
+    "list/scroll node",
+    "adaptive/list-detail container",
+    "all other catalogue types"
+  ],
   "verification": "Source inventory, not a test certificate. Native workflow results for the exact commit establish platform compilation and simulator/emulator coverage. Accessibility, IME and physical-device behavior require separate validation."
 }

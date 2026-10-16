@@ -7,7 +7,7 @@ import java.util.UUID
 
 const val MAX_RESPONSE_BYTES = 1_048_576
 const val MAX_SAFE_REVISION = 9_007_199_254_740_991L
-val CAPABILITIES = listOf("region", "form", "stack", "text", "input", "button", "notice")
+val CAPABILITIES = listOf("region", "form", "stack", "text", "input", "button", "notice", "switch")
 
 class ProtocolException(message: String) : Exception(message)
 
@@ -115,7 +115,7 @@ object ProfileProtocol {
             if (!p.isString || p.content !in CAPABILITIES) bad("Unsupported required capability")
         }
         val seen = mutableSetOf<String>()
-        var inputCount = 0; var formCount = 0; var submitCount = 0
+        val inputNames = mutableSetOf<String>(); var formCount = 0; var submitCount = 0
         fun parseNode(o: JsonObject, level: Int, insideForm: Boolean): Node {
             if (level > 32 || seen.size >= 1000) bad("Native tree limit exceeded")
             val id = o.string("id")
@@ -152,12 +152,14 @@ object ProfileProtocol {
                 }
                 "text" -> props.string("text", true)
                 "notice" -> { props.string("text", true); optionalString("title"); bool("urgent") }
-                "input" -> {
-                    inputCount++; requiredString("name"); requiredString("label")
-                    if (!insideForm || props.string("name") != "displayName") bad("Unsupported field")
+                "input", "switch" -> {
+                    requiredString("name"); requiredString("label")
+                    if (!insideForm || !inputNames.add(props.string("name"))) bad("Unsupported or duplicate field")
+                    if (type == "switch") bool("checked")
                     enum("type", setOf("text")); optionalString("value"); optionalString("placeholder")
                     listOf("disabled", "readonly", "required", "multiple").forEach(::bool)
                     if ((props["multiple"] as? JsonPrimitive)?.booleanOrNull == true) bad("Multiple input is unsupported")
+                    if (type == "switch" && listOf("readonly", "required").any { (props[it] as? JsonPrimitive)?.booleanOrNull == true }) bad("Unsupported switch mode")
                 }
                 "button" -> {
                     requiredString("label"); enum("type", setOf("submit")); bool("disabled")
@@ -176,14 +178,20 @@ object ProfileProtocol {
             return Node(id, type, props, children, events)
         }
         val region = parseNode(root.obj("region"), 1, false)
-        if (region.type != "region" || formCount != 1 || inputCount != 1 || submitCount < 1) bad("Incomplete profile screen")
+        if (region.type != "region" || formCount != 1 || inputNames.isEmpty() || submitCount < 1) bad("Incomplete profile screen")
         val fields = strings(root.obj("fields"))
         val errors = strings(root.obj("errors"))
         val edits = root.obj("acknowledgedEdits").mapValues { revision(it.value) }
-        if (fields.keys != setOf("displayName") || errors.keys.any { it != "displayName" } || edits.keys.any { it != "displayName" }) bad("Unsupported fields")
+        if (fields.keys != inputNames || fields.size > 64 || fields.keys.any { !Regex("[A-Za-z][A-Za-z0-9_]{0,63}").matches(it) } ||
+            fields.values.any { it.toByteArray(Charsets.UTF_8).size > 16_384 } || errors.keys.any { it !in fields } || edits.keys.any { it !in fields }) bad("Unsupported fields")
+        fun validateSwitches(node: Node) {
+            if (node.type == "switch" && fields[node.string("name")] !in setOf("true", "false")) bad("Invalid switch field")
+            node.children.forEach(::validateSwitches)
+        }
+        validateSwitches(region)
         val status = root.string("status")
         if (status !in setOf("ready", "saved", "invalid", "conflict")) bad("Unsupported response status")
-        if (status != "ready" && edits.keys != fields.keys) bad("Missing acknowledged edits")
+        if ((status == "ready" && edits.isNotEmpty()) || (status != "ready" && edits.keys != fields.keys)) bad("Missing acknowledged edits")
         return Envelope("profile", root.string("screenRevision"), root.string("sessionID"), root.string("requestID"),
             revision(root["dataVersion"]), status, root.string("csrfToken"), region, fields, edits, errors, root.string("message", true))
     }

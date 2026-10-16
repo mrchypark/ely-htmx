@@ -53,7 +53,7 @@ public struct ProfileState: Equatable, Sendable {
     }
 
     public mutating func edit(field: String, value: String) {
-        guard field == "displayName", envelope != nil, !isLoading, drafts[field] != value else { return }
+        guard drafts[field] != nil, envelope != nil, !isLoading, drafts[field] != value else { return }
         let revision = editRevisions[field, default: 0]
         guard revision < 9_007_199_254_740_991 else {
             failureMessage = "The local edit limit was reached. Reload before editing again."
@@ -102,6 +102,9 @@ public struct ProfileState: Equatable, Sendable {
         if let current = envelope, response.sessionID == current.sessionID,
            response.dataVersion < current.dataVersion { return .ignored }
         try EnvelopeDecoder.validate(response)
+        if case .save(let submitted) = pending.kind, Set(response.fields.keys) != Set(submitted.fields.keys) {
+            throw ProtocolFailure("The field set changed during a save. Reload the screen before continuing.")
+        }
 
         switch pending.kind {
         case .load:

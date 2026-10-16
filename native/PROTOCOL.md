@@ -25,7 +25,9 @@ non-secret screen sessionID and csrfToken. POST `/native/profile` sends
 }
 ```
 
-Only this registered action tuple and field set are allowed. A request ID reused
+This example request is the legacy single-field form. Only the registered action
+tuple and the exact field set declared by the host screen are allowed. The
+expanded controls demo additionally declares company and notifications. A request ID reused
 with changed content fails. Session auth, CSRF, action permission and revision
 checks are server-owned. A new mutation needs the current dataVersion; an exact
 retry is replayed before checking its old dataVersion. In-memory business replay
@@ -49,9 +51,10 @@ Both load and action replies use this envelope (HTTP 200 ready/saved, 422 invali
 }
 ```
 
-The example clients additionally require exactly one profile region, one submit
-form, one displayName input and at least one submit button. This deliberate
-profile-specific validation is not a universal native SDUI runtime. The Go
+The example clients require exactly one profile region, one registered submit
+form, one input or switch control per declared field, and at least one submit
+button. The legacy screen declares only displayName; the expanded demo declares
+three fields. This registered-action validation is not a universal native SDUI runtime. The Go
 projection can resolve repeated text/layout nodes, but the clients never imply
 support for every combination in the web catalogue.
 
@@ -60,12 +63,13 @@ A node has stable `id`, `type`, a `props` object, optional `children` and option
 in this v1 profile contract; input changes stay local and button click/reset
 actions are not supported. Values, conditions, templates and stable-key
 repeats are resolved by Go. Clients never evaluate bindings. Structural types:
-region/form/stack. Leaves: text, ordinary text input, button, notice. The projection accepts only the canonical DefaultRegistry property contracts
+region/form/stack. Leaves: text, ordinary text input, switch, button, notice. The projection accepts only the canonical DefaultRegistry property contracts
 (and equivalent definitions in CatalogueRegistry), not arbitrary registered
 components with similar names. Properties retain existing SDUI lower-camel
 names; native input supports only type=text. Form submit actions are inherited by a button with type=submit.
 Unsupported node types, protocol versions or required capabilities produce a
-visible native fallback, never a WebView. No switch is promised in this slice.
+visible native fallback, never a WebView. Switch support requires the optional
+`switch` capability; other catalogue controls remain unsupported.
 
 ## Client state and response acceptance
 
@@ -96,3 +100,27 @@ revision. Keep `draft` separate from the authoritative baseline `fields`.
 Required limits: 1 MiB response, 1000 nodes, depth 32, unique stable IDs; validate
 before rendering. Unknown JSON object members may be ignored for forward
 compatibility; unknown required types/capabilities may not.
+
+## Multi-field and switch extension
+
+Protocol version remains `1`. `switch` is an optional negotiated capability;
+legacy profile envelopes keep their original required capabilities and field set.
+An envelope may declare 1–64 fields with names matching
+`^[A-Za-z][A-Za-z0-9_]{0,63}$` and values of at most 16,384 UTF-8 bytes. Each field
+must have exactly one input or switch control inside the registered form.
+Unknown, duplicate, missing or unbound fields fail closed. Error and acknowledged
+revision keys must belong to declared fields; non-ready replies acknowledge every
+submitted field. A save response cannot change its field set; reload is required.
+
+Switch nodes use the existing core `switch` schema (`name`, `label`, `checked`,
+`disabled`, optional `value`). Authoritative `fields[name]` and local drafts drive
+the control; boolean values must be the strings `true` or `false`. A switch edit
+increments only that field's local revision. No change event sends a request.
+Disabled controls do not permit edits. Saves, retries, invalid responses and
+late responses preserve per-field drafts under the same reconciliation rules.
+
+The action allowlist remains `profile` / `profile-form` / `submit` /
+`save-profile` / `profile-region`. Additional fields are declared by the host's
+screen, and the host must validate the exact allowed field set and value modes.
+The expanded Go demo validates and atomically persists displayName, company and
+notifications; the legacy demo continues accepting only displayName.

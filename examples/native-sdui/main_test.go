@@ -679,7 +679,7 @@ func TestNativeUnsupportedTreeFailsBeforeMutation(t *testing.T) {
 		t.Fatal(err)
 	}
 	screen.Root.Children = append(screen.Root.Children, sdui.Node{
-		ID: "unsupported-switch", Type: "switch", Props: map[string]any{"name": "enabled", "label": "Enabled"},
+		ID: "unsupported-password", Type: "input", Props: map[string]any{"name": "password", "label": "Password", "type": "password"},
 	})
 	registry, err := sdui.DefaultRegistry()
 	if err != nil {

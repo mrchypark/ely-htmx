@@ -116,7 +116,6 @@ func TestResolveNativeFailsClosed(t *testing.T) {
 		name string
 		node Node
 	}{
-		{"switch", Node{ID: "toggle", Type: "switch", Props: map[string]any{"name": "enabled", "label": "Enabled"}}},
 		{"file", Node{ID: "field", Type: "input", Props: map[string]any{"name": "attachment", "label": "Attachment", "type": "file"}}},
 		{"password", Node{ID: "field", Type: "input", Props: map[string]any{"name": "password", "label": "Password", "type": "password"}}},
 		{"default-button", Node{ID: "default-button", Type: "button", Props: map[string]any{"label": "Default"}}},
@@ -211,5 +210,25 @@ func TestResolveNativeRejectsLookalikeRegistryContracts(t *testing.T) {
 	}
 	if _, err := plan.ResolveNative("profile-region", RenderContext{}, NativeCapabilities()); !errors.Is(err, ErrUnsupportedNative) {
 		t.Fatalf("custom contract mislabeled native: %v", err)
+	}
+}
+
+func TestResolveNativeSwitchUsesExplicitCapabilityAndNoChangeAction(t *testing.T) {
+	node := Node{ID: "notifications", Type: "switch", Props: map[string]any{"name": "notifications", "label": "Notifications", "checked": true}}
+	plan := nativePlan(t, node)
+	result, err := plan.ResolveNative("profile-region", RenderContext{}, NativeCapabilities())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Children[0].Type != "switch" || result.Children[0].Props["checked"] != true {
+		t.Fatalf("unexpected switch: %#v", result)
+	}
+	if _, err := plan.ResolveNative("profile-region", RenderContext{}, []string{"region"}); !errors.Is(err, ErrUnsupportedNative) {
+		t.Fatal("missing switch capability accepted")
+	}
+	node.Event = &Event{On: "change", Action: "save", Target: "profile-region"}
+	plan = nativePlan(t, node)
+	if _, err := plan.ResolveNative("profile-region", RenderContext{}, NativeCapabilities()); !errors.Is(err, ErrUnsupportedNative) {
+		t.Fatal("unregistered change event accepted")
 	}
 }

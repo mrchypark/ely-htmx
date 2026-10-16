@@ -12,7 +12,7 @@ final class ProtocolTests: XCTestCase {
         response.protocolVersion = "2"
         XCTAssertThrowsError(try EnvelopeDecoder.validate(response))
         response = try ready()
-        response.requiredCapabilities.append("switch")
+        response.requiredCapabilities.append("slider")
         XCTAssertThrowsError(try EnvelopeDecoder.validate(response))
         response = try ready()
         response.region.children[0].children[0].type = "webview"
@@ -135,6 +135,20 @@ final class ProtocolTests: XCTestCase {
                 XCTAssertTrue(error is ProtocolFailure)
             }
         }
+    }
+
+    func testWideJSONObjectPreflightKeepsAllKeysWithoutCopyingSets() throws {
+        // 50,000 ignored members fit below 1 MiB. A value-copy frame caused
+        // quadratic Set copy-on-write before the normal decoder could validate.
+        let members = (0..<50_000).map { "\"metadata\($0)\":0" }.joined(separator: ",")
+        let data = Data(("{" + members + "}").utf8)
+        XCTAssertLessThan(data.count, NativeProtocol.maximumResponseBytes)
+        measure {
+            do { try EnvelopeDecoder.rejectAmbiguousJSON(data) }
+            catch { XCTFail("Wide-object preflight failed: \(error)") }
+        }
+        let duplicate = Data(("{" + members + ",\"metadata49999\":1}").utf8)
+        XCTAssertThrowsError(try EnvelopeDecoder.rejectAmbiguousJSON(duplicate))
     }
 
     func testTransportOriginPolicy() throws {

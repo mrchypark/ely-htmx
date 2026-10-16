@@ -12,6 +12,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -32,6 +33,9 @@ import (
 //go:embed screen.json
 var screenJSON []byte
 
+//go:embed controls.json
+var controlsJSON []byte
+
 const (
 	sessionCookie = "ely-native-demo"
 	maxSessions   = 256
@@ -45,8 +49,10 @@ var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]
 var capabilityPattern = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_/-]{0,63}$`)
 
 type profile struct {
-	DisplayName string
-	DataVersion uint64
+	DisplayName   string
+	Company       string
+	Notifications bool
+	DataVersion   uint64
 }
 
 type cachedResponse struct {
@@ -70,12 +76,41 @@ type session struct {
 }
 
 type server struct {
-	mu       sync.Mutex
-	sessions map[string]*session // Keyed only by secret random cookie.
-	plan     *sdui.Plan
-	revision string
-	mux      *http.ServeMux
+	mu         sync.Mutex
+	sessions   map[string]*session // Keyed only by secret random cookie.
+	plan       *sdui.Plan
+	nativePlan *sdui.Plan
+	controls   bool
+	revision   string
+	mux        *http.ServeMux
 }
+
+// NewControlsHandler expands only the native screen. The original web profile
+// form remains available and edits only the display name in the same session.
+func NewControlsHandler() (http.Handler, error) {
+	handler, err := NewHandler()
+	if err != nil {
+		return nil, err
+	}
+	screen, err := sdui.Decode(bytes.NewReader(controlsJSON))
+	if err != nil {
+		return nil, err
+	}
+	registry, err := sdui.DefaultRegistry()
+	if err != nil {
+		return nil, err
+	}
+	plan, err := sdui.Compile(screen, registry)
+	if err != nil {
+		return nil, err
+	}
+	s := handler.(*server)
+	s.nativePlan, s.controls = plan, true
+	s.revision = fmt.Sprintf("sha256-%x", sha256.Sum256(controlsJSON))
+	return s, nil
+}
+
+var legacyCapabilities = []string{"region", "form", "stack", "text", "input", "button", "notice"}
 
 // NewHandler creates an isolated, bounded in-memory demo. Real applications must
 // provide their own authentication and a durable transaction/replay store.
@@ -298,7 +333,7 @@ func validateCapabilities(capabilities []string) error {
 		}
 		seen[capability] = true
 	}
-	for _, required := range sdui.NativeCapabilities() {
+	for _, required := range legacyCapabilities {
 		if !seen[required] {
 			return fmt.Errorf("required native capability missing: %s", required)
 		}
@@ -420,17 +455,23 @@ func (s *server) nativeSave(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 403, "action_forbidden", "This screen permits only profile-form submit/save-profile to profile-region.")
 		return
 	}
-	if len(action.Fields) != 1 || len(action.EditRevisions) != 1 {
-		writeError(w, 400, "invalid_fields", "Send only displayName and its edit revision.")
+	expected := []string{"displayName"}
+	if s.controls {
+		expected = append(expected, "company", "notifications")
+	}
+	if len(action.Fields) != len(expected) || len(action.EditRevisions) != len(expected) {
+		writeError(w, 400, "invalid_fields", "Send exactly the declared form fields and their edit revisions.")
 		return
 	}
-	if _, ok := action.Fields["displayName"]; !ok {
-		writeError(w, 400, "invalid_fields", "displayName is required.")
-		return
-	}
-	if _, ok := action.EditRevisions["displayName"]; !ok {
-		writeError(w, 400, "invalid_fields", "displayName edit revision is required.")
-		return
+	for _, field := range expected {
+		if _, ok := action.Fields[field]; !ok {
+			writeError(w, 400, "invalid_fields", "Missing form field.")
+			return
+		}
+		if _, ok := action.EditRevisions[field]; !ok {
+			writeError(w, 400, "invalid_fields", "Missing edit revision.")
+			return
+		}
 	}
 	canonical, err := json.Marshal(action)
 	if err != nil {
@@ -482,8 +523,24 @@ func (s *server) applyNative(secret string, csrf []string, action sdui.NativeAct
 		if candidate.DataVersion >= sdui.MaxNativeRevision {
 			return errorResponse(403, "version_capacity", "This demo reached its version limit. Restart the server, then reload.")
 		}
-		candidate.DisplayName = name
-		candidate.DataVersion++
+		if s.controls {
+			company := strings.TrimSpace(action.Fields["company"])
+			if utf8.RuneCountInString(company) > 80 {
+				problems["company"] = "Use at most 80 characters for the company."
+			}
+			enabled := action.Fields["notifications"]
+			if enabled != "true" && enabled != "false" {
+				problems["notifications"] = "Choose enabled or disabled."
+			}
+			candidate.Company, candidate.Notifications = company, enabled == "true"
+		}
+		if len(problems) > 0 {
+			status, state, message = 422, "invalid", "No changes saved."
+			candidate = value.Profile
+		} else {
+			candidate.DisplayName = name
+			candidate.DataVersion++
+		}
 	}
 	response, err := s.envelopeLocked(value, action.RequestID, state, message, action.EditRevisions, problems, action.Capabilities, candidate)
 	if err != nil {
@@ -528,15 +585,26 @@ func (s *server) envelopeLocked(value *session, requestID, status, message strin
 	if problems == nil {
 		problems = map[string]string{}
 	}
-	region, err := s.plan.ResolveNative(profileRegion, sdui.RenderContext{Data: screenData(current.DisplayName, "", "")}, capabilities)
+	plan := s.plan
+	data := screenData(current.DisplayName, "", "")
+	fields := map[string]string{"displayName": current.DisplayName}
+	required := append([]string(nil), legacyCapabilities...)
+	if s.controls {
+		plan = s.nativePlan
+		data["company"], data["notifications"] = current.Company, current.Notifications
+		fields["company"] = current.Company
+		fields["notifications"] = fmt.Sprint(current.Notifications)
+		required = append(required, "switch")
+	}
+	region, err := plan.ResolveNative(profileRegion, sdui.RenderContext{Data: data}, capabilities)
 	if err != nil {
 		return sdui.NativeEnvelope{}, err
 	}
 	return sdui.NativeEnvelope{
 		ProtocolVersion: sdui.NativeVersion, ScreenID: "profile", ScreenRevision: s.revision,
 		SessionID: value.ID, RequestID: requestID, DataVersion: current.DataVersion,
-		Status: status, CSRFToken: value.CSRF, RequiredCapabilities: sdui.NativeCapabilities(),
-		Region: region, Fields: map[string]string{"displayName": current.DisplayName},
+		Status: status, CSRFToken: value.CSRF, RequiredCapabilities: required,
+		Region: region, Fields: fields,
 		AcknowledgedEdits: edits, Errors: problems, Message: message,
 	}, nil
 }
@@ -624,11 +692,23 @@ func writeJSONBytes(w http.ResponseWriter, status int, encoded []byte) {
 }
 
 func main() {
-	handler, err := NewHandler()
+	controls := flag.Bool("controls", false, "Serve the multi-field native controls demo")
+	port := flag.Int("port", 8094, "Loopback HTTP port")
+	flag.Parse()
+	if *port < 1 || *port > 65535 {
+		log.Fatal("port must be between 1 and 65535")
+	}
+	var handler http.Handler
+	var err error
+	if *controls {
+		handler, err = NewControlsHandler()
+	} else {
+		handler, err = NewHandler()
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
-	const address = "127.0.0.1:8094"
+	address := fmt.Sprintf("127.0.0.1:%d", *port)
 	log.Printf("Ely native profile demo: http://%s (temporary local sessions only)", address)
 	log.Fatal((&http.Server{Addr: address, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: time.Minute}).ListenAndServe())
 }

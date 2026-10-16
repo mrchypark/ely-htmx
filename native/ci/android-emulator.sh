@@ -10,6 +10,7 @@ export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:?An existing Android SDK
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
 SERIAL=emulator-5554
 SERVER_PID=
+CONTROLS_PID=
 EMULATOR_PID=
 cleanup() {
   result=$?
@@ -20,6 +21,7 @@ cleanup() {
   adb -s "$SERIAL" shell cat /proc/pressure/cpu > "$RESULTS/cpu-pressure.txt" 2>&1
   adb -s "$SERIAL" pull /sdcard/Android/data/dev.ely.nativeprofile/files/screenshots "$RESULTS/"
   if [ -n "$EMULATOR_PID" ]; then kill "$EMULATOR_PID" 2>/dev/null; fi
+  if [ -n "$CONTROLS_PID" ]; then kill "$CONTROLS_PID" 2>/dev/null; fi
   if [ -n "$SERVER_PID" ]; then kill "$SERVER_PID" 2>/dev/null; fi
   exit "$result"
 }
@@ -64,11 +66,15 @@ SERVER_BINARY="${RUNNER_TEMP:-/tmp}/ely-native-emulator-profile"
 go build -o "$SERVER_BINARY" ./examples/native-sdui
 "$SERVER_BINARY" > "$RESULTS/server.log" 2>&1 &
 SERVER_PID=$!
+"$SERVER_BINARY" -controls -port 8095 > "$RESULTS/controls-server.log" 2>&1 &
+CONTROLS_PID=$!
 for attempt in $(seq 1 30); do
-  curl --fail --silent http://127.0.0.1:8094/ > /dev/null && break
+  curl --fail --silent http://127.0.0.1:8094/ > /dev/null && \
+    curl --fail --silent http://127.0.0.1:8095/ > /dev/null && break
   sleep 1
 done
 curl --fail --silent http://127.0.0.1:8094/ > /dev/null
+curl --fail --silent http://127.0.0.1:8095/ > /dev/null
 # sys.boot_completed does not guarantee that the guest network is ready. Check
 # the same host-loopback bridge used by the app before launching instrumentation.
 # The favicon route has no session/cookie data and always returns HTTP 204.
