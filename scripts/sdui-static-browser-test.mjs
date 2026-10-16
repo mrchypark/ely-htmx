@@ -113,6 +113,12 @@ try{
  await page.locator('#undo').click();assert.equal(JSON.parse(await page.locator('#screen-editor').inputValue()).root.children.length,1);
  await page.waitForFunction(()=>document.querySelector('#preview-state').textContent==='Live · validated');
  await mkdir('test-results/static-pages',{recursive:true});await page.screenshot({path:'test-results/static-pages/desktop.png',fullPage:true,animations:'disabled'});
- await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));await page.screenshot({path:'test-results/static-pages/mobile.png',fullPage:true,animations:'disabled'});
+ await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));
+ // Paint the below-the-fold frame before capturing the full mobile document.
+ await page.locator('#preview-frame').scrollIntoViewIfNeeded();
+ await page.frameLocator('#preview-frame').getByText('Static WASM preview',{exact:true}).waitFor({state:'visible'});
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ await page.locator('#preview-frame').screenshot({path:'test-results/static-pages/mobile-preview.png',animations:'disabled'});
+ await page.screenshot({path:'test-results/static-pages/mobile.png',fullPage:true,animations:'disabled'});
  assert.deepEqual(errors,[]);assert.deepEqual(bad,[]);console.log('Static gallery and real WASM editor passed',await page.evaluate(()=>elyRendererMetrics));
 }finally{await browser?.close();await new Promise(r=>server.close(r));}
