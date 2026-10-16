@@ -294,13 +294,18 @@ private struct CompositionTextField: UIViewRepresentable {
         }
         func textFieldDidBeginEditing(_ textField: UITextField) { parent.focusedNodeID = parent.nodeID }
         func textFieldDidEndEditing(_ textField: UITextField) {
+            // Clear requested focus before publishing changes that can refresh SwiftUI.
+            // Otherwise updateUIView can restore focus while UIKit is resigning it.
+            if parent.focusedNodeID == parent.nodeID { parent.focusedNodeID = nil }
             parent.compositionChanged(false)
             parent.value = textField.text ?? ""
-            if parent.focusedNodeID == parent.nodeID { parent.focusedNodeID = nil }
         }
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             // Return commits/dismisses the input; only the explicit button invokes a request.
             guard textField.markedTextRange == nil else { return false }
+            // Intentional dismissal must precede UIKit's didEnd callbacks. Save
+            // responses never clear this binding, preserving focus across replacements.
+            parent.focusedNodeID = nil
             textField.resignFirstResponder()
             return true
         }

@@ -1,7 +1,7 @@
 {
   "protocolVersion": "1",
   "screenID": "profile",
-  "screenRevision": "fixture-revision-1",
+  "screenRevision": "fixture-revision-2",
   "sessionID": "fixture-session",
   "requestID": "00000000-0000-4000-8000-000000000003",
   "dataVersion": 1,
@@ -89,13 +89,6 @@
                 "target": "profile-region"
               }
             ]
-          },
-          {
-            "id": "profile-status",
-            "type": "text",
-            "props": {
-              "text": "Edit your display name."
-            }
           }
         ]
       }

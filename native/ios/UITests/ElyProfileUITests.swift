@@ -10,10 +10,14 @@ final class ElyProfileUITests: XCTestCase {
         let input = app.textFields["input-displayName"]
         XCTAssertTrue(input.waitForExistence(timeout: 15))
         XCTAssertEqual(app.webViews.count, 0)
+        assertVisible(input, in: app)
+        assertVisible(app.buttons["save-profile"], in: app)
+        XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == %@", "Edit your display name.")).count, 1)
         attachScreenshot(app, named: "01 - Native profile loaded")
         replaceText(input, with: "", app: app)
         app.buttons["save-profile"].tap()
-        XCTAssertTrue(app.staticTexts["error-displayName"].waitForExistence(timeout: 10))
+        assertVisible(app.staticTexts["error-displayName"], in: app)
+        assertVisible(app.buttons["save-profile"], in: app)
         attachScreenshot(app, named: "02 - Native validation error")
         replaceText(input, with: "Native Ada", app: app)
         XCTAssertFalse(app.staticTexts["error-displayName"].exists)
@@ -22,6 +26,8 @@ final class ElyProfileUITests: XCTestCase {
         expectation(for: saved, evaluatedWith: app.staticTexts["profile-status"])
         waitForExpectations(timeout: 10)
         XCTAssertEqual(input.value as? String, "Native Ada")
+        assertVisible(app.staticTexts["profile-status"], in: app)
+        assertVisible(app.buttons["save-profile"], in: app)
         attachScreenshot(app, named: "03 - Native profile saved")
         replaceText(input, with: "Unsaved draft", app: app)
         app.buttons["reload-profile"].tap()
@@ -39,6 +45,15 @@ final class ElyProfileUITests: XCTestCase {
     }
 
     @MainActor
+    private func assertVisible(_ element: XCUIElement, in app: XCUIApplication,
+                               file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(element.waitForExistence(timeout: 10), file: file, line: line)
+        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: element)
+        XCTAssertEqual(XCTWaiter.wait(for: [hittable], timeout: 5), .completed, file: file, line: line)
+        XCTAssertTrue(app.frame.contains(element.frame), "Expected the complete element inside the visible screen.", file: file, line: line)
+    }
+
+    @MainActor
     private func attachScreenshot(_ app: XCUIApplication, named name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name
@@ -51,6 +66,13 @@ final class ElyProfileUITests: XCTestCase {
         field.tap()
         let old = field.value as? String ?? ""
         field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: old.count) + text)
-        if app.keyboards.buttons["Done"].exists { app.keyboards.buttons["Done"].tap() }
+        // The return key may be a checkmark rather than a localized "Done" button.
+        // Send Return to the actual control so UITextFieldDelegate handles dismissal.
+        field.typeText("\n")
+        let dismissed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"), object: app.keyboards.firstMatch
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 5), .completed,
+                       "The native Return key must dismiss the keyboard before saving or taking screenshots.")
     }
 }

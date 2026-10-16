@@ -157,7 +157,7 @@ func TestNativeInitialLoadAndSharedWebScreen(t *testing.T) {
 	if web.Code != 200 {
 		t.Fatalf("web load: %d %s", web.Code, web.Body.String())
 	}
-	for _, wanted := range []string{"<!doctype html>", `id="profile-region"`, `id="profile-form"`, `name="displayName"`, `value="Ada"`, "/assets/sdui.js"} {
+	for _, wanted := range []string{"<!doctype html>", `id="profile-region"`, `id="profile-form"`, `name="displayName"`, `value="Ada"`, `id="profile-status"`, "Edit your display name.", "/assets/sdui.js"} {
 		if !strings.Contains(web.Body.String(), wanted) {
 			t.Errorf("shared HTML missing %q", wanted)
 		}
@@ -193,8 +193,8 @@ func TestNativeValidationCanonicalSaveAndReplay(t *testing.T) {
 	if nodeByID(bad.Region, "profile-error") != nil {
 		t.Fatal("request-scoped errors must stay in envelope.Errors so newer drafts can suppress them")
 	}
-	if status := nodeByID(bad.Region, "profile-status"); status == nil || status.Props["text"] != "Edit your display name." {
-		t.Fatal("tree status must remain neutral; revision-scoped messages belong only in envelope.Message")
+	if status := nodeByID(bad.Region, "profile-status"); status != nil {
+		t.Fatal("status belongs only in envelope.Message to prevent duplicate native announcements")
 	}
 	request := c.action(3, "  Grace Hopper\u2003")
 	request.EditRevisions["displayName"] = 8
@@ -597,7 +597,7 @@ func TestNativeFixtures(t *testing.T) {
 	for name, value := range map[string]sdui.NativeEnvelope{"profile-ready.json": c.ready, "profile-invalid.json": envelope(t, invalid), "profile-saved.json": envelope(t, saved)} {
 		value.SessionID = "fixture-session"
 		value.CSRFToken = "fixture-csrf"
-		value.ScreenRevision = "fixture-revision-1"
+		value.ScreenRevision = "fixture-revision-2"
 		encoded, err := json.MarshalIndent(value, "", "  ")
 		if err != nil {
 			t.Fatal(err)
@@ -698,5 +698,73 @@ func TestNativeUnsupportedTreeFailsBeforeMutation(t *testing.T) {
 	h.plan = original
 	if got := envelope(t, c.reload(4)); got.DataVersion != 0 || got.Fields["displayName"] != "Ada" {
 		t.Fatal("failed native resolution mutated business data")
+	}
+}
+
+func TestNativeFeedbackAppearsOnlyInEnvelope(t *testing.T) {
+	c := startClient(t, testHandler(t))
+	invalid := c.post(c.action(2, "X"), nil)
+	saved := c.post(c.action(3, "Grace"), nil)
+	conflict := c.post(c.action(4, "Linus"), nil)
+	if invalid.Code != 422 || saved.Code != 200 || conflict.Code != 409 {
+		t.Fatalf("unexpected feedback responses: invalid=%d saved=%d conflict=%d", invalid.Code, saved.Code, conflict.Code)
+	}
+	for _, response := range []sdui.NativeEnvelope{c.ready, envelope(t, invalid), envelope(t, saved), envelope(t, conflict)} {
+		t.Run(response.Status, func(t *testing.T) {
+			if response.Message == "" {
+				t.Fatal("native status/live announcements must remain in the envelope")
+			}
+			for _, id := range []string{"profile-status", "profile-error"} {
+				if nodeByID(response.Region, id) != nil {
+					t.Fatalf("native tree must not duplicate envelope feedback with %s", id)
+				}
+			}
+			encoded, err := json.Marshal(response.Region)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, message := range append([]string{"Edit your display name.", response.Message}, response.Errors["displayName"]) {
+				if message != "" && strings.Contains(string(encoded), message) {
+					t.Fatalf("native tree repeats request-scoped feedback %q", message)
+				}
+			}
+		})
+	}
+}
+
+func TestWebFeedbackRemainsVisible(t *testing.T) {
+	h := testHandler(t)
+	c := startClient(t, h)
+	for i, test := range []struct {
+		name       string
+		status     int
+		message    string
+		validation bool
+	}{
+		{"X", 422, "No changes saved. Check your display name.", true},
+		{"Grace", 200, "Profile saved.", false},
+	} {
+		form := url.Values{
+			"displayName": {test.name}, "_action": {"save-profile"}, "_target": {profileRegion},
+			"_csrf": {c.ready.CSRFToken}, "_request": {fmt.Sprintf("web-feedback-%d", i)},
+		}
+		r := httptest.NewRequest(http.MethodPost, demoURL+"/", strings.NewReader(form.Encode()))
+		r.AddCookie(c.cookie)
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		r.Header.Set("Idempotency-Key", fmt.Sprintf("web-feedback-%d", i))
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		if w.Code != test.status {
+			t.Fatalf("web status: got %d want %d: %s", w.Code, test.status, w.Body.String())
+		}
+		if !strings.Contains(w.Body.String(), `id="profile-status"`) || strings.Count(w.Body.String(), test.message) != 1 {
+			t.Fatalf("web feedback must remain visible once: %s", w.Body.String())
+		}
+		if strings.Contains(w.Body.String(), `id="profile-error"`) != test.validation {
+			t.Fatalf("web validation visibility changed: %s", w.Body.String())
+		}
+		if test.validation && !strings.Contains(w.Body.String(), "Use 2 to 60 characters for your display name.") {
+			t.Fatal("web field validation was lost")
+		}
 	}
 }

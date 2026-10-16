@@ -120,6 +120,7 @@ jobs:
             native/android/app/build/reports/tests/
             native/android/app/build/reports/androidTests/
             native/android/app/build/outputs/androidTest-results/
+            native/android/app/build/outputs/connected_android_test_additional_output/
             native/android/app/build/outputs/apk/debug/*.apk
             native/android/app/build/outputs/apk/androidTest/debug/*.apk
             test-results/android-native/

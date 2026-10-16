@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -25,41 +26,56 @@ class LiveProfileAppTest {
         compose.waitUntil(timeoutMillis = 30_000) {
             compose.onAllNodesWithTag("display-name").fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithTag("display-name").assertIsEnabled()
-        compose.onNodeWithTag("save-profile").assertIsEnabled()
+        compose.onNodeWithTag("request-status").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("display-name").assertIsEnabled().assertIsDisplayed()
+        compose.onNodeWithTag("save-profile").assertIsEnabled().assertIsDisplayed()
         screenshot("01-ready.png")
 
         compose.onNodeWithTag("display-name").performScrollTo().performClick().performTextClearance()
-        compose.onNodeWithTag("save-profile").performScrollTo().performClick()
+        closeKeyboard()
+        compose.onNodeWithTag("save-profile").performScrollTo().assertIsDisplayed().performClick()
         val validation = "Use 2 to 60 characters for your display name."
         compose.waitUntil(timeoutMillis = 30_000) {
             compose.onAllNodesWithText(validation).fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithText(validation).assertExists()
-        compose.onNodeWithTag("request-status").assertTextEquals("No changes saved.")
-        compose.onNodeWithTag("display-name").performScrollTo()
+        compose.onNodeWithTag("request-status").performScrollTo().assertIsDisplayed().assertTextEquals("No changes saved.")
+        compose.onNodeWithText(validation).assertIsDisplayed()
+        compose.onNodeWithTag("display-name").assertIsDisplayed()
+        compose.onNodeWithTag("save-profile").assertIsDisplayed()
         screenshot("02-invalid.png")
 
         compose.onNodeWithTag("display-name").performClick().performTextReplacement("  Android Emulator  ")
+        closeKeyboard()
         compose.onNodeWithText(validation).assertDoesNotExist()
-        compose.onNodeWithTag("save-profile").performScrollTo().performClick()
+        compose.onNodeWithTag("save-profile").performScrollTo().assertIsDisplayed().performClick()
         compose.waitUntil(timeoutMillis = 30_000) {
             compose.onAllNodesWithText("Profile saved.").fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithTag("request-status").assertTextEquals("Profile saved.")
+        compose.onNodeWithTag("request-status").performScrollTo().assertIsDisplayed().assertTextEquals("Profile saved.")
         // Canonicalization proves a server reply was adopted by the actual app.
         compose.onNodeWithTag("display-name").assertTextContains("Android Emulator")
         compose.onNodeWithTag("display-name").assert(SemanticsMatcher.expectValue(
             SemanticsProperties.EditableText, AnnotatedString("Android Emulator")))
-        compose.onNodeWithTag("save-profile").assertIsEnabled()
-        compose.onNodeWithTag("request-status").performScrollTo()
+        compose.onNodeWithTag("display-name").assertIsDisplayed()
+        compose.onNodeWithTag("save-profile").assertIsEnabled().assertIsDisplayed()
         screenshot("03-saved.png")
     }
 
+    private fun closeKeyboard() {
+        // Hide the real IME without invoking Done, which is an explicit save action.
+        Espresso.closeSoftKeyboard()
+        compose.waitForIdle()
+    }
+
     private fun screenshotDirectory(): File {
-        val target = InstrumentationRegistry.getInstrumentation().targetContext
-        val external = requireNotNull(target.getExternalFilesDir(null)) { "Emulator external app files are unavailable" }
-        val directory = File(external, "screenshots")
+        // Gradle UTP pulls this directory before uninstalling the app. A later adb
+        // pull from external app files alone can lose screenshots during teardown.
+        val additionalOutput = InstrumentationRegistry.getArguments().getString("additionalTestOutputDir")
+        val root = if (!additionalOutput.isNullOrBlank()) File(additionalOutput) else {
+            val target = InstrumentationRegistry.getInstrumentation().targetContext
+            requireNotNull(target.getExternalFilesDir(null)) { "Emulator external app files are unavailable" }
+        }
+        val directory = File(root, "screenshots")
         assertTrue("Cannot create screenshot output directory", directory.isDirectory || directory.mkdirs())
         return directory
     }
@@ -70,9 +86,11 @@ class LiveProfileAppTest {
             "The emulator did not return a screenshot"
         }
         try {
-            File(screenshotDirectory(), name).outputStream().use {
+            val output = File(screenshotDirectory(), name)
+            output.outputStream().use {
                 assertTrue("Could not encode screenshot", image.compress(Bitmap.CompressFormat.PNG, 100, it))
             }
+            android.util.Log.i("ElyNativeScreenshot", "Saved ${output.absolutePath}")
         } finally { image.recycle() }
     }
 }

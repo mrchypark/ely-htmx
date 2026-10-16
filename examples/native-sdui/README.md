@@ -57,10 +57,11 @@ ordinary text input, submit button and notice. The server resolves bindings,
 conditions, template parameters and stable-key repetition. Native clients never
 interpret authoring expressions or fetch action URLs from a schema. Missing
 required capabilities fail visibly rather than silently removing controls.
-The shared schema contains a conditional validation notice for HTML. Native
-request-scoped errors/status are delivered only in envelope fields, so clients
-can suppress stale messages after newer local edits. The resolved native status
-text stays neutral. Library resolution tests also exercise templates/repetition.
+The shared schema contains conditional validation and status nodes for HTML.
+Both resolve out of the native tree: native errors/status are delivered only in
+envelope fields, so clients can suppress stale messages after newer local edits
+and announce each status once. Library resolution tests also exercise
+templates/repetition.
 
 ## Security and persistence boundaries
 

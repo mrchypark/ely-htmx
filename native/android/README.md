@@ -76,7 +76,7 @@ and saves screenshots. It does not substitute a mock ViewModel or HTTP client.
 
 The Go server must already be listening at `127.0.0.1:8094` on the emulator host
 when running `connectedDebugAndroidTest`. Use an API 26+ emulator (CI uses API 35
-Google APIs x86_64); the debug app reaches the host at `10.0.2.2`. Run only the
+standard AOSP x86_64); the debug app reaches the host at `10.0.2.2`. Run only the
 live app test with:
 
 ```sh
@@ -85,6 +85,15 @@ adb pull /sdcard/Android/data/dev.ely.nativeprofile/files/screenshots ./app-scre
 ```
 
 The screenshot files are `01-ready.png`, `02-invalid.png`, and `03-saved.png`.
+The test dismisses the real keyboard without invoking its save action, scrolls
+the status into view, and asserts the relevant field, error, button and status
+are displayed before capture.
+
+When Gradle supplies `additionalTestOutputDir`, screenshots are written there so
+UTP can pull them before uninstalling the app. Archive the host directory
+`app/build/outputs/connected_android_test_additional_output/` along with results.
+For direct instrumentation without that argument, the app external-files path
+shown in the adb example is the fallback; pull it before uninstalling the app.
 Fresh files are captured by Android's instrumentation screenshot API; old copies
 with those names are removed at the start of the live test. Gradle also retains
 instrumentation results under `app/build/reports/androidTests/connected/`.

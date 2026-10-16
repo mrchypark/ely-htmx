@@ -49,7 +49,11 @@
             "bindings": { "text": "/@data/error" },
             "when": { "op": "ne", "path": "/@data/error", "value": "" }
           },
-          { "id": "profile-status", "type": "text", "bindings": { "text": "/@data/message" } }
+          {
+            "id": "profile-status", "type": "text",
+            "bindings": { "text": "/@data/message" },
+            "when": { "op": "ne", "path": "/@data/message", "value": "" }
+          }
         ]
       }
     ]

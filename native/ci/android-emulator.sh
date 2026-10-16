@@ -22,18 +22,27 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# The app has no Google Play dependency. The standard AOSP API 35 image avoids
+# first-boot compilation of unrelated Google apps on the small hosted runner.
 # stdin is closed: fail rather than accepting new/unexpected license terms.
-sdkmanager 'system-images;android-35;google_apis;x86_64' < /dev/null
-printf 'no\n' | avdmanager create avd --force --name ely-profile --device pixel_2 --package 'system-images;android-35;google_apis;x86_64'
+SYSTEM_IMAGE='system-images;android-35;default;x86_64'
+sdkmanager "$SYSTEM_IMAGE" < /dev/null
+printf 'no\n' | avdmanager create avd --force --name ely-profile --device pixel_2 --package "$SYSTEM_IMAGE"
 emulator -accel-check
-emulator -avd ely-profile -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel on > "$RESULTS/emulator.log" 2>&1 &
+emulator -avd ely-profile -port 5554 -cores 2 -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel on > "$RESULTS/emulator.log" 2>&1 &
 EMULATOR_PID=$!
-for attempt in $(seq 1 180); do
+BOOT_DEADLINE=$((SECONDS + 600))
+while [ "$SECONDS" -lt "$BOOT_DEADLINE" ]; do
   kill -0 "$EMULATOR_PID" || { cat "$RESULTS/emulator.log"; exit 1; }
   if [ "$(adb -s "$SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; then break; fi
   sleep 2
 done
-test "$(adb -s "$SERIAL" shell getprop sys.boot_completed | tr -d '\r')" = 1
+if [ "$(adb -s "$SERIAL" shell getprop sys.boot_completed | tr -d '\r')" != 1 ]; then
+  echo 'Android did not complete first boot within 10 minutes.' >&2
+  cat "$RESULTS/emulator.log"
+  exit 1
+fi
+echo 'Android API 35 emulator boot completed; starting real native UI tests.'
 adb -s "$SERIAL" shell input keyevent 82
 adb -s "$SERIAL" shell getprop ro.build.fingerprint > "$RESULTS/device.txt"
 

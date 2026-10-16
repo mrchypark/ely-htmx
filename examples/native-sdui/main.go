@@ -519,7 +519,8 @@ func screenData(displayName, message, problem string) map[string]any {
 // Caller holds s.mu so fields, version and the resolved tree share one snapshot.
 // Request-scoped validation/status stays exclusively in envelope fields: native
 // clients can suppress it by edit revision. A tree notice would outlive the edit
-// that caused it; the HTML path still uses the schema error/status bindings.
+// that caused it, and a tree status would duplicate native live announcements.
+// Both nodes resolve out for native; HTML still uses these schema bindings.
 func (s *server) envelopeLocked(value *session, requestID, status, message string, edits map[string]uint64, problems map[string]string, capabilities []string, current profile) (sdui.NativeEnvelope, error) {
 	if edits == nil {
 		edits = map[string]uint64{}
@@ -527,7 +528,7 @@ func (s *server) envelopeLocked(value *session, requestID, status, message strin
 	if problems == nil {
 		problems = map[string]string{}
 	}
-	region, err := s.plan.ResolveNative(profileRegion, sdui.RenderContext{Data: screenData(current.DisplayName, "Edit your display name.", "")}, capabilities)
+	region, err := s.plan.ResolveNative(profileRegion, sdui.RenderContext{Data: screenData(current.DisplayName, "", "")}, capabilities)
 	if err != nil {
 		return sdui.NativeEnvelope{}, err
 	}
