@@ -2,6 +2,8 @@ package dev.ely.nativeprofile
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.espresso.Espresso
@@ -20,8 +22,10 @@ class ProfileScreenTest {
     @Test fun nativeFieldRetainsNewEditsAndFocusAfterFullRegionSave() {
         val ready = ready()
         val state = mutableStateOf(ProfileState().beginLoad(ready.requestID).acceptLoad(ready))
+        lateinit var focusManager: FocusManager
         compose.setContent {
             MaterialTheme {
+                focusManager = LocalFocusManager.current
                 ProfileScreen(state.value, { field, text -> state.value = state.value.edit(field, text) },
                     { state.value = state.value.beginSave("save-1") }, {}, {})
             }
@@ -29,7 +33,7 @@ class ProfileScreenTest {
         val inputID = findInput(ready.region)!!.id
         val buttonID = findButton(ready.region)!!.id
         compose.onNodeWithTag(inputID).performScrollTo().performClick().performTextReplacement("Alice")
-        finishComposition()
+        finishComposition(focusManager)
         compose.onNodeWithTag(buttonID).performScrollTo().assertIsEnabled().performClick()
         val pending = compose.runOnIdle {
             requireNotNull(state.value.pending) { "The enabled Save button must start a request" }.request.also {
@@ -39,7 +43,6 @@ class ProfileScreenTest {
         }
         compose.onNodeWithTag(buttonID).assertIsNotEnabled()
         compose.onNodeWithTag(inputID).performScrollTo().performClick().performTextReplacement("Alice Cooper")
-        finishComposition()
         compose.onNodeWithTag(inputID).assertTextContains("Alice Cooper").assertIsFocused()
         compose.runOnIdle {
             assertEquals("Alice Cooper", state.value.drafts["displayName"])
@@ -48,21 +51,31 @@ class ProfileScreenTest {
                 fields = mapOf("displayName" to "Alice"), acknowledgedEdits = pending.editRevisions))
         }
         compose.onNodeWithTag(inputID).assertTextContains("Alice Cooper").assertIsFocused()
+        compose.runOnIdle {
+            assertEquals(null, state.value.pending)
+            assertEquals("Alice", state.value.baseline["displayName"])
+            assertEquals("Alice Cooper", state.value.drafts["displayName"])
+        }
+        // The late edit may still be composing: completion clears pending, but
+        // Save becomes enabled only after the user ends that composition.
+        finishComposition(focusManager)
         compose.onNodeWithTag(buttonID).assertIsEnabled()
     }
 
     @Test fun nativeValidationClearsAfterUserCorrectsField() {
         val ready = ready()
         val state = mutableStateOf(ProfileState().beginLoad(ready.requestID).acceptLoad(ready))
+        lateinit var focusManager: FocusManager
         compose.setContent {
             MaterialTheme {
+                focusManager = LocalFocusManager.current
                 ProfileScreen(state.value, { field, text -> state.value = state.value.edit(field, text) },
                     { state.value = state.value.beginSave("save-1") }, {}, {})
             }
         }
         val inputID = findInput(ready.region)!!.id
         compose.onNodeWithTag(inputID).performScrollTo().performClick().performTextClearance()
-        finishComposition()
+        finishComposition(focusManager)
         compose.onNodeWithTag(findButton(ready.region)!!.id).performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle {
             val pending = requireNotNull(state.value.pending) { "The enabled Save button must start a request" }.request
@@ -76,9 +89,11 @@ class ProfileScreenTest {
         compose.onNodeWithText("Enter a display name.").assertDoesNotExist()
     }
 
-    private fun finishComposition() {
-        // Hiding the real IME commits its composition without triggering Done/save.
-        // A composition-disabled button alone must never count as an in-flight save.
+    private fun finishComposition(focusManager: FocusManager) {
+        // Android IMEs may keep composition after keyboard dismissal. Move native
+        // input focus out of the field so CoreTextField runs its normal onBlur path.
+        // This test harness uses the real focus manager, not a synthetic text edit.
+        compose.runOnIdle { focusManager.clearFocus(force = true) }
         Espresso.closeSoftKeyboard()
         compose.waitForIdle()
     }
