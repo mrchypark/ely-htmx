@@ -143,7 +143,10 @@ final class ProtocolTests: XCTestCase {
         let members = (0..<50_000).map { "\"metadata\($0)\":0" }.joined(separator: ",")
         let data = Data(("{" + members + "}").utf8)
         XCTAssertLessThan(data.count, NativeProtocol.maximumResponseBytes)
-        measure { XCTAssertNoThrow(try EnvelopeDecoder.rejectAmbiguousJSON(data)) }
+        measure {
+            do { try EnvelopeDecoder.rejectAmbiguousJSON(data) }
+            catch { XCTFail("Wide-object preflight failed: \(error)") }
+        }
         let duplicate = Data(("{" + members + ",\"metadata49999\":1}").utf8)
         XCTAssertThrowsError(try EnvelopeDecoder.rejectAmbiguousJSON(duplicate))
     }

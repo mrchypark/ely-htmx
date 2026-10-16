@@ -148,7 +148,7 @@ class ProfileProtocolTest {
         reject(sampleJSON().replace("\"protocolVersion\":\"1\"", "\"protocolVersion\":\"2\""))
         reject(sampleJSON().replace("\"type\":\"input\"", "\"type\":\"WebView\""))
         reject(sampleJSON().replace("\"type\":\"text\"", "\"type\":\"password\""))
-        reject(sampleJSON().replace("\"capabilities\"", "\"unsupported\"" ).replace("\"requiredCapabilities\":[", "\"requiredCapabilities\":[\"switch\","))
+        reject(sampleJSON().replace("\"capabilities\"", "\"unsupported\"" ).replace("\"requiredCapabilities\":[", "\"requiredCapabilities\":[\"slider\","))
         reject(sampleJSON().replace("\"id\":\"save-profile\"", "\"id\":\"display-name\""))
         reject(sampleJSON().replace("\"action\":\"save-profile\"", "\"action\":\"https://malicious.invalid/\""))
         reject(sampleJSON().replace("\"dataVersion\":0", "\"dataVersion\":9007199254740992"))
