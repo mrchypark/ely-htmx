@@ -70,6 +70,22 @@ See [GitHub Pages](github-pages.md) for hosting and preview limits.
 
 ## Documentation and skill checks
 
+Run `go run ./cmd/check-doc-links` from the repository root. It parses all
+tracked Markdown (including README and skill files) with Goldmark/GFM and HTML
+with an HTML tokenizer. It checks rendered links, reference links, images,
+relative files, GitHub main-branch source links and document heading/HTML anchors;
+code examples are not treated as navigation. Original module/import identities
+and historical revision links remain unchanged.
+
+After building Pages, run `go run ./cmd/check-doc-links -pages dist` to also
+validate the hub's generated asset/navigation targets and public Pages URLs
+against the actual export. CI runs both offline checks. Public external links
+can be checked separately with `go run ./cmd/check-doc-links -external` (15-second
+limit per URL). HTTP 404/410 fails; blocked/rate-limited responses and timeouts
+are reported as `UNVERIFIED`, not silently accepted or called broken. Local demo
+addresses are skipped. External fragments and browser-only redirects require
+manual verification; network-dependent checks do not gate CI.
+
 Run `go test ./examples/minimal` after changing the starter. Copy its source and
 test into a new module using [the consumer commands](getting-started.md) to catch
 accidental use of internal packages or checkout-only assumptions. When revising

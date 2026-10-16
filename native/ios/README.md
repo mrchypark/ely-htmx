@@ -2,7 +2,9 @@
 
 This is an actual iOS application target with a SwiftUI screen renderer, not a
 WebView. It consumes the shared [profile protocol](../PROTOCOL.md) and the Go
-example's resolved seven-component tree. Minimum iOS version: 17.0. The Swift
+example's resolved tree: the original seven-type profile, or the expanded
+[eight-type controls demo](../../examples/native-sdui/README.md#expanded-native-controls)
+with switch support. Minimum iOS version: 17.0. The Swift
 package requires Swift 5.9 or newer; Xcode 15 or newer supplies the iOS SDK.
 
 ## Run on an iOS Simulator

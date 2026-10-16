@@ -41,8 +41,9 @@ implied.
 
 The eight supported types are region, form, stack, text, input, button, notice
 and switch. The renderer supports multiple declared text/boolean fields, with
-ordinary text inputs, native toggles and form-submit buttons. Run the expanded
-demo with `go run ./examples/native-sdui -controls`; the default demo preserves
+ordinary text inputs, native toggles and form-submit buttons. Run the [expanded
+controls demo](../examples/native-sdui/README.md#expanded-native-controls) with
+`go run ./examples/native-sdui -controls`; the default demo preserves
 the legacy single-field profile.
 Unknown required types/capabilities, incompatible property modes and protocol
 versions show an explicit native unsupported state. Templates, expressions,

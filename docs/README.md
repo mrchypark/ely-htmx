@@ -8,7 +8,7 @@ read [AGENTS.md](../AGENTS.md) and the [elysdui skill](../.agents/skills/ely-htm
 
 - **Go templates + htmx:** [minimal integration](getting-started.md), [runnable form](../examples/app), [component API](../COMPONENTS.md).
 - **JSON-defined screens:** [agent SDUI workflow](agent-sdui.md), [complete SDUI contract](sdui.md), [composition](sdui-composition.md), [typed catalogue](sdui-catalogue-contracts.md).
-- **Native mobile:** [SwiftUI + Compose profile slice](../native/README.md), [versioned native protocol](../native/PROTOCOL.md).
+- **Native mobile:** [SwiftUI + Compose profile slice](../native/README.md), [supported types and limits](../native/SUPPORT.md), [versioned native protocol](../native/PROTOCOL.md), [multi-field/switch extension](../native/PROTOCOL.md#multi-field-and-switch-extension), [run the controls demo](../examples/native-sdui/README.md#expanded-native-controls).
 - **Visual authoring:** [playground](sdui-playground.md), [static GitHub Pages limits](github-pages.md).
 - **Assets and performance:** [family loading](asset-loading.md), [transport/compression](sdui-transport.md), [measured benchmarks](sdui-transport-benchmarks.md).
 - **Themes:** [theme API](../themes.md).
