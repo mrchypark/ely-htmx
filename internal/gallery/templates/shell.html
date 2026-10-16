@@ -1,4 +1,5 @@
 {{define "gallery-header"}}
+<link rel="icon" type="image/svg+xml" href="/assets/elysdui-mark.svg">
 <link rel="stylesheet" href="/assets/site-chrome.css">
 <link rel="stylesheet" href="/assets/gallery-shell.css">
 <header class="site-header"><div class="shell site-header__inner">
@@ -10,5 +11,6 @@
 (dict "Key" "playground" "Href" "/playground/" "Label" "Playground")}}
 <a href="{{.Href}}"{{if eq .Key $active}} aria-current="page"{{end}}>{{.Label}}</a>{{end}}</nav>
 {{template "theme-toggle"}}</div></header>
+<p class="project-origin">Independent project inspired by <a href="https://elygpui.com/">Ely GPUI</a>. Not affiliated with or endorsed by Ely GPUI.</p>
 {{end}}
 {{define "gallery-footer"}}<footer class="footer"><div class="shell"><nav class="gallery-developer-links" aria-label="Developer tools"><span>Developer tools</span><a href="/components/api">Advanced API</a><a href="/components/audit">Behavior checks</a></nav><p>With thanks to the <a href="https://elygpui.com/" target="_blank" rel="noopener">Ely GPUI project</a>. Its design and component organization inspired this adaptation for Go, HTML, and htmx.</p><p>Ely GPUI Component · MIT · <a href="/assets/ely/LICENSE.txt">License</a> · <a href="https://git.zacharyzhang.com/ZacharyZhang-NY/Ely-GPUI-Components" target="_blank" rel="noopener">Original source ↗</a></p></div></footer>{{end}}

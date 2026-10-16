@@ -50,7 +50,7 @@ source = source.replace('  let searchTimer;', `
   globalThis.test = {
     state, parseSource, atPath, defaultValue, templateFor, validateValue,
     mutate, duplicateNode, deleteNode, moveNode, historyStep, propertyField,
-    compressionSettings, persist, restore, renderPreview, schedulePreview, importFile, renderInspector,
+    compressionSettings, persist, restore, renderPreview, schedulePreview, refreshPreviewTheme, importFile, renderInspector,
     useStateRefresh() { refresh = () => { parseDraft(); }; },
   };
   return;
@@ -170,3 +170,36 @@ pending[2].resolve({ok: false, status: 422, json: async () => ({error: 'Invalid 
 assert.equal(get('preview-frame').srcdoc, 'newest-preview', 'server errors retain last successful preview');
 assert.match(get('preview-state').textContent, /Stale preview/);
 console.log('SDUI playground Node checks passed: safe parsing, exact drafts, composition mutations, history, typed fields, storage failure and latest-wins previews.');
+
+// Theme changes are presentation-only, including unfinished field edits. The
+// independent version guard still wins if a prior theme response arrives late.
+load();
+t.state.initialized=true;
+const draftBefore=t.state.screenText, dataBefore=t.state.dataText;
+const selectionBefore=json(t.state.selection);
+get('property-props-text').value='Uncommitted field edit';
+let mode='light';
+context.window.ElyTheme={current:()=>({id:'ely',mode}),get:()=>({light:{'color-paper':'#FCFAF7'},dark:{'color-paper':'#252525'}})};
+t.refreshPreviewTheme();
+await new Promise(resolve=>setTimeout(resolve,10));
+const oldThemeRequest=pending.at(-1);
+assert.equal(JSON.parse(oldThemeRequest.options.body).theme.mode,'light');
+mode='dark';t.refreshPreviewTheme();
+await new Promise(resolve=>setTimeout(resolve,10));
+const newThemeRequest=pending.at(-1);
+assert.equal(JSON.parse(newThemeRequest.options.body).theme.mode,'dark');
+assert.equal(oldThemeRequest.options.signal.aborted,true);
+newThemeRequest.resolve(response('dark-preview'));
+await new Promise(resolve=>setTimeout(resolve,0));
+oldThemeRequest.resolve(response('stale-light-preview'));
+await new Promise(resolve=>setTimeout(resolve,0));
+assert.equal(get('preview-frame').srcdoc,'dark-preview');
+assert.equal(t.state.screenText,draftBefore);
+assert.equal(t.state.dataText,dataBefore);
+assert.deepEqual(json(t.state.selection),selectionBefore);
+assert.equal(get('property-props-text').value,'Uncommitted field edit');
+t.state.screenError='Unfinished JSON';t.state.screenText='{"root":';
+t.refreshPreviewTheme();
+assert.equal(t.state.screenText,'{"root":');
+assert.equal(get('preview-frame').srcdoc,'dark-preview');
+console.log('Theme preview preserves drafts/selection/field edits and latest theme wins.');

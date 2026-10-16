@@ -1,7 +1,7 @@
 # elysdui naming and compatibility
 
 The product name is **elysdui**, all lowercase. It replaces Ely HTMX in current
-project documentation, gallery/playground branding and example application copy.
+project documentation, hub/gallery/playground branding (including uppercase section labels) and example application copy.
 The name describes a server-driven UI project with a Go/HTML/htmx renderer and a
 bounded SwiftUI/Jetpack Compose profile example. It does not imply full native
 catalogue coverage or an implemented Ely GPUI runtime adapter.
@@ -35,3 +35,9 @@ is the upstream visual/component reference, not a former name for this project.
 Keep its name, source-reference fixtures and MIT notices intact. See
 [third-party UI notices](../THIRD_PARTY_UI.md). Synthetic catalogue examples may
 also retain their own sample names; they are not the elysdui product wordmark.
+
+## Shared visual identity
+
+The hub, web gallery and playground use the same original [elysdui mark](../assets/elysdui-mark.svg), Inter typography, Ely Neutral color tokens and persisted light/dark preference. Uppercase section labels use `ELYSDUI / GO + HTMX` to identify the renderer. The original two-frame mark represents a shared screen definition; it does not reproduce Ely GPUI’s isometric E. Each surface prominently links the upstream project and states its independence. Native application controls retain platform conventions; this web branding pass does not claim all native applications already use identical visual assets.
+
+See the [shared identity guideline](identity.md) for canonical assets, exact color roles, attribution and native-demo reuse.

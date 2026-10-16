@@ -5,7 +5,8 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
 out="${1:-dist}"
 base="${2:-/elysdui/}"
-if [[ ! "$base" =~ ^/([A-Za-z0-9_-]+/)*$ ]]; then
+source "$root/scripts/pages-base.sh"
+if ! valid_pages_base "$base"; then
   echo "Base must be a clean absolute path with a trailing slash" >&2
   exit 1
 fi

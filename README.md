@@ -1,5 +1,9 @@
 # elysdui
 
+<img src="assets/elysdui-mark.svg" width="48" height="48" alt="elysdui mark">
+
+Independent project inspired by [Ely GPUI](https://elygpui.com/). Not affiliated with or endorsed by Ely GPUI.
+
 Server-driven UI with Ely-inspired components for Go `html/template`, native HTML and htmx. Import a Go module, or export editable templates and assets into your own project. React and a client application framework are not required. CSS, JavaScript and fonts are embedded and served locally; consumers do not need a Node build.
 
 We are deeply grateful to the **[Ely GPUI project](https://elygpui.com/)** and its contributors. Its visual design, component organization and examples are the foundation of this adaptation. We studied and referenced [Ely GPUI Component](https://git.zacharyzhang.com/ZacharyZhang-NY/Ely-GPUI-Components) to bring these ideas to Go, HTML and htmx. This is an independent adaptation, with the original MIT attribution retained. The basic templates also adapt [shadcn-htmx](https://github.com/productdevbook/shadcn-htmx).

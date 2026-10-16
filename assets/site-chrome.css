@@ -2,7 +2,7 @@
 @font-face{font-family:Inter;src:url('./ely/fonts/Inter-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
 @font-face{font-family:'JetBrains Mono';src:url('./ely/fonts/JetBrainsMono-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
 @font-face{font-family:Inter;src:url('./ely/fonts/Inter-SemiBold.ttf') format('truetype');font-weight:600 900;font-display:swap}
-:root{--color-paper:#FCFAF7;--color-ink:#181613;--color-muted:#605D5A;--color-line:#E1DFDD;--color-accent:#181613;--surface:#fff;--accent-hover:#302D2B;--accent-tint:#F2F0ED;--on-accent:#FCFAF7;--focus:#3772BB;--error:#BA3E38}
+:root{color-scheme:light;--color-paper:#FCFAF7;--color-ink:#181613;--color-muted:#605D5A;--color-line:#E1DFDD;--color-accent:#181613;--surface:#fff;--accent-hover:#302D2B;--accent-tint:#F2F0ED;--on-accent:#FCFAF7;--focus:#3772BB;--error:#BA3E38}
 :root[data-theme=dark]{color-scheme:dark;--color-paper:#252525;--color-ink:#F3F1F0;--color-muted:#C4C2C0;--color-line:#3F3F3F;--color-accent:#F3F1F0;--surface:#2C2C2C;--accent-hover:#D9D7D5;--accent-tint:#383838;--on-accent:#252525;--focus:#69A1E8;--error:#E5756E}
 .site-header{min-height:4.5rem;height:auto;border-bottom:1px solid var(--color-line);background:var(--color-paper);color:var(--color-ink);font-family:Inter,system-ui,sans-serif}
 .site-header__inner{width:calc(100% - 8rem);margin:auto;min-height:4.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;padding-block:.75rem}
@@ -18,3 +18,9 @@
 .site-header :focus-visible{outline:2px solid var(--focus);outline-offset:4px}
 @media(max-width:60rem){.site-header__inner{width:calc(100% - 3rem)}}
 @media(max-width:42rem){.site-header__inner{width:calc(100% - 2rem);gap:.25rem 1rem;padding-block:.65rem}.site-header .wordmark{order:0}.site-header .theme-toggle{order:1;margin-left:auto}.header-nav{order:2;width:100%;justify-content:space-between;gap:.4rem;font-size:.78rem;margin:0}.header-nav a[href*="playground"],.header-nav a[data-playground-home]{padding:.45rem .65rem}}
+
+/* The same original mark and attribution on every project-owned surface. */
+.wordmark,.brand{align-items:center;gap:.6rem}
+.brand-mark{display:inline-block;width:1.8rem;height:1.8rem;flex:none;background:currentColor;mask:url('./elysdui-mark.svg') center/contain no-repeat;-webkit-mask:url('./elysdui-mark.svg') center/contain no-repeat}
+.project-origin{margin:0;padding:.55rem 1rem;text-align:center;font:400 .72rem/1.6 Inter,system-ui,sans-serif;color:var(--color-muted);background:var(--accent-tint);border-bottom:1px solid var(--color-line)}
+.project-origin a{color:inherit;text-underline-offset:.2em}
