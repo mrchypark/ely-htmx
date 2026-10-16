@@ -29,6 +29,7 @@ try{
     assert.equal(rendered.background,theme==='dark'?'rgb(37, 37, 37)':'rgb(252, 250, 247)');
     assert.equal(rendered.color,theme==='dark'?'rgb(243, 241, 240)':'rgb(24, 22, 19)');
     assert.equal(await page.locator('#preview-frame').getAttribute('sandbox'),'');
+    assert.equal(await page.locator('#preview-frame').evaluate(el=>getComputedStyle(el).backgroundColor),theme==='dark'?'rgb(37, 37, 37)':'rgb(252, 250, 247)','iframe gutter shares the paper token');
    }
    assert.equal(await page.locator('.project-origin').innerText(),'Independent project inspired by Ely GPUI. Not affiliated with or endorsed by Ely GPUI.');
    assert.equal(await page.locator('.project-origin a').getAttribute('href'),'https://elygpui.com/');
