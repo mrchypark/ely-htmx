@@ -67,9 +67,24 @@ jobs:
           name: ios-native-profile-results
           path: /tmp/ElyProfile.xcresult
           if-no-files-found: ignore
+      - name: Export iOS simulator screenshot attachments
+        if: always()
+        run: |
+          if [ -d /tmp/ElyProfile.xcresult ]; then
+            xcrun xcresulttool help export attachments
+            xcrun xcresulttool export attachments --path /tmp/ElyProfile.xcresult --output-path /tmp/ElyProfile-attachments
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-native-profile-screenshots
+          path: /tmp/ElyProfile-attachments
+          if-no-files-found: ignore
   android:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Intel macOS has native Hypervisor support without changing Linux KVM
+    # permissions. The installed SDK already carries the runner's licenses.
+    runs-on: macos-15-intel
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -94,6 +109,8 @@ jobs:
           curl --fail --silent http://127.0.0.1:8094/ > /dev/null
           cd native/android
           ELY_NATIVE_TEST_BASE_URL=http://127.0.0.1:8094 ./gradlew --no-daemon :protocol:test :app:assembleDebug :app:testDebugUnitTest :app:assembleDebugAndroidTest
+      - name: Native Android emulator lifecycle against Go
+        run: bash native/ci/android-emulator.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -101,5 +118,9 @@ jobs:
           path: |
             native/android/protocol/build/reports/tests/
             native/android/app/build/reports/tests/
+            native/android/app/build/reports/androidTests/
+            native/android/app/build/outputs/androidTest-results/
             native/android/app/build/outputs/apk/debug/*.apk
+            native/android/app/build/outputs/apk/androidTest/debug/*.apk
+            test-results/android-native/
           if-no-files-found: ignore

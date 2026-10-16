@@ -63,7 +63,9 @@ hosts must own authorization, persistence, transactions and rate limiting.
 
 Run `go test ./sdui ./examples/native-sdui` and the platform-specific commands.
 The [native workflow](../.github/workflows/native.yml) builds the iOS Simulator
-app and Android debug APK, and runs shared-fixture/state/transport unit tests.
+app and Android debug APK, runs shared-fixture/state/transport unit tests, and
+exercises both native apps against Go in an iOS Simulator and Android Emulator.
+The workflow retains native lifecycle screenshots and test reports as artifacts.
 Existing web Go, JavaScript, browser and static checks remain in the main Test
 workflow. A compile or state-model test is not simulator interaction, keyboard,
 VoiceOver/TalkBack or physical-device validation. See the PR for results on its

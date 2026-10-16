@@ -72,7 +72,10 @@ public struct NativeProfileView: View {
                             }
                             if model.state.phase == .blocked {
                                 Text("Your edits are still here. Reloading will discard local edits and load the latest profile.")
-                                Button("Reload profile…") { confirmReload = true }
+                                Button("Reload profile…") {
+                                    focusedNodeID = nil
+                                    confirmReload = true
+                                }
                                     .accessibilityIdentifier("reload-error")
                             }
                         }
@@ -104,12 +107,15 @@ public struct NativeProfileView: View {
             .navigationTitle("Ely Profile")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Reload") { confirmReload = true }
+                    Button("Reload") {
+                        focusedNodeID = nil
+                        confirmReload = true
+                    }
                         .disabled(model.state.isSending)
                         .accessibilityIdentifier("reload-profile")
                 }
             }
-            .confirmationDialog("Reload and discard local edits?", isPresented: $confirmReload, titleVisibility: .visible) {
+            .alert("Reload and discard local edits?", isPresented: $confirmReload) {
                 Button("Discard edits and reload", role: .destructive) {
                     focusedNodeID = nil
                     model.reloadDiscardingDrafts()

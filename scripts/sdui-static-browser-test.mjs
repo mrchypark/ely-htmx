@@ -32,7 +32,15 @@ try{
  await page.frameLocator('#preview-frame').getByText('Build something useful.',{exact:true}).waitFor({state:'visible'});
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await page.screenshot({path:'test-results/static-pages/welcome-dark.png',fullPage:true,animations:'disabled'});
- await page.locator('.header-nav a').filter({hasText:'Form examples'}).click();assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ // A click can resolve once navigation commits, before the new head's theme script runs.
+ // Wait for the destination document, then check restoration without polling the expected value.
+ await Promise.all([
+  page.waitForURL(origin+base+'components/usage/',{waitUntil:'domcontentloaded'}),
+  page.locator('.header-nav a').filter({hasText:'Form examples'}).click(),
+ ]);
+ assert.equal(await page.locator('.header-nav [aria-current=page]').textContent(),'Form examples');
+ assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ assert.equal(await page.locator('[data-theme-toggle]').getAttribute('aria-pressed'),'true');
  await page.goBack();await page.waitForFunction(()=>globalThis.elyRendererMetrics,{},{timeout:120000});
  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');await page.locator('[data-theme-toggle]').click();
  await page.setViewportSize({width:1440,height:1000});

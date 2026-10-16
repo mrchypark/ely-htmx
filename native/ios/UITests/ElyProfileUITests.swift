@@ -25,10 +25,14 @@ final class ElyProfileUITests: XCTestCase {
         attachScreenshot(app, named: "03 - Native profile saved")
         replaceText(input, with: "Unsaved draft", app: app)
         app.buttons["reload-profile"].tap()
-        app.buttons["Keep editing"].tap()
+        let keepEditing = app.alerts.buttons["Keep editing"]
+        XCTAssertTrue(keepEditing.waitForExistence(timeout: 5))
+        keepEditing.tap()
         XCTAssertEqual(input.value as? String, "Unsaved draft")
         app.buttons["reload-profile"].tap()
-        app.buttons["Discard edits and reload"].tap()
+        let discardAndReload = app.alerts.buttons["Discard edits and reload"]
+        XCTAssertTrue(discardAndReload.waitForExistence(timeout: 5))
+        discardAndReload.tap()
         let restored = NSPredicate(format: "value == %@", "Native Ada")
         expectation(for: restored, evaluatedWith: input)
         waitForExpectations(timeout: 10)

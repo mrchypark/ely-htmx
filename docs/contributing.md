@@ -92,7 +92,10 @@ go test -race ./sdui ./examples/native-sdui
 
 Follow [iOS](../native/ios/README.md) and [Android](../native/android/README.md)
 for native build/test commands. `.github/workflows/native.yml` compiles the real
-app targets and runs platform model/transport tests. Shared JSON fixtures are
+app targets, runs platform model/transport tests, and exercises native profile
+validation/save interactions against Go in iOS Simulator and Android Emulator.
+It retains screenshots and reports; inspect the exact-head run before claiming
+these checks passed. Shared JSON fixtures are
 verified against actual Go HTTP responses, then decoded by both native clients.
 To intentionally regenerate them after a reviewed contract change:
 
