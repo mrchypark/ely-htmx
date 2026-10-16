@@ -2,3 +2,6 @@
 /bin/
 /audit-results/
 node_modules/
+
+/dist/
+/test-results/

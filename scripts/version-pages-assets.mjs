@@ -5,7 +5,7 @@ import {resolve, dirname, relative, sep} from 'node:path';
 // Each exported HTML page names the exact stylesheet/script content it needs.
 // A cached stylesheet from an earlier deployment cannot style newer markup.
 const root = resolve(process.argv[2] || 'dist');
-const base = process.argv[3] || '/ely-htmx/';
+const base = process.argv[3] || '/elysdui/';
 async function files(dir) {
  const result=[];
  for (const entry of await readdir(dir,{withFileTypes:true})) {

@@ -35,7 +35,7 @@ func TestVisualGalleryCoversCatalogue(t *testing.T) {
 	w := httptest.NewRecorder()
 	s.ServeHTTP(w, httptest.NewRequest("GET", "/components", nil))
 	body := w.Body.String()
-	for _, want := range []string{`data-gallery-index`, `id="gallery-category"`, `id="gallery-empty"`, `role="status"`, `inert aria-hidden="true"`, `href="/playground/"`} {
+	for _, want := range []string{`elysdui · Component Gallery`, `<span>elysdui</span>`, `data-gallery-index`, `id="gallery-category"`, `id="gallery-empty"`, `role="status"`, `inert aria-hidden="true"`, `href="/playground/"`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %s", want)
 		}

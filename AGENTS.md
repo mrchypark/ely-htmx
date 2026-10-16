@@ -1,4 +1,4 @@
-# Working with Ely HTMX
+# Working with elysdui
 
 Read [.agents/skills/ely-htmx/SKILL.md](.agents/skills/ely-htmx/SKILL.md) for tasks
 that consume or modify this library. Use [docs/README.md](docs/README.md) to find

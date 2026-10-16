@@ -1,7 +1,7 @@
 # SDUI reference for agents
 
 Use `github.com/mrchypark/ely-htmx/sdui` when a host-owned JSON screen should
-compile to Ely HTML. JSON describes registered components, data bindings and
+compile to elysdui HTML. JSON describes registered components, data bindings and
 capability names; Go owns authentication, data, validation, actions and assets.
 Start with the [runtime guide](sdui.md) for full host examples and the
 [composition grammar](sdui-composition.md) for exact syntax.

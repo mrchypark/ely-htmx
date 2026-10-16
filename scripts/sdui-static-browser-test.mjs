@@ -3,15 +3,33 @@ import {createServer} from 'node:http';
 import {readFile,mkdir} from 'node:fs/promises';
 import {resolve,extname} from 'node:path';
 import {chromium} from 'playwright';
-const root=resolve('dist'), base='/ely-htmx/', errors=[], bad=[];
-const server=createServer(async(req,res)=>{try{let p=decodeURIComponent(new URL(req.url,'http://local').pathname);if(!p.startsWith(base)){res.writeHead(404).end();return;}p=p.slice(base.length);if(!p||p.endsWith('/'))p+='index.html';const file=resolve(root,p);if(!file.startsWith(root+'/'))throw Error('path');const data=await readFile(file);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.wasm':'application/wasm','.svg':'image/svg+xml'})[extname(file)]||'application/octet-stream');res.end(data);}catch{res.writeHead(404).end();}});
+const root=resolve('dist'), siteBase='/elysdui/', base=siteBase+'go-htmx/', errors=[], bad=[];
+const server=createServer(async(req,res)=>{try{let p=decodeURIComponent(new URL(req.url,'http://local').pathname);if(!p.startsWith(siteBase)){res.writeHead(404).end();return;}p=p.slice(siteBase.length);if(!p||p.endsWith('/'))p+='index.html';const file=resolve(root,p);if(!file.startsWith(root+'/'))throw Error('path');const data=await readFile(file);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.wasm':'application/wasm','.svg':'image/svg+xml'})[extname(file)]||'application/octet-stream');res.end(data);}catch{res.writeHead(404).end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin=`http://127.0.0.1:${server.address().port}`;
 let browser;
 try{
  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined});const context=await browser.newContext({viewport:{width:1440,height:1000}});
- await context.route('**/*',route=>{const u=route.request().url();if(u.startsWith(origin+base))return route.continue();bad.push(u);return route.abort();});
+ await context.route('**/*',route=>{const u=route.request().url();if(u.startsWith(origin+siteBase))return route.continue();bad.push(u);return route.abort();});
  const page=await context.newPage();page.on('pageerror',e=>errors.push(String(e)));page.on('response',r=>{if(r.status()>=400)bad.push(`${r.status()} ${r.url()}`);});
+ await page.goto(origin+siteBase);
+ assert.equal(await page.title(),'elysdui — One definition. Native possibilities.');
+ assert.equal(await page.locator('html').getAttribute('lang'),'en');
+ assert.deepEqual(await page.locator('#renderers h3').allTextContents(),['Go / HTMX','SwiftUI','Jetpack Compose','Ely / GPUI']);
+ await mkdir('test-results/static-pages',{recursive:true});
+ for(const width of [1440,768,390]) {
+  await page.setViewportSize({width,height:1000});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'hub fits viewport');
+  await page.screenshot({path:`test-results/static-pages/hub-${width}.png`,fullPage:true,animations:'disabled'});
+ }
+ await page.getByRole('link',{name:'Explore the web gallery'}).click();
+ assert.equal(page.url(),origin+base);
+ await page.goBack();
+ await page.getByRole('link',{name:'Open playground',exact:false}).click();
+ assert.equal(page.url(),origin+base+'playground/');
+ await page.waitForFunction(()=>globalThis.elyRendererMetrics,{},{timeout:120000});
+ await page.goBack();
+ assert.equal(page.url(),origin+siteBase);
  await page.goto(origin+base);assert((await page.locator('a').count())>40,'gallery links rendered');
  const expectedNav=['Components','Form examples','Themes','Playground'];
  const chrome=async()=>page.locator('.site-header').evaluate(el=>({background:getComputedStyle(el).backgroundColor,font:getComputedStyle(el).fontFamily,brand:el.querySelector('.wordmark').textContent.trim()}));

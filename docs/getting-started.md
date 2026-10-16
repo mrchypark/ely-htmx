@@ -1,6 +1,6 @@
-# Using Ely HTMX in an application
+# Using elysdui in an application
 
-Ely HTMX renders Go `html/template` components. Your Go server owns routing,
+elysdui renders Go `html/template` components. Your Go server owns routing,
 validation and business operations; htmx can replace HTML fragments. Consumers
 need Go 1.26+ and do **not** need Node, Tailwind or a React build.
 

@@ -52,7 +52,7 @@ interaction and regression tests rather than testing only documentation wording.
 npx playwright install --with-deps chromium
 npm run test:browser
 node scripts/sdui-static-unit-test.mjs
-bash scripts/build-pages.sh dist /ely-htmx/
+bash scripts/build-pages.sh dist /elysdui/
 node scripts/sdui-static-browser-test.mjs
 GALLERY_STATIC=1 node scripts/gallery-browser-test.mjs
 ```

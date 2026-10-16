@@ -19,7 +19,7 @@ func TestSharedEnglishChrome(t *testing.T) {
 			t.Fatalf("%s: %d", path, w.Code)
 		}
 		if path == "/" {
-			for _, want := range []string{`lang="en"`, `Ely HTMX · Playground`, `site-header`, `Explore examples`, `Form examples`, `Themes`, `data-theme-toggle`, `/assets/site-chrome.css`} {
+			for _, want := range []string{`lang="en"`, `elysdui · Playground`, `site-header`, `Explore examples`, `Form examples`, `Themes`, `data-theme-toggle`, `/assets/site-chrome.css`} {
 				if !strings.Contains(w.Body.String(), want) {
 					t.Errorf("missing %s", want)
 				}

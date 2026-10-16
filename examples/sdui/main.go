@@ -353,6 +353,6 @@ func main() {
 		}()
 	}
 	address := "127.0.0.1:" + strconv.Itoa(number)
-	log.Printf("Ely SDUI demo (local demo sessions only): http://%s", address)
+	log.Printf("elysdui demo (local demo sessions only): http://%s", address)
 	log.Fatal((&http.Server{Addr: address, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: time.Minute}).ListenAndServe())
 }

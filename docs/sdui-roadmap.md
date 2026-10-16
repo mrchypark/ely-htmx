@@ -8,12 +8,12 @@ for the widest feasible component support. The public contract is
 
 The core gate passed before catalogue/composition expansion: PR #5 commit
 `cc9cbae920d3c078866b672f835637a9f0ba174b`, including both hosted test and Chromium
-jobs in [run 38599012302](https://github.com/mrchypark/ely-htmx/actions/runs/38599012302).
+jobs in [run 38599012302](https://github.com/mrchypark/elysdui/actions/runs/38599012302).
 
 Expanded verification passed at commit
 `ed90987a16415920524481eb59278595e1f27ad1`: both the general test job and actual
 Chromium job completed successfully in
-[run 38614498267](https://github.com/mrchypark/ely-htmx/actions/runs/38614498267).
+[run 38614498267](https://github.com/mrchypark/elysdui/actions/runs/38614498267).
 This includes all 1,361 contract mount representatives and the real Go action/
 activation regressions. Later commits must pass their own PR checks; the table
 below states covered cases rather than promising every possible behavior.

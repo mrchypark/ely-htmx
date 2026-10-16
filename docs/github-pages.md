@@ -1,6 +1,8 @@
-# Static component gallery and SDUI Studio
+# Project hub, static component gallery and SDUI Studio
 
-The public bundle contains the full component gallery and `/playground/`, a
+The root `/elysdui/` introduces the shared SDUI architecture and each project.
+The full component gallery lives at `/elysdui/go-htmx/` and its editor at
+`/elysdui/go-htmx/playground/`, a
 browser-only visual/JSON editor. It needs no Go server, local API, account, or
 remote save service. Drafts remain in this browser's local storage; export JSON
 for a portable copy. Do not enter secrets into a public demo or a shared browser.
@@ -9,7 +11,7 @@ for a portable copy. Do not enter secrets into a public demo or a shared browser
 
 With the repository's Go and Node toolchains installed:
 
-    bash scripts/build-pages.sh dist /ely-htmx/
+    bash scripts/build-pages.sh dist /elysdui/
 
 The output directory must not already exist. The base argument is the final
 project URL path and must retain its leading/trailing slash. Serve `dist` at
@@ -18,7 +20,7 @@ that path; do not open HTML directly using `file:`. A static server must serve
 The `.nojekyll` marker keeps GitHub Pages from processing the generated files.
 The build copies the `wasm_exec.js` matching the Go compiler automatically.
 
-The gallery and editor link to each other. The gallery exports real Go-rendered
+The hub links to the gallery and editor. The gallery and editor link to each other. The gallery exports real Go-rendered
 component stories and local assets. Server-dependent gallery demo actions are
 inert and explain that a running backend is required. The editor renders all
 registered contracts, including typed slots, bindings, repeats, templates and
@@ -27,7 +29,7 @@ no scripts, forms, navigation, same-origin access, or arbitrary network loads.
 
 ## Browsing the gallery
 
-The landing page presents 44 visual category cards. Each thumbnail is one
+The Go / HTMX gallery landing page presents 44 visual category cards. Each thumbnail is one
 representative, inert Go-rendered component; full interactive behavior is on the
 linked detail page. All 624 examples remain available through each card's
 expandable list. Search includes component names and aliases, and combines with
@@ -74,7 +76,8 @@ browser startup separately. No mobile-device speed claim is made.
 
 ## Validation and deployment
 
-CI runs the static build under `/ely-htmx/` and tests real WASM preview, visual
+CI runs the hub under `/elysdui/` and the gallery/editor under
+`/elysdui/go-htmx/`. It tests hub navigation, responsive layout, and real WASM preview, visual
 editing, source sync, examples, imports/exports, sandbox behavior and responsive
 layout in Chromium. The workflow uploads the built site and browser evidence.
 The repository uses Settings → Pages → GitHub Actions. The deployment job runs

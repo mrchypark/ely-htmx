@@ -463,7 +463,7 @@ node scripts/sdui-catalogue-browser-test.mjs
 
 Expanded commit `ed90987a16415920524481eb59278595e1f27ad1` passed both hosted
 Go/JavaScript/race checks and actual Chromium in
-[run 38614498267](https://github.com/mrchypark/ely-htmx/actions/runs/38614498267).
+[run 38614498267](https://github.com/mrchypark/elysdui/actions/runs/38614498267).
 See the PR checks for verification of any later commit.
 Catalogue mount smoke is distinct from every prop permutation or external
 provider operation; browser launch/setup failures are blockers, never passes.

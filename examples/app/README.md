@@ -1,4 +1,4 @@
-# Ely HTMX app example
+# elysdui app example
 
 Run this standalone `net/http` example from the repository root:
 
