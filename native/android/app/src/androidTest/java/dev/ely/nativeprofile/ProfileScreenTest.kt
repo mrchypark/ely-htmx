@@ -4,7 +4,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.espresso.Espresso
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -27,11 +29,21 @@ class ProfileScreenTest {
         val inputID = findInput(ready.region)!!.id
         val buttonID = findButton(ready.region)!!.id
         compose.onNodeWithTag(inputID).performScrollTo().performClick().performTextReplacement("Alice")
-        compose.onNodeWithTag(buttonID).performScrollTo().performClick()
+        finishComposition()
+        compose.onNodeWithTag(buttonID).performScrollTo().assertIsEnabled().performClick()
+        val pending = compose.runOnIdle {
+            requireNotNull(state.value.pending) { "The enabled Save button must start a request" }.request.also {
+                assertEquals("save-1", it.requestID)
+                assertEquals(mapOf("displayName" to "Alice"), it.fields)
+            }
+        }
         compose.onNodeWithTag(buttonID).assertIsNotEnabled()
         compose.onNodeWithTag(inputID).performScrollTo().performClick().performTextReplacement("Alice Cooper")
+        finishComposition()
+        compose.onNodeWithTag(inputID).assertTextContains("Alice Cooper").assertIsFocused()
         compose.runOnIdle {
-            val pending = state.value.pending!!.request
+            assertEquals("Alice Cooper", state.value.drafts["displayName"])
+            assertEquals(pending, state.value.pending?.request)
             state.value = state.value.acceptSave(ready.copy(requestID = pending.requestID, status = "saved", dataVersion = ready.dataVersion + 1,
                 fields = mapOf("displayName" to "Alice"), acknowledgedEdits = pending.editRevisions))
         }
@@ -50,14 +62,24 @@ class ProfileScreenTest {
         }
         val inputID = findInput(ready.region)!!.id
         compose.onNodeWithTag(inputID).performScrollTo().performClick().performTextClearance()
-        compose.onNodeWithTag(findButton(ready.region)!!.id).performScrollTo().performClick()
+        finishComposition()
+        compose.onNodeWithTag(findButton(ready.region)!!.id).performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle {
-            val pending = state.value.pending!!.request
+            val pending = requireNotNull(state.value.pending) { "The enabled Save button must start a request" }.request
+            assertEquals("save-1", pending.requestID)
+            assertEquals(mapOf("displayName" to ""), pending.fields)
             state.value = state.value.acceptSave(ready.copy(requestID = pending.requestID, status = "invalid",
                 acknowledgedEdits = pending.editRevisions, errors = mapOf("displayName" to "Enter a display name.")))
         }
         compose.onNodeWithText("Enter a display name.").assertExists()
         compose.onNodeWithTag(inputID).performScrollTo().performClick().performTextReplacement("Ada")
         compose.onNodeWithText("Enter a display name.").assertDoesNotExist()
+    }
+
+    private fun finishComposition() {
+        // Hiding the real IME commits its composition without triggering Done/save.
+        // A composition-disabled button alone must never count as an in-flight save.
+        Espresso.closeSoftKeyboard()
+        compose.waitForIdle()
     }
 }
