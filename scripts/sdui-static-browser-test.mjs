@@ -19,6 +19,17 @@ try{
    await page.goto(origin+url);
    if(await page.locator('html').getAttribute('data-theme')!==theme) await page.locator('[data-theme-toggle]').click();
    assert.equal(await page.locator('html').getAttribute('data-theme'),theme);
+   if(surface==='playground') {
+    await page.waitForFunction(()=>document.querySelector('#preview-state').textContent==='Live · validated');
+    const frame=page.frameLocator('#preview-frame');
+    await frame.locator(`html[data-theme="${theme}"]`).waitFor();
+    await frame.getByText('Build something useful.',{exact:true}).waitFor({state:'visible'});
+    const rendered=await frame.locator('body').evaluate(el=>({font:getComputedStyle(el).fontFamily, background:getComputedStyle(el.ownerDocument.documentElement).backgroundColor,color:getComputedStyle(el).color}));
+    assert(rendered.font.includes('Inter')&&rendered.font.includes('sans-serif'),'preview retains the shared sans-serif stack');
+    assert.equal(rendered.background,theme==='dark'?'rgb(37, 37, 37)':'rgb(252, 250, 247)');
+    assert.equal(rendered.color,theme==='dark'?'rgb(243, 241, 240)':'rgb(24, 22, 19)');
+    assert.equal(await page.locator('#preview-frame').getAttribute('sandbox'),'');
+   }
    assert.equal(await page.locator('.project-origin').innerText(),'Independent project inspired by Ely GPUI. Not affiliated with or endorsed by Ely GPUI.');
    assert.equal(await page.locator('.project-origin a').getAttribute('href'),'https://elygpui.com/');
    assert((await page.locator('link[rel=icon]').getAttribute('href')).endsWith('elysdui-mark.svg'));
@@ -72,6 +83,7 @@ try{
  await page.setViewportSize({width:1440,height:1000});await page.waitForFunction(()=>document.querySelector('#preview-state').textContent==='Live · validated');
  await page.screenshot({path:'test-results/static-pages/welcome-desktop.png',fullPage:true,animations:'disabled'});
  await page.locator('[data-theme-toggle]').click();assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ await page.frameLocator('#preview-frame').locator('html[data-theme=dark]').waitFor();
  await page.frameLocator('#preview-frame').getByText('Build something useful.',{exact:true}).waitFor({state:'visible'});
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await page.screenshot({path:'test-results/static-pages/welcome-dark.png',fullPage:true,animations:'disabled'});

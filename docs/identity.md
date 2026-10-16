@@ -28,7 +28,11 @@ for code. The shared implementation is in `assets/site-chrome.css` and
 
 Page marks inherit the current ink color through the shared CSS mask. The same
 SVG is the favicon and follows the system color scheme when used standalone.
-The hub, gallery and playground share persisted theme/palette preferences. Color
+The hub, gallery and playground share persisted theme/palette preferences. The
+playground passes only a validated mode and 19 hex color roles to its inert
+preview. Theme changes preserve drafts and selection; the opaque iframe keeps
+network/font loads disabled and uses the declared sans-serif stack with a local
+system fallback when the bundled web font cannot load. Color
 has a functional role; do not introduce a decorative renderer-specific palette.
 
 ## Attribution

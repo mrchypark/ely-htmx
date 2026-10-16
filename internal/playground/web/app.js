@@ -771,6 +771,8 @@
     const timeout = setTimeout(() => controller.abort(), 30000);
     try {
       const settings = compressionSettings();
+      const currentTheme = window.ElyTheme?.current();
+      if (currentTheme) settings.theme = {mode: currentTheme.mode, colors: window.ElyTheme.get(currentTheme.id)[currentTheme.mode]};
       // Keep raw JSON numbers intact; never stringify the JS-parsed screen/data.
       const body = `{"screen":${state.screenText},"data":${state.dataText},${JSON.stringify(settings).slice(1)}`;
       const result = await api('/api/preview', {method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content}, body, signal: controller.signal});
@@ -934,7 +936,10 @@
     }
   }
 
+  function refreshPreviewTheme() { if (state.initialized) schedulePreview(true); }
+
   let searchTimer;
+  document.addEventListener('ely:theme-change', refreshPreviewTheme);
   $('component-search').addEventListener('input', () => {
     clearTimeout(searchTimer);
     ++state.searchVersion;

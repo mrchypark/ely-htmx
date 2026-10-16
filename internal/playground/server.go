@@ -174,6 +174,7 @@ func (s *server) component(w http.ResponseWriter, r *http.Request) {
 }
 
 type previewRequest struct {
+	Theme             *previewTheme   `json:"theme,omitempty"`
 	Screen            json.RawMessage `json:"screen"`
 	Data              map[string]any  `json:"data"`
 	Profile           string          `json:"profile"`
@@ -274,7 +275,7 @@ func (s *server) preview(w http.ResponseWriter, r *http.Request) {
 	if readAsset == nil {
 		readAsset = ui.Files.ReadFile
 	}
-	safe, e := previewDocumentWithAssets(rendered.String(), assets.String(), readAsset)
+	safe, e := previewDocumentWithTheme(rendered.String(), assets.String(), readAsset, input.Theme)
 	if e != nil {
 		fail(e)
 		return
@@ -329,6 +330,14 @@ func previewDocument(source, assets string) (string, error) {
 }
 
 func previewDocumentWithAssets(source, assets string, readAsset func(string) ([]byte, error)) (string, error) {
+	return previewDocumentWithTheme(source, assets, readAsset, nil)
+}
+
+func previewDocumentWithTheme(source, assets string, readAsset func(string) ([]byte, error), theme *previewTheme) (string, error) {
+	mode, themeCSS, err := theme.styles()
+	if err != nil {
+		return "", err
+	}
 	doc, e := html.Parse(strings.NewReader(source))
 	if e != nil {
 		return "", e
@@ -366,9 +375,10 @@ func previewDocumentWithAssets(source, assets string, readAsset func(string) ([]
 		css.Write(value)
 		css.WriteByte('\n')
 	}
+	css.WriteString(themeCSS)
 	sum := sha256.Sum256(css.Bytes())
 	var b bytes.Buffer
-	fmt.Fprintf(&b, `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-%s'; img-src 'none'; form-action 'none'; base-uri 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><style>%s</style></head><body>`, base64.StdEncoding.EncodeToString(sum[:]), css.String())
+	fmt.Fprintf(&b, `<!doctype html><html lang="en" data-theme="%s"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-%s'; img-src 'none'; form-action 'none'; base-uri 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><style>%s</style></head><body>`, mode, base64.StdEncoding.EncodeToString(sum[:]), css.String())
 	var body *html.Node
 	var find func(*html.Node)
 	find = func(n *html.Node) {
