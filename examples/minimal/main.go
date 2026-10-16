@@ -11,9 +11,9 @@ import (
 
 const page = `{{define "page"}}<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ely greeting</title><link rel="stylesheet" href="/assets/app.css">
+<title>elysdui greeting</title><link rel="stylesheet" href="/assets/app.css">
 {{template "ui-component-assets"}}<script src="/assets/htmx.min.js" defer></script>
-</head><body><main><h1>Ely greeting</h1>
+</head><body><main><h1>elysdui greeting</h1>
 <form action="/" method="get" hx-get="/" hx-target="#greeting" hx-swap="outerHTML">
 <label for="name">Name</label>{{template "input" (dict "ID" "name" "Name" "name" "Value" .)}}
 {{template "button" (dict "Type" "submit" "Label" "Greet")}}</form>

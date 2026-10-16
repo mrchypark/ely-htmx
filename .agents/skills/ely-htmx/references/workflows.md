@@ -1,10 +1,10 @@
 # Locate documentation and choose a workflow
 
 This skill is portable: copy the entire `ely-htmx` directory, including this
-reference. Its knowledge source is the matching Ely HTMX repository/module, not
+reference. Its knowledge source is the matching elysdui repository/module, not
 an assumed sibling path in your application.
 
-## In the Ely HTMX repository
+## In the elysdui repository
 
 The root contains `go.mod` with module `github.com/mrchypark/ely-htmx` and
 `docs/README.md`. Start there. Read only references needed for the task:
@@ -30,7 +30,7 @@ getting-started guide. Match documentation to that version.
 
 A skill copied from a newer checkout can mention features absent from the app's
 pinned release. Confirm exported APIs and files before using them. The repository
-is https://github.com/mrchypark/ely-htmx; browse the selected tag/commit, not an
+is https://github.com/mrchypark/elysdui; browse the selected tag/commit, not an
 unverified latest branch, when local source is unavailable. Report inaccessible
 sources rather than inventing APIs.
 

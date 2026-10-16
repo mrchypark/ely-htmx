@@ -1,9 +1,9 @@
 ---
 name: ely-htmx
-description: Build Go html/template and htmx interfaces with Ely HTMX, author or validate Ely SDUI JSON screens, and modify the Ely HTMX library. Use for component selection, assets, host actions, playground exports and integration tests; not React or GPUI runtime development.
+description: Build Go html/template and htmx interfaces with elysdui, author or validate elysdui JSON screens, and modify the elysdui library. Use for component selection, assets, host actions, playground exports and integration tests; not React or GPUI runtime development.
 ---
 
-# Ely HTMX
+# elysdui
 
 ## Establish the workspace
 

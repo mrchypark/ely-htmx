@@ -13,7 +13,7 @@ import {chromium} from 'playwright';
 // Static mode expects scripts/build-pages.sh output in dist unless overridden.
 const repo = fileURLToPath(new URL('../', import.meta.url));
 const staticMode = process.env.GALLERY_STATIC === '1';
-const base = staticMode ? '/ely-htmx/' : '/';
+const base = staticMode ? '/elysdui/go-htmx/' : '/';
 const output = resolve(repo, 'test-results/gallery');
 const mode = staticMode ? 'static' : 'live';
 const errors = [], badRequests = [];
@@ -40,7 +40,7 @@ async function listen(server) {
 try {
   let port;
   if (staticMode) {
-    const root = resolve(repo, process.env.GALLERY_STATIC_DIR || 'dist');
+    const root = resolve(repo, process.env.GALLERY_STATIC_DIR || 'dist/go-htmx');
     await readFile(resolve(root, 'index.html')); // Fail clearly before launching Chromium.
     const mime = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.wasm': 'application/wasm', '.wav': 'audio/wav', '.mp4': 'video/mp4'};
     server = createServer(async (request, response) => {
@@ -123,7 +123,7 @@ try {
   if (!staticMode) {
     const redirect = await fetch(playgroundURL, {redirect: 'manual'});
     assert.equal(redirect.status, 303, 'local playground entry redirects without fetching the external site');
-    assert.equal(redirect.headers.get('location'), 'https://mrchypark.github.io/ely-htmx/playground/');
+    assert.equal(redirect.headers.get('location'), 'https://mrchypark.github.io/elysdui/go-htmx/playground/');
   } else {
     assert((await fetch(playgroundURL)).ok, 'exported playground target exists under the project base path');
   }

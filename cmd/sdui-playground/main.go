@@ -24,6 +24,6 @@ func main() {
 		log.Fatal(e)
 	}
 	addr := "127.0.0.1:" + strconv.Itoa(n)
-	log.Printf("Ely SDUI playground (local authoring only): http://%s", addr)
+	log.Printf("elysdui playground (local authoring only): http://%s", addr)
 	log.Fatal((&http.Server{Addr: addr, Handler: h, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: time.Minute, MaxHeaderBytes: 16 << 10}).ListenAndServe())
 }

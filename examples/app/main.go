@@ -1,4 +1,4 @@
-// Command app runs a small Ely HTMX form example.
+// Command app runs a small elysdui form example.
 package main
 
 import (
@@ -165,6 +165,6 @@ func main() {
 		log.Fatal(err)
 	}
 	server := &http.Server{Addr: *addr, Handler: handler, ReadHeaderTimeout: 5 * time.Second}
-	log.Printf("Ely HTMX app example: http://%s", *addr)
+	log.Printf("elysdui app example: http://%s", *addr)
 	log.Fatal(server.ListenAndServe())
 }

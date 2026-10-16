@@ -1,11 +1,11 @@
 # UI attribution
 
-Ely HTMX UI uses Go `html/template`, htmx, Tailwind CSS and adapted shadcn-htmx components. Shared theme, font and asset files are in `assets`. Shared UI templates are in `templates`.
+elysdui UI uses Go `html/template`, htmx, Tailwind CSS and adapted shadcn-htmx components. Shared theme, font and asset files are in `assets`. Shared UI templates are in `templates`.
 
 
 The application also uses the locally vendored [htmx 4.0.0 distribution](https://github.com/bigskysoftware/htmx/releases/tag/v4.0.0) at `/assets/htmx.min.js`, under the Zero-Clause BSD license. The license is included in `assets/htmx.LICENSE.txt`.
 
-The visual reference is [Ely](https://elygpui.com/). The catalogue and shared HTML implementations in the root package derive from [Ely GPUI Component](https://git.zacharyzhang.com/ZacharyZhang-NY/Ely-GPUI-Components), revision `49ed1f84056fa13347d68801b479a4a5a8e03b53`, under MIT. The license is included in `assets/ely/LICENSE.txt`. Ely HTMX renders native HTML/SVG adaptations; it does not run the Ely/GPUI WASM runtime.
+The visual reference is [Ely](https://elygpui.com/). The catalogue and shared HTML implementations in the root package derive from [Ely GPUI Component](https://git.zacharyzhang.com/ZacharyZhang-NY/Ely-GPUI-Components), revision `49ed1f84056fa13347d68801b479a4a5a8e03b53`, under MIT. The license is included in `assets/ely/LICENSE.txt`. elysdui renders native HTML/SVG adaptations; it does not run the Ely/GPUI WASM runtime.
 
 The SVG icons in `assets/ely/icons` are bundled from that Ely source revision. They carry the Lucide ISC notice and the Feather MIT notice in `assets/ely/icons/LICENSE`. Preserve that complete license file when exporting or copying the icons. The deployed reference gallery can use a different icon set from this source revision.
 

@@ -1,8 +1,8 @@
 # Documentation map
 
-Start with [Using Ely HTMX](getting-started.md) to build an application, or
+Start with [Using elysdui](getting-started.md) to build an application, or
 [Contributing](contributing.md) to change this repository. AI coding agents should
-read [AGENTS.md](../AGENTS.md) and the [Ely HTMX skill](../.agents/skills/ely-htmx/SKILL.md).
+read [AGENTS.md](../AGENTS.md) and the [elysdui skill](../.agents/skills/ely-htmx/SKILL.md).
 
 ## Choose a workflow
 
@@ -31,3 +31,5 @@ and typed contracts rather than translating identifiers.
 
 See [component discovery](getting-started.md#discover-components-and-props) before
 choosing an alias or assuming a component integrates an external service.
+
+- [Naming and compatibility](naming.md): elysdui branding and stable integration names.

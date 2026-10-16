@@ -1,4 +1,4 @@
-/* Ely Studio: a data-only editor. The server owns validation, rendering and codecs. */
+/* elysdui Studio: a data-only editor. The server owns validation, rendering and codecs. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);

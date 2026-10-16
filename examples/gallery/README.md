@@ -1,4 +1,4 @@
-# Ely HTMX UI examples
+# elysdui UI examples
 
 Run the standalone gallery from the repository root:
 

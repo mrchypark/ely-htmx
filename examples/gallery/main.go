@@ -1,4 +1,4 @@
-// Command components serves the standalone Ely HTMX UI example gallery.
+// Command components serves the standalone elysdui UI example gallery.
 package main
 
 import (
@@ -29,7 +29,7 @@ func main() {
 		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
-	log.Printf("Ely HTMX UI examples: http://%s/components", *addr)
+	log.Printf("elysdui UI examples: http://%s/components", *addr)
 	log.Fatal(server.ListenAndServe())
 }
 

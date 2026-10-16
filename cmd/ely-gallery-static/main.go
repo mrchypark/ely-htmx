@@ -11,7 +11,7 @@ import (
 
 func main() {
 	dir := flag.String("dir", "dist", "static output directory")
-	base := flag.String("base", "/ely-htmx/", "absolute deployment URL path")
+	base := flag.String("base", "/elysdui/go-htmx/", "absolute deployment URL path")
 	flag.Parse()
 	result, err := gallery.ExportStatic(*dir, *base)
 	if err != nil {
