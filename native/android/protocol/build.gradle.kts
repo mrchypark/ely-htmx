@@ -6,5 +6,7 @@ dependencies {
 }
 tasks.test {
     systemProperty("ely.fixtures", rootProject.file("../fixtures").absolutePath)
+    inputs.dir(rootProject.file("../fixtures"))
+    inputs.property("controlsServer", providers.environmentVariable("ELY_NATIVE_CONTROLS_BASE_URL").orElse(""))
     inputs.property("liveServer", providers.environmentVariable("ELY_NATIVE_TEST_BASE_URL").orElse(""))
 }

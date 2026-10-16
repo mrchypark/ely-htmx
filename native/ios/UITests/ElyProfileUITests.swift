@@ -45,6 +45,40 @@ final class ElyProfileUITests: XCTestCase {
     }
 
     @MainActor
+    func testMultipleFieldsAndNativeToggleSaveThroughGo() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["ELY_API_BASE_URL"] = "http://127.0.0.1:8095"
+        app.launch()
+        let company = app.textFields["input-company"]
+        XCTAssertTrue(company.waitForExistence(timeout: 15))
+        XCTAssertEqual(app.webViews.count, 0)
+        for _ in 0..<4 where !company.isHittable { app.swipeUp() }
+        XCTAssertTrue(company.isHittable)
+        replaceText(company, with: "  Mobile Company  ", app: app)
+        let toggle = app.switches["notifications"]
+        if !toggle.isHittable { app.swipeUp() }
+        XCTAssertTrue(toggle.isHittable)
+        toggle.tap()
+        let save = app.buttons["save-profile"]
+        if !save.isHittable { app.swipeUp() }
+        save.tap()
+        let saved = NSPredicate(format: "label CONTAINS[c] %@", "saved")
+        expectation(for: saved, evaluatedWith: app.staticTexts["profile-status"])
+        waitForExpectations(timeout: 15)
+        XCTAssertEqual(company.value as? String, "Mobile Company")
+        XCTAssertEqual(toggle.value as? String, "1")
+        attachScreenshot(app, named: "04 - Native multiple fields and toggle saved")
+        app.buttons["reload-profile"].tap()
+        let discard = app.alerts.buttons["Discard edits and reload"]
+        XCTAssertTrue(discard.waitForExistence(timeout: 5)); discard.tap()
+        expectation(for: NSPredicate(format: "label == %@", "Edit your display name."), evaluatedWith: app.staticTexts["profile-status"])
+        waitForExpectations(timeout: 15)
+        XCTAssertTrue(company.waitForExistence(timeout: 15))
+        XCTAssertEqual(company.value as? String, "Mobile Company")
+        XCTAssertEqual(toggle.value as? String, "1")
+    }
+
+    @MainActor
     private func assertVisible(_ element: XCUIElement, in app: XCUIApplication,
                                file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertTrue(element.waitForExistence(timeout: 10), file: file, line: line)

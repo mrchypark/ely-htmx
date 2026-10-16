@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/mrchypark/ely-htmx/native/profile-v1.schema.json",
   "title": "Ely native profile v1 envelopes",
-  "description": "Wire shape for the intentionally profile-specific example. Semantic node property, depth, ID uniqueness, routing and cross-field checks are additionally enforced in code. This does not authorize actions.",
+  "description": "Resolved native profile form envelope; field/control equality, registered actions, value modes and tree limits are additionally enforced in code.",
   "oneOf": [
     {
       "$ref": "#/$defs/envelope"
@@ -32,7 +32,8 @@
             "text",
             "input",
             "button",
-            "notice"
+            "notice",
+            "switch"
           ]
         },
         "props": {
@@ -140,7 +141,8 @@
               "text",
               "input",
               "button",
-              "notice"
+              "notice",
+              "switch"
             ]
           },
           "uniqueItems": true,
@@ -151,36 +153,38 @@
         },
         "fields": {
           "type": "object",
-          "required": [
-            "displayName"
-          ],
-          "properties": {
-            "displayName": {
-              "type": "string",
-              "maxLength": 16384
-            }
+          "maxProperties": 64,
+          "propertyNames": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
           },
-          "additionalProperties": false
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 16384
+          },
+          "minProperties": 1
         },
         "acknowledgedEdits": {
           "type": "object",
-          "properties": {
-            "displayName": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
+          "maxProperties": 64,
+          "propertyNames": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
           },
-          "additionalProperties": false
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
         },
         "errors": {
           "type": "object",
-          "properties": {
-            "displayName": {
-              "type": "string"
-            }
+          "maxProperties": 64,
+          "propertyNames": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
           },
-          "additionalProperties": false
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 16384
+          }
         },
         "message": {
           "type": "string"
@@ -246,30 +250,27 @@
         },
         "fields": {
           "type": "object",
-          "required": [
-            "displayName"
-          ],
-          "properties": {
-            "displayName": {
-              "type": "string",
-              "maxLength": 16384
-            }
+          "maxProperties": 64,
+          "propertyNames": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
           },
-          "additionalProperties": false
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 16384
+          },
+          "minProperties": 1
         },
         "editRevisions": {
           "type": "object",
-          "properties": {
-            "displayName": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
+          "maxProperties": 64,
+          "propertyNames": {
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
           },
-          "additionalProperties": false,
-          "required": [
-            "displayName"
-          ]
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
         },
         "capabilities": {
           "type": "array",
@@ -281,7 +282,8 @@
               "text",
               "input",
               "button",
-              "notice"
+              "notice",
+              "switch"
             ]
           },
           "uniqueItems": true,

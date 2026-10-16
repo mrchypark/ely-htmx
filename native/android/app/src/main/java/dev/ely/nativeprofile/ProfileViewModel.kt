@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-class ProfileViewModel : ViewModel() {
-    private val client = ProfileHttpClient(BuildConfig.PROFILE_ENDPOINT, BuildConfig.DEBUG)
+class ProfileViewModel(endpoint: String = BuildConfig.PROFILE_ENDPOINT) : ViewModel() {
+    private val client = ProfileHttpClient(endpoint, BuildConfig.DEBUG)
     private val mutableState = MutableStateFlow(ProfileState())
     val state = mutableState.asStateFlow()
 

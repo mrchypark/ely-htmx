@@ -104,7 +104,7 @@ public struct NativeProfileView: View {
                 .frame(maxWidth: 600, alignment: .leading)
                 .frame(maxWidth: .infinity)
             }
-            .navigationTitle("Ely Profile")
+            .navigationTitle("elysdui Profile")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Reload") {
@@ -127,7 +127,7 @@ public struct NativeProfileView: View {
         }
         .task { model.loadIfNeeded() }
         .onChange(of: model.state.fieldErrors) { _, errors in
-            if let error = errors["displayName"] {
+            if let error = errors.keys.sorted().compactMap({ errors[$0] }).first {
                 UIAccessibility.post(notification: .announcement, argument: error)
             }
         }
@@ -207,7 +207,7 @@ private struct NativeNodeView: View {
                 CompositionTextField(
                     value: Binding(get: { model.state.drafts[name] ?? "" }, set: { model.edit(field: name, value: $0) }),
                     focusedNodeID: $focusedNodeID, nodeID: node.id,
-                    label: node.props.label ?? name, placeholder: node.props.placeholder ?? "",
+                    fieldName: name, label: node.props.label ?? name, placeholder: node.props.placeholder ?? "",
                     editable: node.props.disabled != true && node.props.readonly != true && !model.state.isLoading,
                     error: error,
                     compositionChanged: { composing in
@@ -220,6 +220,18 @@ private struct NativeNodeView: View {
                     Label(error, systemImage: "exclamationmark.circle.fill")
                         .font(.callout).foregroundStyle(.red)
                         .accessibilityIdentifier("error-\(name)")
+                }
+            })
+        case "switch":
+            let name = node.props.name ?? ""
+            return AnyView(VStack(alignment: .leading, spacing: 6) {
+                Toggle(node.props.label ?? name, isOn: Binding(
+                    get: { model.state.drafts[name] == "true" },
+                    set: { model.edit(field: name, value: $0 ? "true" : "false") }))
+                    .disabled(node.props.disabled == true || !model.state.drafts.keys.contains(name) || model.state.isLoading)
+                    .accessibilityIdentifier(node.id)
+                if let error = model.state.fieldErrors[name] {
+                    Text(error).foregroundStyle(.red).accessibilityIdentifier("error-\(name)")
                 }
             })
         case "button":
@@ -252,6 +264,7 @@ private struct CompositionTextField: UIViewRepresentable {
     @Binding var value: String
     @Binding var focusedNodeID: String?
     let nodeID: String
+    let fieldName: String
     let label: String
     let placeholder: String
     let editable: Bool
@@ -276,8 +289,8 @@ private struct CompositionTextField: UIViewRepresentable {
         if field.markedTextRange == nil && field.text != value { field.text = value }
         field.placeholder = placeholder
         field.accessibilityLabel = label
-        field.accessibilityHint = error ?? "Edit your display name. Changes are saved only when you choose Save."
-        field.accessibilityIdentifier = "input-displayName"
+        field.accessibilityHint = error ?? "Changes are saved only when you choose Save."
+        field.accessibilityIdentifier = "input-\(fieldName)"
         field.isEnabled = editable
         // No identity is tied to screen/data revisions. The native field survives replacement.
         if focusedNodeID == nodeID && editable && !field.isFirstResponder { field.becomeFirstResponder() }

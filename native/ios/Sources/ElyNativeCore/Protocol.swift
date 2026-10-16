@@ -2,7 +2,7 @@ import Foundation
 
 public enum NativeProtocol {
     public static let version = "1"
-    public static let capabilities = ["region", "form", "stack", "text", "input", "button", "notice"]
+    public static let capabilities = ["region", "form", "stack", "text", "input", "button", "notice", "switch"]
     public static let maximumResponseBytes = 1_048_576
     public static let maximumNodes = 1_000
     public static let maximumDepth = 32
@@ -15,6 +15,7 @@ public struct ProtocolFailure: Error, LocalizedError, Equatable, Sendable {
 }
 
 public struct NodeProperties: Codable, Equatable, Sendable {
+    public var checked: Bool?
     public var label: String?
     public var text: String?
     public var title: String?
@@ -191,11 +192,13 @@ public enum EnvelopeDecoder {
         guard envelope.screenID == "profile", !envelope.screenRevision.isEmpty,
               !envelope.sessionID.isEmpty, !envelope.requestID.isEmpty,
               !envelope.csrfToken.isEmpty, envelope.dataVersion >= 0, envelope.dataVersion <= 9_007_199_254_740_991,
-              Set(envelope.fields.keys) == ["displayName"],
-              Set(envelope.errors.keys).isSubset(of: ["displayName"]),
-              Set(envelope.acknowledgedEdits.keys).isSubset(of: ["displayName"]),
+              !envelope.fields.isEmpty, envelope.fields.count <= 64,
+              envelope.fields.keys.allSatisfy({ $0.range(of: "^[A-Za-z][A-Za-z0-9_]{0,63}$", options: .regularExpression) != nil }),
+              envelope.fields.values.allSatisfy({ $0.utf8.count <= 16_384 }),
+              Set(envelope.errors.keys).isSubset(of: Set(envelope.fields.keys)),
+              Set(envelope.acknowledgedEdits.keys).isSubset(of: Set(envelope.fields.keys)),
               envelope.acknowledgedEdits.values.allSatisfy({ $0 >= 0 && $0 <= 9_007_199_254_740_991 }),
-              envelope.status == .ready ? envelope.acknowledgedEdits.isEmpty : Set(envelope.acknowledgedEdits.keys) == ["displayName"],
+              envelope.status == .ready ? envelope.acknowledgedEdits.isEmpty : Set(envelope.acknowledgedEdits.keys) == Set(envelope.fields.keys),
               envelope.region.id == "profile-region", envelope.region.type == "region" else {
             throw ProtocolFailure("The server returned an invalid profile envelope.")
         }
@@ -239,11 +242,14 @@ public enum EnvelopeDecoder {
                       ["none", "xs", "sm", "md", "lg"].contains(node.props.gap ?? "md") else {
                     throw ProtocolFailure("The screen requests unsupported stack properties.")
                 }
-            case "input":
-                guard form == "profile-form", node.props.name == "displayName",
+            case "input", "switch":
+                guard form == "profile-form", let name = node.props.name, envelope.fields[name] != nil,
                       node.props.label != nil, (node.props.type ?? "text") == "text",
-                      node.props.multiple != true, inputs.insert("displayName").inserted else {
-                    throw ProtocolFailure("Only the registered plain-text profile input is supported.")
+                      node.props.multiple != true, inputs.insert(name).inserted else {
+                    throw ProtocolFailure("The form contains an unsupported or duplicate field.")
+                }
+                if node.type == "switch", (node.props.readonly == true || node.props.required == true || !["true", "false"].contains(envelope.fields[name] ?? "")) {
+                    throw ProtocolFailure("A switch field must contain true or false.")
                 }
             case "button":
                 submitButtons += 1
@@ -260,8 +266,8 @@ public enum EnvelopeDecoder {
             for child in node.children { try visit(child, depth: depth + 1, form: childForm) }
         }
         try visit(envelope.region, depth: 1, form: nil)
-        guard forms == 1, submitButtons > 0, inputs == ["displayName"] else {
-            throw ProtocolFailure("The profile screen must contain its registered form and display-name input.")
+        guard forms == 1, submitButtons > 0, inputs == Set(envelope.fields.keys) else {
+            throw ProtocolFailure("The screen must contain its registered form and exactly one control per field.")
         }
     }
 }

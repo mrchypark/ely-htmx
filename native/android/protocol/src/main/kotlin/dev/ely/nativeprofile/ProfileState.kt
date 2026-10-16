@@ -83,6 +83,7 @@ data class ProfileState(
         // Ignore stale, unrelated and duplicate replies without changing any local state.
         if (reply.requestID != active.request.requestID || reply.sessionID != current.sessionID || reply.screenID != current.screenID ||
             reply.dataVersion < current.dataVersion) return this
+        if (reply.fields.keys != active.request.fields.keys) return hardFailed(reply.requestID, "The field set changed during a save. Reload before continuing.")
         if (reply.status == "saved" && reply.dataVersion <= active.request.dataVersion) return hardFailed(reply.requestID, "The save response did not advance the server version.")
         if (reply.status == "ready") return hardFailed(reply.requestID, "The server returned an unexpected save response.")
         if (reply.acknowledgedEdits != active.request.editRevisions) return hardFailed(reply.requestID, "The server did not acknowledge the submitted edits.")

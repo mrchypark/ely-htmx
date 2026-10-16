@@ -73,7 +73,7 @@ type NativeActionRequest struct {
 // NativeCapabilities returns a fresh copy of the deliberately small native v1
 // component set. Native input is ordinary text; the web catalogue is unchanged.
 func NativeCapabilities() []string {
-	return []string{"region", "form", "stack", "text", "input", "button", "notice"}
+	return []string{"region", "form", "stack", "text", "input", "button", "notice", "switch"}
 }
 
 // DecodeNativeAction rejects duplicate keys (including casing aliases), unknown

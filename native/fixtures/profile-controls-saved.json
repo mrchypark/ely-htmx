@@ -1,0 +1,135 @@
+{
+  "protocolVersion": "1",
+  "screenID": "profile",
+  "screenRevision": "fixture-controls-revision-1",
+  "sessionID": "fixture-session",
+  "requestID": "00000000-0000-4000-8000-000000000002",
+  "dataVersion": 1,
+  "status": "saved",
+  "csrfToken": "fixture-csrf",
+  "requiredCapabilities": [
+    "region",
+    "form",
+    "stack",
+    "text",
+    "input",
+    "button",
+    "notice",
+    "switch"
+  ],
+  "region": {
+    "id": "profile-region",
+    "type": "region",
+    "props": {
+      "label": "Profile"
+    },
+    "children": [
+      {
+        "id": "profile-layout",
+        "type": "stack",
+        "props": {
+          "align": "stretch",
+          "direction": "column",
+          "gap": "md"
+        },
+        "children": [
+          {
+            "id": "profile-title",
+            "type": "text",
+            "props": {
+              "text": "Your profile"
+            }
+          },
+          {
+            "id": "demo-notice",
+            "type": "notice",
+            "props": {
+              "text": "Your profile lives in a temporary local session. This is not production authentication or storage.",
+              "title": "Local demo only",
+              "urgent": false
+            }
+          },
+          {
+            "id": "profile-form",
+            "type": "form",
+            "props": {
+              "label": "Edit profile"
+            },
+            "children": [
+              {
+                "id": "display-name",
+                "type": "input",
+                "props": {
+                  "disabled": false,
+                  "label": "Display name",
+                  "multiple": false,
+                  "name": "displayName",
+                  "placeholder": "Ada Lovelace",
+                  "readonly": false,
+                  "required": true,
+                  "type": "text",
+                  "value": "Grace Hopper"
+                }
+              },
+              {
+                "id": "company",
+                "type": "input",
+                "props": {
+                  "disabled": false,
+                  "label": "Company",
+                  "multiple": false,
+                  "name": "company",
+                  "placeholder": "Optional company",
+                  "readonly": false,
+                  "required": false,
+                  "type": "text",
+                  "value": "Example Labs"
+                }
+              },
+              {
+                "id": "notifications",
+                "type": "switch",
+                "props": {
+                  "checked": true,
+                  "disabled": false,
+                  "label": "Enable notifications",
+                  "name": "notifications"
+                }
+              },
+              {
+                "id": "save-profile",
+                "type": "button",
+                "props": {
+                  "disabled": false,
+                  "label": "Save profile",
+                  "size": "default",
+                  "type": "submit",
+                  "variant": "primary"
+                }
+              }
+            ],
+            "events": [
+              {
+                "on": "submit",
+                "action": "save-profile",
+                "target": "profile-region"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "fields": {
+    "company": "Example Labs",
+    "displayName": "Grace Hopper",
+    "notifications": "true"
+  },
+  "acknowledgedEdits": {
+    "company": 3,
+    "displayName": 1,
+    "notifications": 2
+  },
+  "errors": {},
+  "message": "Profile saved."
+}

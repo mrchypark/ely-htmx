@@ -12,7 +12,7 @@ final class ProtocolTests: XCTestCase {
         response.protocolVersion = "2"
         XCTAssertThrowsError(try EnvelopeDecoder.validate(response))
         response = try ready()
-        response.requiredCapabilities.append("switch")
+        response.requiredCapabilities.append("slider")
         XCTAssertThrowsError(try EnvelopeDecoder.validate(response))
         response = try ready()
         response.region.children[0].children[0].type = "webview"
