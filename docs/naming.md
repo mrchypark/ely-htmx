@@ -39,3 +39,5 @@ also retain their own sample names; they are not the elysdui product wordmark.
 ## Shared visual identity
 
 The hub, web gallery and playground use the same original [elysdui mark](../assets/elysdui-mark.svg), Inter typography, Ely Neutral color tokens and persisted light/dark preference. Uppercase section labels use `ELYSDUI / GO + HTMX` to identify the renderer. The original two-frame mark represents a shared screen definition; it does not reproduce Ely GPUI’s isometric E. Each surface prominently links the upstream project and states its independence. Native application controls retain platform conventions; this web branding pass does not claim all native applications already use identical visual assets.
+
+See the [shared identity guideline](identity.md) for canonical assets, exact color roles, attribution and native-demo reuse.
