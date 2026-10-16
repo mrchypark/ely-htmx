@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mrchypark/ely-htmx/native/profile-v1.schema.json",
+  "title": "Ely native profile v1 envelopes",
+  "description": "Wire shape for the intentionally profile-specific example. Semantic node property, depth, ID uniqueness, routing and cross-field checks are additionally enforced in code. This does not authorize actions.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/envelope"
+    },
+    {
+      "$ref": "#/$defs/action"
+    }
+  ],
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "props"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,127}$"
+        },
+        "type": {
+          "enum": [
+            "region",
+            "form",
+            "stack",
+            "text",
+            "input",
+            "button",
+            "notice"
+          ]
+        },
+        "props": {
+          "type": "object"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          },
+          "maxItems": 1000
+        },
+        "events": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "on",
+              "action",
+              "target"
+            ],
+            "properties": {
+              "on": {
+                "const": "submit"
+              },
+              "action": {
+                "const": "save-profile"
+              },
+              "target": {
+                "const": "profile-region"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "envelope": {
+      "type": "object",
+      "required": [
+        "protocolVersion",
+        "screenID",
+        "screenRevision",
+        "sessionID",
+        "requestID",
+        "dataVersion",
+        "status",
+        "csrfToken",
+        "requiredCapabilities",
+        "region",
+        "fields",
+        "acknowledgedEdits",
+        "errors",
+        "message"
+      ],
+      "properties": {
+        "protocolVersion": {
+          "const": "1"
+        },
+        "screenID": {
+          "const": "profile"
+        },
+        "screenRevision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "sessionID": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "requestID": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "dataVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "status": {
+          "enum": [
+            "ready",
+            "saved",
+            "invalid",
+            "conflict"
+          ]
+        },
+        "csrfToken": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "region",
+              "form",
+              "stack",
+              "text",
+              "input",
+              "button",
+              "notice"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 64
+        },
+        "region": {
+          "$ref": "#/$defs/node"
+        },
+        "fields": {
+          "type": "object",
+          "required": [
+            "displayName"
+          ],
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "maxLength": 16384
+            }
+          },
+          "additionalProperties": false
+        },
+        "acknowledgedEdits": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "additionalProperties": false
+        },
+        "errors": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "protocolVersion",
+        "screenID",
+        "screenRevision",
+        "sessionID",
+        "requestID",
+        "dataVersion",
+        "nodeID",
+        "event",
+        "action",
+        "target",
+        "fields",
+        "editRevisions",
+        "capabilities"
+      ],
+      "properties": {
+        "protocolVersion": {
+          "const": "1"
+        },
+        "screenID": {
+          "const": "profile"
+        },
+        "screenRevision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "sessionID": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "requestID": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "dataVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "nodeID": {
+          "const": "profile-form"
+        },
+        "event": {
+          "const": "submit"
+        },
+        "action": {
+          "const": "save-profile"
+        },
+        "target": {
+          "const": "profile-region"
+        },
+        "fields": {
+          "type": "object",
+          "required": [
+            "displayName"
+          ],
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "maxLength": 16384
+            }
+          },
+          "additionalProperties": false
+        },
+        "editRevisions": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "displayName"
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "region",
+              "form",
+              "stack",
+              "text",
+              "input",
+              "button",
+              "notice"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 64
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

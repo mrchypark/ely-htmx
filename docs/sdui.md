@@ -13,6 +13,8 @@ execute expressions or grant server capabilities.
 
 Related references:
 
+- [Native SwiftUI/Compose profile transport](../native/README.md) (opt-in, seven-type slice)
+
 - [HTTP compression, performance and security](sdui-transport.md)
 
 - [Composition grammar and full examples](sdui-composition.md)

@@ -1,0 +1,105 @@
+name: Native profile
+on:
+  pull_request:
+    paths: ['native/**', 'sdui/**', 'examples/native-sdui/**', 'go.mod', 'go.sum', '.github/workflows/native.yml']
+  push:
+    branches: [main]
+    paths: ['native/**', 'sdui/**', 'examples/native-sdui/**', 'go.mod', 'go.sum', '.github/workflows/native.yml']
+permissions:
+  contents: read
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+      - run: go test -race ./sdui ./examples/native-sdui
+      - run: go vet ./sdui ./examples/native-sdui
+      - name: Verify shared fixture wire schema
+        run: |
+          python -m pip install jsonschema==4.25.1
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+          schema = json.loads(Path('native/profile-v1.schema.json').read_text())
+          validator = Draft202012Validator(schema)
+          for path in Path('native/fixtures').glob('profile-*.json'):
+              validator.validate(json.loads(path.read_text()))
+              print('Validated', path)
+          PY
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+      - name: Swift protocol, state and transport tests
+        run: swift test --package-path native/ios
+      - name: Generate native iOS app project
+        run: |
+          command -v xcodegen || brew install xcodegen
+          cd native/ios && xcodegen generate
+      - name: Build iOS Simulator app
+        run: xcodebuild -project native/ios/ElyProfile.xcodeproj -scheme ElyProfile -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+      - name: Native simulator profile lifecycle against Go
+        run: |
+          go build -o /tmp/ely-native-profile ./examples/native-sdui
+          /tmp/ely-native-profile > /tmp/ely-native-profile.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true; cat /tmp/ely-native-profile.log' EXIT
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8094/ > /dev/null && break; sleep 1; done
+          curl --fail --silent http://127.0.0.1:8094/ > /dev/null
+          ELY_NATIVE_TEST_BASE_URL=http://127.0.0.1:8094 swift test --package-path native/ios
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for group in d["devices"].values() for v in group if "iPhone" in v["name"]))')
+          xcodebuild -project native/ios/ElyProfile.xcodeproj -scheme ElyProfile -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -resultBundlePath /tmp/ElyProfile.xcresult CODE_SIGNING_ALLOWED=NO test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-native-profile-results
+          path: /tmp/ElyProfile.xcresult
+          if-no-files-found: ignore
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      # GitHub's hosted image supplies an installed/licensed Android SDK. No
+      # user SDK license acceptance or private computer access is performed here.
+      - name: Compile Compose app and test real Go transport
+        run: |
+          go build -o /tmp/ely-native-profile ./examples/native-sdui
+          /tmp/ely-native-profile > /tmp/ely-native-profile.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true; cat /tmp/ely-native-profile.log' EXIT
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8094/ > /dev/null && break; sleep 1; done
+          curl --fail --silent http://127.0.0.1:8094/ > /dev/null
+          cd native/android
+          ELY_NATIVE_TEST_BASE_URL=http://127.0.0.1:8094 ./gradlew --no-daemon :protocol:test :app:assembleDebug :app:testDebugUnitTest :app:assembleDebugAndroidTest
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-native-profile-results
+          path: |
+            native/android/protocol/build/reports/tests/
+            native/android/app/build/reports/tests/
+            native/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: ignore

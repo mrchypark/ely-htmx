@@ -52,8 +52,16 @@ func applyParameters(node *compiledNode, scope renderScope, budget *renderBudget
 }
 
 func (p *Plan) renderNode(w io.Writer, node *compiledNode, ctx RenderContext, scope renderScope, budget *renderBudget) error {
+	return forEachNodeInstance(node, scope, budget, func(instance renderScope) error {
+		return p.renderInstance(w, node, ctx, instance, budget)
+	})
+}
+
+// forEachNodeInstance is shared by the HTML and native-neutral projections.
+// Stable identities and pre-allocation expansion limits must be identical.
+func forEachNodeInstance(node *compiledNode, scope renderScope, budget *renderBudget, visit func(renderScope) error) error {
 	if node.repeat == nil {
-		return p.renderInstance(w, node, ctx, scope, budget)
+		return visit(scope)
 	}
 	value, present, err := node.repeat.items.lookup(scope)
 	if err != nil {
@@ -96,7 +104,7 @@ func (p *Plan) renderNode(w io.Writer, node *compiledNode, ctx RenderContext, sc
 		inner := scope
 		inner.vars = vars
 		inner.identity = fmt.Sprintf("%x", sha256.Sum256([]byte(scope.identity+"\x00"+node.id+"\x00"+key)))
-		if err := p.renderInstance(w, node, ctx, inner, budget); err != nil {
+		if err := visit(inner); err != nil {
 			return err
 		}
 	}
