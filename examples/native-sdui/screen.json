@@ -1,0 +1,61 @@
+{
+  "version": "1",
+  "id": "profile",
+  "loader": "load-profile",
+  "root": {
+    "id": "profile-region",
+    "type": "region",
+    "props": { "label": "Profile" },
+    "children": [
+      {
+        "id": "profile-layout",
+        "type": "stack",
+        "props": { "gap": "md", "direction": "column" },
+        "children": [
+          { "id": "profile-title", "type": "text", "props": { "text": "Your profile" } },
+          {
+            "id": "demo-notice",
+            "type": "notice",
+            "props": {
+              "title": "Local demo only",
+              "text": "Your profile lives in a temporary local session. This is not production authentication or storage."
+            }
+          },
+          {
+            "id": "profile-form",
+            "type": "form",
+            "props": { "label": "Edit profile" },
+            "event": { "on": "submit", "action": "save-profile", "target": "profile-region" },
+            "children": [
+              {
+                "id": "display-name",
+                "type": "input",
+                "props": {
+                  "name": "displayName", "label": "Display name", "type": "text",
+                  "placeholder": "Ada Lovelace", "required": true
+                },
+                "bindings": { "value": "/@data/displayName" }
+              },
+              {
+                "id": "save-profile",
+                "type": "button",
+                "props": { "type": "submit", "label": "Save profile", "variant": "primary" }
+              }
+            ]
+          },
+          {
+            "id": "profile-error", "type": "notice",
+            "props": { "title": "Check your display name", "urgent": true },
+            "bindings": { "text": "/@data/error" },
+            "when": { "op": "ne", "path": "/@data/error", "value": "" }
+          },
+          {
+            "id": "profile-status", "type": "text",
+            "bindings": { "text": "/@data/message" },
+            "when": { "op": "ne", "path": "/@data/message", "value": "" }
+          }
+        ]
+      }
+    ]
+  }
+}

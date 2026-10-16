@@ -80,3 +80,30 @@ failures. Check relative links, exact CLI flags and examples against the code.
 In a PR, report the exact revision, checks passed, failures/limits and any
 remaining manual/browser validation. Historical [v0.1.0 verification](verification.md)
 is not evidence for a new commit. Open a draft PR; do not merge or deploy implicitly.
+
+## Native profile slice
+
+For `sdui/native.go`, `examples/native-sdui` or native app changes, also run:
+
+```sh
+go test ./sdui ./examples/native-sdui
+go test -race ./sdui ./examples/native-sdui
+```
+
+Follow [iOS](../native/ios/README.md) and [Android](../native/android/README.md)
+for native build/test commands. `.github/workflows/native.yml` compiles the real
+app targets, runs platform model/transport tests, and exercises native profile
+validation/save interactions against Go in iOS Simulator and Android Emulator.
+It retains screenshots and reports; inspect the exact-head run before claiming
+these checks passed. Shared JSON fixtures are
+verified against actual Go HTTP responses, then decoded by both native clients.
+To intentionally regenerate them after a reviewed contract change:
+
+```sh
+UPDATE_NATIVE_FIXTURES=1 go test ./examples/native-sdui -run TestNativeFixtures
+```
+
+A v1 wire change requires updating all three implementations/fixtures together.
+Report app compilation, model tests and actual simulator/device interaction as
+separate stages. Native accessibility, IME and focus behavior need manual
+platform validation beyond a compile.

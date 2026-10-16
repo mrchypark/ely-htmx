@@ -1,0 +1,225 @@
+import Foundation
+
+public enum NativeProtocol {
+    public static let version = "1"
+    public static let capabilities = ["region", "form", "stack", "text", "input", "button", "notice"]
+    public static let maximumResponseBytes = 1_048_576
+    public static let maximumNodes = 1_000
+    public static let maximumDepth = 32
+}
+
+public struct ProtocolFailure: Error, LocalizedError, Equatable, Sendable {
+    public let message: String
+    public init(_ message: String) { self.message = message }
+    public var errorDescription: String? { message }
+}
+
+public struct NodeProperties: Codable, Equatable, Sendable {
+    public var label: String?
+    public var text: String?
+    public var title: String?
+    public var urgent: Bool?
+    public var name: String?
+    public var value: String?
+    public var placeholder: String?
+    public var type: String?
+    public var required: Bool?
+    public var disabled: Bool?
+    public var readonly: Bool?
+    public var multiple: Bool?
+    public var direction: String?
+    public var align: String?
+    public var gap: String?
+    public var variant: String?
+    public var size: String?
+}
+
+public struct NodeEvent: Codable, Equatable, Sendable {
+    public var on: String
+    public var action: String
+    public var target: String
+}
+
+public struct NativeNode: Codable, Equatable, Identifiable, Sendable {
+    public var id: String
+    public var type: String
+    public var props: NodeProperties
+    public var children: [NativeNode]
+    public var events: [NodeEvent]
+
+    enum CodingKeys: String, CodingKey { case id, type, props, children, events }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        type = try c.decode(String.self, forKey: .type)
+        props = try c.decode(NodeProperties.self, forKey: .props)
+        children = try c.decodeIfPresent([NativeNode].self, forKey: .children) ?? []
+        events = try c.decodeIfPresent([NodeEvent].self, forKey: .events) ?? []
+    }
+}
+
+public enum ResponseStatus: String, Codable, Sendable { case ready, saved, invalid, conflict }
+
+public struct ProfileEnvelope: Codable, Equatable, Sendable {
+    public var protocolVersion: String
+    public var screenID: String
+    public var screenRevision: String
+    public var sessionID: String
+    public var requestID: String
+    public var dataVersion: Int64
+    public var status: ResponseStatus
+    public var csrfToken: String
+    public var requiredCapabilities: [String]
+    public var region: NativeNode
+    public var fields: [String: String]
+    public var acknowledgedEdits: [String: Int64]
+    public var errors: [String: String]
+    public var message: String
+}
+
+/// A closed action request, never an arbitrary server-supplied URL or expression.
+public struct SaveRequest: Codable, Equatable, Sendable {
+    public let protocolVersion: String
+    public let screenID: String
+    public let screenRevision: String
+    public let sessionID: String
+    public let requestID: String
+    public let dataVersion: Int64
+    public let nodeID: String
+    public let event: String
+    public let action: String
+    public let target: String
+    public let fields: [String: String]
+    public let editRevisions: [String: Int64]
+    public let capabilities: [String]
+
+    init(envelope: ProfileEnvelope, requestID: String, fields: [String: String], revisions: [String: Int64]) {
+        protocolVersion = NativeProtocol.version
+        screenID = envelope.screenID
+        screenRevision = envelope.screenRevision
+        sessionID = envelope.sessionID
+        self.requestID = requestID
+        dataVersion = envelope.dataVersion
+        nodeID = "profile-form"
+        event = "submit"
+        action = "save-profile"
+        target = "profile-region"
+        self.fields = fields
+        editRevisions = revisions
+        capabilities = NativeProtocol.capabilities
+    }
+}
+
+public enum EnvelopeDecoder {
+    public static func decode(_ data: Data) throws -> ProfileEnvelope {
+        guard data.count <= NativeProtocol.maximumResponseBytes else {
+            throw ProtocolFailure("The response exceeds the 1 MiB limit.")
+        }
+        // Preflight before recursively decoding the tree. This bounds both rendering and decoding.
+        let object = try JSONSerialization.jsonObject(with: data)
+        guard let root = (object as? [String: Any])?["region"] as? [String: Any] else {
+            throw ProtocolFailure("The response does not contain a replacement region.")
+        }
+        var queue: [([String: Any], Int)] = [(root, 1)]
+        var count = 0
+        while let (node, depth) = queue.popLast() {
+            count += 1
+            guard count <= NativeProtocol.maximumNodes, depth <= NativeProtocol.maximumDepth else {
+                throw ProtocolFailure("The screen exceeds the supported size or depth.")
+            }
+            if let rawChildren = node["children"] {
+                guard let children = rawChildren as? [[String: Any]] else {
+                    throw ProtocolFailure("The screen contains malformed children.")
+                }
+                queue.append(contentsOf: children.map { ($0, depth + 1) })
+            }
+        }
+        let envelope = try JSONDecoder().decode(ProfileEnvelope.self, from: data)
+        try validate(envelope)
+        return envelope
+    }
+
+    public static func validate(_ envelope: ProfileEnvelope) throws {
+        guard envelope.protocolVersion == NativeProtocol.version else {
+            throw ProtocolFailure("This screen requires an unsupported protocol version.")
+        }
+        guard Set(envelope.requiredCapabilities).isSubset(of: Set(NativeProtocol.capabilities)) else {
+            throw ProtocolFailure("This screen requires an unsupported native component.")
+        }
+        guard envelope.screenID == "profile", !envelope.screenRevision.isEmpty,
+              !envelope.sessionID.isEmpty, !envelope.requestID.isEmpty,
+              !envelope.csrfToken.isEmpty, envelope.dataVersion >= 0, envelope.dataVersion <= 9_007_199_254_740_991,
+              Set(envelope.fields.keys) == ["displayName"],
+              Set(envelope.errors.keys).isSubset(of: ["displayName"]),
+              Set(envelope.acknowledgedEdits.keys).isSubset(of: ["displayName"]),
+              envelope.acknowledgedEdits.values.allSatisfy({ $0 >= 0 && $0 <= 9_007_199_254_740_991 }),
+              envelope.status == .ready ? envelope.acknowledgedEdits.isEmpty : Set(envelope.acknowledgedEdits.keys) == ["displayName"],
+              envelope.region.id == "profile-region", envelope.region.type == "region" else {
+            throw ProtocolFailure("The server returned an invalid profile envelope.")
+        }
+        var ids = Set<String>()
+        var inputs = Set<String>()
+        var count = 0
+        var forms = 0
+        var submitButtons = 0
+        func visit(_ node: NativeNode, depth: Int, form: String?) throws {
+            count += 1
+            guard depth <= NativeProtocol.maximumDepth, count <= NativeProtocol.maximumNodes,
+                  node.id.range(of: "^[A-Za-z][A-Za-z0-9_-]{0,127}$", options: .regularExpression) != nil,
+                  !node.id.hasPrefix("sdui-internal-"), ids.insert(node.id).inserted else {
+                throw ProtocolFailure("The screen contains duplicate or invalid stable IDs, or exceeds its limits.")
+            }
+            guard NativeProtocol.capabilities.contains(node.type) else {
+                throw ProtocolFailure("Unsupported native component: \(node.type).")
+            }
+            let structural = ["region", "form", "stack"].contains(node.type)
+            guard structural || node.children.isEmpty else {
+                throw ProtocolFailure("A native leaf component cannot contain children.")
+            }
+            guard node.type == "form" || node.events.isEmpty else {
+                throw ProtocolFailure("The screen requests an unsupported native event.")
+            }
+            var childForm = form
+            switch node.type {
+            case "region":
+                guard depth == 1 else { throw ProtocolFailure("Nested replacement regions are unsupported.") }
+            case "form":
+                forms += 1
+                guard form == nil, node.id == "profile-form", node.events.count == 1,
+                      node.events[0].on == "submit", node.events[0].action == "save-profile",
+                      node.events[0].target == "profile-region" else {
+                    throw ProtocolFailure("The screen requests an unregistered form action.")
+                }
+                childForm = node.id
+            case "stack":
+                guard ["column", "row"].contains(node.props.direction ?? "column"),
+                      ["start", "center", "end", "stretch"].contains(node.props.align ?? "stretch"),
+                      ["none", "xs", "sm", "md", "lg"].contains(node.props.gap ?? "md") else {
+                    throw ProtocolFailure("The screen requests unsupported stack properties.")
+                }
+            case "input":
+                guard form == "profile-form", node.props.name == "displayName",
+                      node.props.label != nil, (node.props.type ?? "text") == "text",
+                      node.props.multiple != true, inputs.insert("displayName").inserted else {
+                    throw ProtocolFailure("Only the registered plain-text profile input is supported.")
+                }
+            case "button":
+                submitButtons += 1
+                guard form == "profile-form", node.props.label != nil,
+                      node.props.type == "submit",
+                      ["default", "primary", "secondary", "outline", "ghost", "destructive"].contains(node.props.variant ?? "default"),
+                      ["default", "xs", "sm", "lg"].contains(node.props.size ?? "default") else {
+                    throw ProtocolFailure("Only the registered form submit button is supported.")
+                }
+            case "text", "notice":
+                guard node.props.text != nil else { throw ProtocolFailure("A text component is missing its text.") }
+            default: break
+            }
+            for child in node.children { try visit(child, depth: depth + 1, form: childForm) }
+        }
+        try visit(envelope.region, depth: 1, form: nil)
+        guard forms == 1, submitButtons > 0, inputs == ["displayName"] else {
+            throw ProtocolFailure("The profile screen must contain its registered form and display-name input.")
+        }
+    }
+}
