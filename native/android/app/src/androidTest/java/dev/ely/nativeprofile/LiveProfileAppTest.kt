@@ -25,7 +25,7 @@ class LiveProfileAppTest {
         } catch (failure: Throwable) {
             // Capture before ActivityScenario tears down the failing real app.
             runCatching { compose.onRoot(useUnmergedTree = true).printToLog("ElyNativeFailure") }
-            runCatching { screenshot("99-failure.png") }
+            runCatching { screenshot("99-failure.png", requireFocusedWindow = false) }
             throw failure
         }
     }
@@ -108,8 +108,14 @@ class LiveProfileAppTest {
         return directory
     }
 
-    private fun screenshot(name: String) {
+    private fun screenshot(name: String, requireFocusedWindow: Boolean = true) {
         compose.waitForIdle()
+        if (requireFocusedWindow) {
+            val activity = compose.activity
+            compose.runOnIdle {
+                assertTrue("Cannot capture a successful state while another window obscures the app", activity.hasWindowFocus())
+            }
+        }
         val image = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()) {
             "The emulator did not return a screenshot"
         }

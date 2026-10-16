@@ -75,8 +75,9 @@ running Go server, checks loading, server validation, canonical save adoption,
 and saves screenshots. It does not substitute a mock ViewModel or HTTP client.
 
 The Go server must already be listening at `127.0.0.1:8094` on the emulator host
-when running `connectedDebugAndroidTest`. Use an API 26+ emulator (CI uses API 35
-standard AOSP x86_64); the debug app reaches the host at `10.0.2.2`. Run only the
+when running `connectedDebugAndroidTest`. Use an API 26+ emulator (CI uses Android
+10 / API 29 standard AOSP x86_64, with compile/target SDK 35 unchanged); the debug
+app reaches the host at `10.0.2.2`. Run only the
 live app test with:
 
 ```sh
@@ -87,7 +88,8 @@ adb pull /sdcard/Android/data/dev.ely.nativeprofile/files/screenshots ./app-scre
 The screenshot files are `01-ready.png`, `02-invalid.png`, and `03-saved.png`.
 The test dismisses the real keyboard without invoking its save action, scrolls
 the status into view, and asserts the relevant field, error, button and status
-are displayed before capture.
+are displayed before capture. Success screenshots also require app window focus,
+so a system error dialog cannot be mistaken for unobstructed app evidence.
 On failure it also attempts `99-failure.png` and logs the native semantics tree
 before closing the activity. Debug builds log transport exceptions without
 request bodies, cookies or CSRF tokens. Initial readiness allows cold emulator

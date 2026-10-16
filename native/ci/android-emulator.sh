@@ -15,6 +15,9 @@ cleanup() {
   result=$?
   set +e
   adb -s "$SERIAL" logcat -d > "$RESULTS/logcat.txt" 2>&1
+  adb -s "$SERIAL" shell dumpsys activity lastanr > "$RESULTS/last-anr.txt" 2>&1
+  adb -s "$SERIAL" shell cat /proc/meminfo > "$RESULTS/meminfo.txt" 2>&1
+  adb -s "$SERIAL" shell cat /proc/pressure/cpu > "$RESULTS/cpu-pressure.txt" 2>&1
   adb -s "$SERIAL" pull /sdcard/Android/data/dev.ely.nativeprofile/files/screenshots "$RESULTS/"
   if [ -n "$EMULATOR_PID" ]; then kill "$EMULATOR_PID" 2>/dev/null; fi
   if [ -n "$SERVER_PID" ]; then kill "$SERVER_PID" 2>/dev/null; fi
@@ -22,12 +25,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# The app has no Google Play dependency. The standard AOSP API 35 image avoids
-# first-boot compilation of unrelated Google apps on the small hosted runner.
+# The app has no Google Play dependency. Use the lighter Android 10 / API 29
+# AOSP runtime: the API 35 guest saturated its single virtual CPU and produced
+# system_server ANRs on this hosted runner. App compile/target SDK stays at 35.
 # stdin is closed: fail rather than accepting new/unexpected license terms.
-SYSTEM_IMAGE='system-images;android-35;default;x86_64'
+SYSTEM_IMAGE='system-images;android-29;default;x86_64'
+sysctl hw.ncpu hw.memsize | tee "$RESULTS/host-resources.txt"
 sdkmanager "$SYSTEM_IMAGE" < /dev/null
 printf 'no\n' | avdmanager create avd --force --name ely-profile --device pixel_2 --package "$SYSTEM_IMAGE"
+# Reduce software-rendering work while keeping a useful phone-sized dp viewport.
+python3 - <<'PY'
+from pathlib import Path
+path = Path.home() / '.android/avd/ely-profile.avd/config.ini'
+values = dict(line.split('=', 1) for line in path.read_text().splitlines() if '=' in line)
+values.update({'hw.lcd.width': '720', 'hw.lcd.height': '1280', 'hw.lcd.density': '240',
+               'skin.name': '720x1280', 'skin.path': '720x1280', 'skin.dynamic': 'yes'})
+path.write_text(''.join(f'{key}={value}\n' for key, value in values.items()))
+PY
 emulator -accel-check
 emulator -avd ely-profile -port 5554 -cores 2 -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel on > "$RESULTS/emulator.log" 2>&1 &
 EMULATOR_PID=$!
@@ -42,7 +56,7 @@ if [ "$(adb -s "$SERIAL" shell getprop sys.boot_completed | tr -d '\r')" != 1 ];
   cat "$RESULTS/emulator.log"
   exit 1
 fi
-echo 'Android API 35 emulator boot completed; starting real native UI tests.'
+echo 'Android 10 / API 29 emulator boot completed; starting real native UI tests.'
 adb -s "$SERIAL" shell input keyevent 82
 adb -s "$SERIAL" shell getprop ro.build.fingerprint > "$RESULTS/device.txt"
 
