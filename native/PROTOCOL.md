@@ -25,7 +25,9 @@ non-secret screen sessionID and csrfToken. POST `/native/profile` sends
 }
 ```
 
-Only this registered action tuple and field set are allowed. A request ID reused
+This example request is the legacy single-field form. Only the registered action
+tuple and the exact field set declared by the host screen are allowed. The
+expanded controls demo additionally declares company and notifications. A request ID reused
 with changed content fails. Session auth, CSRF, action permission and revision
 checks are server-owned. A new mutation needs the current dataVersion; an exact
 retry is replayed before checking its old dataVersion. In-memory business replay
@@ -49,9 +51,10 @@ Both load and action replies use this envelope (HTTP 200 ready/saved, 422 invali
 }
 ```
 
-The example clients additionally require exactly one profile region, one submit
-form, one displayName input and at least one submit button. This deliberate
-profile-specific validation is not a universal native SDUI runtime. The Go
+The example clients require exactly one profile region, one registered submit
+form, one input or switch control per declared field, and at least one submit
+button. The legacy screen declares only displayName; the expanded demo declares
+three fields. This registered-action validation is not a universal native SDUI runtime. The Go
 projection can resolve repeated text/layout nodes, but the clients never imply
 support for every combination in the web catalogue.
 
@@ -60,12 +63,13 @@ A node has stable `id`, `type`, a `props` object, optional `children` and option
 in this v1 profile contract; input changes stay local and button click/reset
 actions are not supported. Values, conditions, templates and stable-key
 repeats are resolved by Go. Clients never evaluate bindings. Structural types:
-region/form/stack. Leaves: text, ordinary text input, button, notice. The projection accepts only the canonical DefaultRegistry property contracts
+region/form/stack. Leaves: text, ordinary text input, switch, button, notice. The projection accepts only the canonical DefaultRegistry property contracts
 (and equivalent definitions in CatalogueRegistry), not arbitrary registered
 components with similar names. Properties retain existing SDUI lower-camel
 names; native input supports only type=text. Form submit actions are inherited by a button with type=submit.
 Unsupported node types, protocol versions or required capabilities produce a
-visible native fallback, never a WebView. No switch is promised in this slice.
+visible native fallback, never a WebView. Switch support requires the optional
+`switch` capability; other catalogue controls remain unsupported.
 
 ## Client state and response acceptance
 

@@ -40,6 +40,18 @@ final class ControlsTests: XCTestCase {
         ready.region.children[0].children[2].children.append(duplicate)
         XCTAssertThrowsError(try EnvelopeDecoder.validate(ready))
     }
+    func testTrailingLineBreakFieldNamesAndNodeIDsAreRejected() throws {
+        for suffix in ["\n", "\r", "\r\n", "\u{2028}"] {
+            var ready = try fixture()
+            let value = ready.fields.removeValue(forKey: "company")!
+            ready.fields["company" + suffix] = value
+            ready.region.children[0].children[2].children[1].props.name = "company" + suffix
+            XCTAssertThrowsError(try EnvelopeDecoder.validate(ready))
+            ready = try fixture()
+            ready.region.children[0].children[2].children[1].id += suffix
+            XCTAssertThrowsError(try EnvelopeDecoder.validate(ready))
+        }
+    }
     func testRealGoControlsSaveAndReload() async throws {
         guard let base = ProcessInfo.processInfo.environment["ELY_NATIVE_CONTROLS_BASE_URL"] else {
             throw XCTSkip("Set ELY_NATIVE_CONTROLS_BASE_URL with the controls server running.")

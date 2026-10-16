@@ -69,7 +69,8 @@ SERVER_PID=$!
 "$SERVER_BINARY" -controls -port 8095 > "$RESULTS/controls-server.log" 2>&1 &
 CONTROLS_PID=$!
 for attempt in $(seq 1 30); do
-  curl --fail --silent http://127.0.0.1:8094/ > /dev/null && break
+  curl --fail --silent http://127.0.0.1:8094/ > /dev/null && \
+    curl --fail --silent http://127.0.0.1:8095/ > /dev/null && break
   sleep 1
 done
 curl --fail --silent http://127.0.0.1:8094/ > /dev/null

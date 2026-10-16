@@ -198,7 +198,7 @@ public enum EnvelopeDecoder {
               !envelope.sessionID.isEmpty, !envelope.requestID.isEmpty,
               !envelope.csrfToken.isEmpty, envelope.dataVersion >= 0, envelope.dataVersion <= 9_007_199_254_740_991,
               !envelope.fields.isEmpty, envelope.fields.count <= 64,
-              envelope.fields.keys.allSatisfy({ $0.range(of: "^[A-Za-z][A-Za-z0-9_]{0,63}$", options: .regularExpression) != nil }),
+              envelope.fields.keys.allSatisfy({ $0.range(of: "^[A-Za-z][A-Za-z0-9_]{0,63}\\z", options: .regularExpression) != nil }),
               envelope.fields.values.allSatisfy({ $0.utf8.count <= 16_384 }),
               Set(envelope.errors.keys).isSubset(of: Set(envelope.fields.keys)),
               Set(envelope.acknowledgedEdits.keys).isSubset(of: Set(envelope.fields.keys)),
@@ -215,7 +215,7 @@ public enum EnvelopeDecoder {
         func visit(_ node: NativeNode, depth: Int, form: String?) throws {
             count += 1
             guard depth <= NativeProtocol.maximumDepth, count <= NativeProtocol.maximumNodes,
-                  node.id.range(of: "^[A-Za-z][A-Za-z0-9_-]{0,127}$", options: .regularExpression) != nil,
+                  node.id.range(of: "^[A-Za-z][A-Za-z0-9_-]{0,127}\\z", options: .regularExpression) != nil,
                   !node.id.hasPrefix("sdui-internal-"), ids.insert(node.id).inserted else {
                 throw ProtocolFailure("The screen contains duplicate or invalid stable IDs, or exceeds its limits.")
             }
