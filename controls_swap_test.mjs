@@ -247,3 +247,55 @@ runInNewContext(source, context);
 assert.deepEqual([...document.listeners].map(([type, listeners]) => [type, listeners.length]), listenerCounts);
 assert.equal(ResizeObserver.instances.length, observerCount);
 console.log('Shared controls: HTMX 4 sibling, outerHTML, prepend/append, adjacent, source-replacement and OOB initialization; disabled state and repeated-swap idempotence passed');
+
+// Composite commits notify the named successful control, not its unnamed editor.
+// Exercise the real common host adapter too: one commit must reach onChange once.
+const apiSource = readFileSync(new URL('./assets/ely-api.js', import.meta.url), 'utf8');
+runInNewContext(apiSource.replaceAll('export ', '') + '\nregister("audit", () => {}); window.auditMount = mount;', {
+  ...context, CustomEvent: DOMEvent, MutationObserver: class { observe() {} },
+});
+const changes = [], inputEvents = [];
+const fixture = controls('commit-events');
+fixture.tagValue.name = 'tags';
+const family = element('section', {'data-ely-family': 'audit', 'data-ely-component': 'forms/Test'}, fixture.nodes);
+host.replaceChildren(family);
+window.auditMount(family, {onChange: detail => changes.push({name: detail.name, value: detail.value})});
+family.addEventListener('input', event => { if (event.target.type === 'hidden') inputEvents.push(event.target.name); });
+afterSwap(form, host, 'innerHTML');
+assert.deepEqual(changes, [], 'initialization does not notify host changes');
+const key = value => { fixture.tagEntry.value = value; const event = new DOMEvent('keydown', {bubbles: true, key: 'Enter'}); fixture.tagEntry.dispatchEvent(event); assert.equal(event.defaultPrevented, true, 'committing a tag does not submit the form'); };
+key('gamma');
+assert.deepEqual(changes, [{name: 'tags', value: 'alpha,beta,gamma'}]);
+key('gamma'); key('  ');
+assert.equal(changes.length, 1, 'duplicate and empty tags are no-ops');
+fixture.tagHost.children[0].querySelector('button').dispatchEvent(new DOMEvent('click', {bubbles: true}));
+assert.deepEqual(changes[1], {name: 'tags', value: 'beta,gamma'});
+fixture.slots[0].value = '9';
+fixture.slots[0].dispatchEvent(new DOMEvent('input', {bubbles: true}));
+assert.deepEqual(changes[2], {name: 'commit-events-pin', value: '9234'});
+let editorChanges = 0;
+fixture.slots[0].addEventListener('change', () => editorChanges++);
+fixture.slots[0].dispatchEvent(new DOMEvent('change', {bubbles: true}));
+fixture.tagEntry.dispatchEvent(new DOMEvent('change', {bubbles: true}));
+assert.equal(editorChanges, 1, 'native editor listeners remain available');
+assert.equal(changes.length, 3, 'editor blur does not duplicate aggregate host notifications');
+fixture.slots[0].dispatchEvent(new DOMEvent('input', {bubbles: true}));
+assert.equal(changes.length, 3, 'unchanged PIN input is a no-op');
+const paste = value => { const event = new DOMEvent('paste', {bubbles: true, clipboardData: {getData: () => value}}); fixture.slots[0].dispatchEvent(event); return event; };
+assert.equal(paste('8765').defaultPrevented, true);
+assert.deepEqual(changes[3], {name: 'commit-events-pin', value: '8765'});
+paste('8765'); paste('no digits');
+assert.equal(changes.length, 4, 'unchanged or non-digit paste is a no-op');
+fixture.slots[0].value = '';
+fixture.slots[0].dispatchEvent(new DOMEvent('input', {bubbles: true}));
+assert.deepEqual(changes[4], {name: 'commit-events-pin', value: '765'});
+assert.equal(fixture.slots[0].validationMessage, 'Enter every PIN digit.');
+afterSwap(form, host, 'innerHTML'); afterSwap(form, host, 'innerHTML');
+assert.equal(changes.length, 5, 'repeat swaps do not replay committed values');
+key('delta');
+assert.equal(changes.length, 6, 'repeat swaps do not duplicate host callbacks');
+assert.deepEqual(inputEvents, ['tags', 'tags', 'commit-events-pin', 'commit-events-pin', 'commit-events-pin', 'tags']);
+fixture.tagEntry.disabled = true; fixture.slots[0].disabled = true;
+fixture.tagEntry.value = 'blocked'; fixture.tagEntry.dispatchEvent(new DOMEvent('keydown', {bubbles: true, key: 'Enter'})); paste('1111');
+assert.equal(changes.length, 6, 'disabled editors do not notify changes');
+console.log('Composite tag/PIN named input/change events and host callbacks passed');
