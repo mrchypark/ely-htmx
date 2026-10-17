@@ -250,6 +250,11 @@ private struct NativeNodeView: View {
         case "select":
             let name = node.props.name ?? ""
             return AnyView(VStack(alignment: .leading, spacing: 6) {
+                // Menu Picker can show only the selected value visually on iOS.
+                // Keep its native accessible label while adding a visible field title.
+                Text(node.props.label ?? name)
+                    .font(.subheadline.weight(.semibold))
+                    .accessibilityHidden(true)
                 Picker(node.props.label ?? name, selection: Binding(
                     get: { model.state.drafts[name] ?? "" },
                     set: { model.edit(field: name, value: $0) })) {

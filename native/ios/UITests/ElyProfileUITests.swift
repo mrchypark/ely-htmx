@@ -59,12 +59,13 @@ final class ElyProfileUITests: XCTestCase {
         if !toggle.isHittable { app.swipeUp() }
         XCTAssertTrue(toggle.isHittable)
         toggle.tap()
-        let checkbox = app.buttons["digest-consent"]
+        assertNativeSelectionAccessibility(in: app)
+        let checkbox = app.switches["digest-consent"]
         for _ in 0..<4 where !checkbox.isHittable { app.swipeUp() }
         XCTAssertTrue(checkbox.isHittable)
-        XCTAssertEqual(checkbox.value as? String, "Unchecked")
+        XCTAssertEqual(checkbox.value as? String, "0")
         checkbox.tap()
-        XCTAssertEqual(checkbox.value as? String, "Checked")
+        XCTAssertEqual(checkbox.value as? String, "1")
         let picker = app.buttons["color-theme"]
         for _ in 0..<4 where !picker.isHittable { app.swipeUp() }
         XCTAssertTrue(picker.isHittable)
@@ -79,7 +80,7 @@ final class ElyProfileUITests: XCTestCase {
         waitForExpectations(timeout: 15)
         XCTAssertEqual(company.value as? String, "Mobile Company")
         XCTAssertEqual(toggle.value as? String, "1")
-        XCTAssertEqual(checkbox.value as? String, "Checked")
+        XCTAssertEqual(checkbox.value as? String, "1")
         XCTAssertTrue(picker.label.contains("Dark") || (picker.value as? String) == "Dark")
         attachScreenshot(app, named: "04 - Native switch, checkbox and select saved")
         app.buttons["reload-profile"].tap()
@@ -90,7 +91,7 @@ final class ElyProfileUITests: XCTestCase {
         XCTAssertTrue(company.waitForExistence(timeout: 15))
         XCTAssertEqual(company.value as? String, "Mobile Company")
         XCTAssertEqual(toggle.value as? String, "1")
-        XCTAssertEqual(checkbox.value as? String, "Checked")
+        XCTAssertEqual(checkbox.value as? String, "1")
         XCTAssertTrue(picker.label.contains("Dark") || (picker.value as? String) == "Dark")
     }
 
@@ -99,12 +100,13 @@ final class ElyProfileUITests: XCTestCase {
         let app = selectionTestApp(scenario: "disabled")
         app.launch()
         XCTAssertTrue(app.textFields["input-company"].waitForExistence(timeout: 15))
-        let checkbox = app.buttons["digest-consent"]
+        assertNativeSelectionAccessibility(in: app)
+        let checkbox = app.switches["digest-consent"]
         let picker = app.buttons["color-theme"]
         scrollTo(checkbox, in: app)
         XCTAssertTrue(checkbox.exists)
         XCTAssertFalse(checkbox.isEnabled)
-        XCTAssertEqual(checkbox.value as? String, "Unchecked")
+        XCTAssertEqual(checkbox.value as? String, "0")
         scrollTo(picker, in: app)
         XCTAssertTrue(picker.exists)
         XCTAssertFalse(picker.isEnabled)
@@ -119,10 +121,11 @@ final class ElyProfileUITests: XCTestCase {
         let app = selectionTestApp(scenario: "interrupted-save")
         app.launch()
         XCTAssertTrue(app.textFields["input-company"].waitForExistence(timeout: 15))
-        let checkbox = app.buttons["digest-consent"]
+        assertNativeSelectionAccessibility(in: app)
+        let checkbox = app.switches["digest-consent"]
         let picker = app.buttons["color-theme"]
         scrollTo(checkbox, in: app)
-        XCTAssertEqual(checkbox.value as? String, "Unchecked")
+        XCTAssertEqual(checkbox.value as? String, "0")
         checkbox.tap()
         chooseTheme("Dark", picker: picker, app: app)
         let save = app.buttons["save-profile"]
@@ -134,7 +137,7 @@ final class ElyProfileUITests: XCTestCase {
         scrollTo(checkbox, in: app)
         XCTAssertTrue(checkbox.isEnabled)
         checkbox.tap()
-        XCTAssertEqual(checkbox.value as? String, "Unchecked")
+        XCTAssertEqual(checkbox.value as? String, "0")
         XCTAssertTrue(picker.isEnabled)
         chooseTheme("Light", picker: picker, app: app)
         XCTAssertFalse(save.isEnabled)
@@ -146,7 +149,7 @@ final class ElyProfileUITests: XCTestCase {
         expectation(for: NSPredicate(format: "label CONTAINS[c] %@", "saved"), evaluatedWith: app.staticTexts["profile-status"])
         waitForExpectations(timeout: 30)
         scrollTo(checkbox, in: app)
-        XCTAssertEqual(checkbox.value as? String, "Unchecked")
+        XCTAssertEqual(checkbox.value as? String, "0")
         assertSelection(picker, equals: "Light")
         XCTAssertTrue(app.staticTexts["unsaved-changes"].exists)
         XCTAssertFalse(app.staticTexts["transport-error"].exists)
@@ -160,10 +163,32 @@ final class ElyProfileUITests: XCTestCase {
         expectation(for: NSPredicate(format: "label == %@", "Edit your display name."), evaluatedWith: app.staticTexts["profile-status"])
         waitForExpectations(timeout: 30)
         scrollTo(checkbox, in: app)
-        XCTAssertEqual(checkbox.value as? String, "Checked")
+        XCTAssertEqual(checkbox.value as? String, "1")
         assertSelection(picker, equals: "Dark")
         XCTAssertFalse(app.staticTexts["unsaved-changes"].exists)
         XCTAssertEqual(app.webViews.count, 0)
+    }
+
+    @MainActor
+    private func assertNativeSelectionAccessibility(in app: XCUIApplication,
+                                                    file: StaticString = #filePath, line: UInt = #line) {
+        // SwiftUI retains Toggle's native switch accessibility role despite the
+        // checkbox's custom visual style. Assert identity/role rather than using
+        // a broad first-match fallback that could hide duplicate controls.
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "digest-consent").count, 1,
+                       file: file, line: line)
+        XCTAssertEqual(app.switches.matching(identifier: "digest-consent").count, 1,
+                       file: file, line: line)
+        let checkbox = app.switches["digest-consent"]
+        XCTAssertEqual(checkbox.elementType, .switch, file: file, line: line)
+        XCTAssertEqual(checkbox.label, "Receive a weekly digest", file: file, line: line)
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "color-theme").count, 1,
+                       file: file, line: line)
+        XCTAssertEqual(app.buttons.matching(identifier: "color-theme").count, 1,
+                       file: file, line: line)
+        let picker = app.buttons["color-theme"]
+        XCTAssertEqual(picker.elementType, .button, file: file, line: line)
+        XCTAssertEqual(picker.label, "Color theme, System", file: file, line: line)
     }
 
     @MainActor
