@@ -49,6 +49,12 @@ Unknown required types/capabilities, incompatible property modes and protocol
 versions show an explicit native unsupported state. Templates, expressions,
 HTML, JavaScript and server-supplied network destinations never run on clients.
 
+## Proposed extensions
+
+[Native maps and canvas design](../docs/native-map-canvas-design.md) describes a
+possible map/scene adapter and geographic editing overlay. It is not implemented
+or runtime verified and does not extend the supported-type inventory.
+
 ## State and safety
 
 A local draft is separate from its acknowledged server baseline. Every field
