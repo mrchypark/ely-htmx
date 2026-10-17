@@ -46,7 +46,8 @@ jobs:
         run: xcodebuild -project native/ios/ElyProfile.xcodeproj -scheme ElyProfile -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
       - name: Prepare iOS simulator
         id: ios-simulator
-        timeout-minutes: 5
+        # Internal boot limit is 300s; leave time for bounded diagnostics/cleanup.
+        timeout-minutes: 10
         run: bash native/ci/prepare-ios-simulator.sh
       - name: Native simulator profile lifecycle against Go
         env:
@@ -63,6 +64,10 @@ jobs:
           curl --fail --silent http://127.0.0.1:8095/ > /dev/null
           ELY_NATIVE_CONTROLS_BASE_URL=http://127.0.0.1:8095 ELY_NATIVE_TEST_BASE_URL=http://127.0.0.1:8094 swift test --package-path native/ios
           xcodebuild -project native/ios/ElyProfile.xcodeproj -scheme ElyProfile -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -resultBundlePath /tmp/ElyProfile.xcresult CODE_SIGNING_ALLOWED=NO test
+      - name: Clean up owned iOS simulator
+        if: always()
+        timeout-minutes: 2
+        run: python3 native/ci/ios-simulator.py cleanup
       - name: Export iOS launch diagnostics
         if: always()
         timeout-minutes: 3
