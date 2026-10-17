@@ -21,6 +21,8 @@ jobs:
           go-version: '1.26.x'
       - run: go test -race ./sdui ./examples/native-sdui
       - run: go vet ./sdui ./examples/native-sdui
+      - name: Test simulator readiness gate
+        run: python3 native/ci/test-ios-simulator.py
       - name: Verify shared fixture wire schema
         run: |
           python -m pip install jsonschema==4.25.1
@@ -42,7 +44,13 @@ jobs:
           cd native/ios && xcodegen generate
       - name: Build iOS Simulator app
         run: xcodebuild -project native/ios/ElyProfile.xcodeproj -scheme ElyProfile -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+      - name: Prepare iOS simulator
+        id: ios-simulator
+        timeout-minutes: 5
+        run: bash native/ci/prepare-ios-simulator.sh
       - name: Native simulator profile lifecycle against Go
+        env:
+          DEVICE_ID: ${{ steps.ios-simulator.outputs.device_id }}
         run: |
           go build -o /tmp/ely-native-profile ./examples/native-sdui
           /tmp/ely-native-profile > /tmp/ely-native-profile.log 2>&1 &
@@ -54,8 +62,25 @@ jobs:
           curl --fail --silent http://127.0.0.1:8094/ > /dev/null
           curl --fail --silent http://127.0.0.1:8095/ > /dev/null
           ELY_NATIVE_CONTROLS_BASE_URL=http://127.0.0.1:8095 ELY_NATIVE_TEST_BASE_URL=http://127.0.0.1:8094 swift test --package-path native/ios
-          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for group in d["devices"].values() for v in group if "iPhone" in v["name"]))')
           xcodebuild -project native/ios/ElyProfile.xcodeproj -scheme ElyProfile -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -resultBundlePath /tmp/ElyProfile.xcresult CODE_SIGNING_ALLOWED=NO test
+      - name: Export iOS launch diagnostics
+        if: always()
+        timeout-minutes: 3
+        run: |
+          mkdir -p /tmp/ely-ios-diagnostics
+          cp /tmp/ely-native-profile.log /tmp/ely-ios-diagnostics/ 2>/dev/null || true
+          cp /tmp/ely-native-controls.log /tmp/ely-ios-diagnostics/ 2>/dev/null || true
+          if [ -d /tmp/ElyProfile.xcresult ]; then
+            xcrun xcresulttool get test-results summary --path /tmp/ElyProfile.xcresult > /tmp/ely-ios-diagnostics/summary.json || true
+            xcrun xcresulttool get test-results tests --path /tmp/ElyProfile.xcresult > /tmp/ely-ios-diagnostics/tests.json || true
+            xcrun xcresulttool export diagnostics --path /tmp/ElyProfile.xcresult --output-path /tmp/ely-ios-diagnostics/xcresult || true
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-launch-diagnostics
+          path: /tmp/ely-ios-diagnostics
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: always()
         with:
