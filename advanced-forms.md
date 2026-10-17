@@ -108,3 +108,7 @@ and paywall placement. `node account_help_layout_test.mjs` verifies that this
 same checker rejects the six reported bad geometries; it does not render CSS.
 Focused rendering: `go test ./... -run 'TestAccountHelp|TestAccountFactor|TestLocalFormStoriesWireValidationAndHandler|TestEveryAdvancedAPIAndAliasRenders' -count=1`.
 No browser was run for this correction; final screenshots remain a parent check.
+
+Inline map geometry now has [a documented GeoJSON contract](docs/map-geojson.md),
+including all seven geometry kinds, nested collections, strict validation,
+whole-input browser budgets, and the explicit numeric-ID normalization gap.
