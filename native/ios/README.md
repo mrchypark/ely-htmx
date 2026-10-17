@@ -215,3 +215,10 @@ selection, readiness gating, failure handling, time limits, and owned-only clean
 ```sh
 python3 native/ci/test-ios-simulator.py
 ```
+
+The simulator scheme also runs `ElyNativeViewTests`: real SwiftUI layout
+measurements cover cross-axis stretch, row sizing and column alignment. An
+injected announcement sink verifies notice content, queue priority and suppression
+of unchanged updates without requiring VoiceOver to be active. These UIKit tests
+are separate from the portable core package tests. Actual VoiceOver speech and
+interruption still need manual device validation.

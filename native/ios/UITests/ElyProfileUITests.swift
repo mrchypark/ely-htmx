@@ -3,6 +3,16 @@ import XCTest
 /// Run against the real Go example on the simulator host, never a bundled web view.
 final class ElyProfileUITests: XCTestCase {
     @MainActor
+    func testNoticeExposesCombinedAccessibleTitleAndBody() {
+        let app = XCUIApplication()
+        app.launchEnvironment["ELY_API_BASE_URL"] = "http://127.0.0.1:8094"
+        app.launch()
+        let notice = app.descendants(matching: .any)["demo-notice"]
+        XCTAssertTrue(notice.waitForExistence(timeout: 15))
+        XCTAssertEqual(notice.label, "Local demo only. Your profile lives in a temporary local session. This is not production authentication or storage.")
+    }
+
+    @MainActor
     func testNativeLoadValidationSaveAndExplicitReload() throws {
         let app = XCUIApplication()
         app.launchEnvironment["ELY_API_BASE_URL"] = "http://127.0.0.1:8094"

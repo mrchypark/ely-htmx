@@ -150,3 +150,24 @@ validates every submitted selection and commits all five fields atomically.
 The JSON schema checks option shape and bounds; unique option values, field to
 option membership, UTF-8 byte limits and cross-response compatibility are
 additionally checked in code.
+
+## Native layout and notice semantics
+
+Within the supported profile subset, stack `align` defaults to `stretch` and
+applies on the cross axis: column item containers fill the available width, while
+row item containers fill the tallest child's height. Text glyphs and fixed-size
+controls retain their own natural drawing size within those containers. `start`, `center` and `end` retain
+natural cross-axis sizes. Row children are not assigned equal widths. Gap tokens
+remain `none` / `xs` / `sm` / `md` / `lg` (0 / 4 / 8 / 16 / 24 native points or dp).
+Native controls retain platform sizing rules; this is not a general CSS flexbox
+implementation. In particular, constrained rows use platform-specific measurement
+and should be tested with their actual controls, localization and text sizes.
+
+Notices expose their title and text together. Android uses a merged polite live
+region, or assertive when `urgent` is true. iOS posts the combined text when a
+notice first appears or its text/title/urgency changes; ordinary announcements
+are queued, while urgent announcements may interrupt current speech. Unchanged
+stable notices do not reannounce on unrelated iOS state updates. Delivery and
+interruption are ultimately controlled by VoiceOver/TalkBack, so automated
+semantics and announcement-request tests do not establish actual spoken output.
+These checks do not imply full catalogue or ten-component feature completeness.

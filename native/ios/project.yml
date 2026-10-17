@@ -43,6 +43,19 @@ targets:
           INFOPLIST_FILE: App/Info-Debug.plist
         Release:
           INFOPLIST_FILE: App/Info-Release.plist
+  ElyNativeViewTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests/ElyNativeUITests]
+    dependencies:
+      - package: ElyNative
+        product: ElyNativeUI
+      - package: ElyNative
+        product: ElyNativeCore
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ely.profile.viewtests
   ElyProfileUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -60,9 +73,10 @@ schemes:
       targets:
         ElyProfile: all
         ElyProfileUITests: [test]
+        ElyNativeViewTests: [test]
     run:
       config: Debug
     test:
       config: Debug
-      targets: [ElyProfileUITests]
+      targets: [ElyNativeViewTests, ElyProfileUITests]
       gatherCoverageData: true
