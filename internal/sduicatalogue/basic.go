@@ -74,8 +74,9 @@ func BasicFixtures() []Fixture {
 			p["Points"] = []map[string]any{{"X": 20, "Y": 40, "Width": 16, "Height": 60, "Label": "Caller first point"}, {"X": 60, "Y": 20, "Width": 16, "Height": 80, "Label": "Caller second point"}}
 		case "map-view":
 			p["Mode"] = "markers"
-			p["Points"] = []map[string]any{{"Latitude": 37.5, "Longitude": 127.0, "Label": "Caller Seoul", "Value": "seoul"}}
-			p["Routes"] = []map[string]any{{"Name": "Caller route", "Points": []map[string]any{{"Latitude": 37.5, "Longitude": 127.0}, {"Latitude": 35.1, "Longitude": 129.0}}}}
+			p["Center"] = map[string]any{"Latitude": 37.5665, "Longitude": 126.978}
+			p["Points"] = []map[string]any{{"Latitude": 37.5665, "Longitude": 126.978, "Label": "Caller Seoul", "Value": "seoul"}}
+			p["Routes"] = []map[string]any{{"Name": "Caller route", "Points": []map[string]any{{"Latitude": 37.5665, "Longitude": 126.978}, {"Latitude": 35.1796, "Longitude": 129.0756}}}}
 		case "coordinate-display":
 			p["Latitude"], p["Longitude"], p["Format"] = 37.5, 127.0, "decimal"
 		}
