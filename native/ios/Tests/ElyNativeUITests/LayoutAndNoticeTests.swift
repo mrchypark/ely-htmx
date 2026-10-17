@@ -18,11 +18,31 @@ final class LayoutAndNoticeTests: XCTestCase {
 
     private func host<Content: View>(_ content: Content, width: CGFloat = 320) -> UIHostingController<Content> {
         let host = UIHostingController(rootView: content)
-        host.loadViewIfNeeded()
-        host.view.frame = CGRect(x: 0, y: 0, width: width, height: 480)
+        // A detached hosting view does not mount SwiftUI's render graph on iOS.
+        // Retain a real window through teardown so layout, preferences and onChange run.
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: width, height: 480))
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        host.view.frame = window.bounds
+        window.setNeedsLayout()
+        window.layoutIfNeeded()
         host.view.setNeedsLayout()
         host.view.layoutIfNeeded()
+        addTeardownBlock {
+            await MainActor.run {
+                window.isHidden = true
+                window.rootViewController = nil
+            }
+        }
         return host
+    }
+
+    private func waitUntil(_ description: String, condition: () -> Bool, file: StaticString = #filePath, line: UInt = #line) {
+        let deadline = Date().addingTimeInterval(3)
+        while !condition() && Date() < deadline {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        }
+        XCTAssertTrue(condition(), description, file: file, line: line)
     }
 
     func testColumnDefaultStretchAndCrossAxisAlignments() throws {
@@ -33,6 +53,7 @@ final class LayoutAndNoticeTests: XCTestCase {
             let controller = host(NativeStack(node: stack) { item in
                 Probe(view: item.id == "short" ? first : second)
             })
+            waitUntil("Mounted native probes must receive layout") { first.bounds.width > 0 && second.bounds.width > 0 }
             let a = first.convert(first.bounds, to: controller.view)
             let b = second.convert(second.bounds, to: controller.view)
             XCTAssertEqual(b.minY - a.maxY, 16, accuracy: 1)
@@ -54,6 +75,7 @@ final class LayoutAndNoticeTests: XCTestCase {
         let second = ProbeUIView(size: CGSize(width: 100, height: 40))
         let stack = try node("\"direction\":\"row\",\"gap\":\"sm\"")
         let controller = host(NativeStack(node: stack) { item in Probe(view: item.id == "short" ? first : second) })
+        waitUntil("Mounted row probes must receive layout") { first.bounds.width > 0 && second.bounds.width > 0 }
         let a = first.convert(first.bounds, to: controller.view)
         let b = second.convert(second.bounds, to: controller.view)
         XCTAssertEqual(a.width, 40, accuracy: 1)
@@ -77,7 +99,7 @@ final class LayoutAndNoticeTests: XCTestCase {
                 }
             }.coordinateSpace(name: "stack").onPreferenceChange(FrameKey.self) { frames = $0 })
             controller.view.layoutIfNeeded()
-            RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+            waitUntil("Mounted text containers must publish geometry") { frames.count == 2 }
             guard let a = frames["short"], let b = frames["long"] else {
                 XCTFail("Native text container geometry was not measured"); continue
             }
@@ -116,7 +138,7 @@ final class LayoutAndNoticeTests: XCTestCase {
                 .environment(\.layoutDirection, direction)
                 .environment(\.dynamicTypeSize, .accessibility3), width: width)
                 controller.view.layoutIfNeeded()
-                RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+                waitUntil("Mounted nested stack must publish geometry") { frames.count == 2 }
                 guard let a = frames["nested"], let b = frames["side"] else {
                     XCTFail("Nested stack geometry was not measured"); continue
                 }
@@ -140,7 +162,7 @@ final class LayoutAndNoticeTests: XCTestCase {
         var announcements: [NSAttributedString] = []
         let recorder: (NSAttributedString) -> Void = { announcements.append($0) }
         let controller = host(NativeNotice(node: notice, announce: recorder))
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        waitUntil("Mounted notice must announce its initial content") { announcements.count >= 1 }
         XCTAssertEqual(announcements.map(\.string), ["Warning. Check your details."])
         let key = NSAttributedString.Key.accessibilitySpeechQueueAnnouncement
         XCTAssertEqual(announcements.first?.attribute(key, at: 0, effectiveRange: nil) as? Bool, false)
@@ -152,24 +174,24 @@ final class LayoutAndNoticeTests: XCTestCase {
         notice.props.urgent = false
         controller.rootView = NativeNotice(node: notice, announce: recorder)
         controller.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        waitUntil("Changed notice text must announce") { announcements.count >= 2 }
         XCTAssertEqual(announcements.map(\.string), ["Warning. Check your details.", "Warning. Details checked."])
         XCTAssertEqual(announcements.last?.attribute(key, at: 0, effectiveRange: nil) as? Bool, true)
         notice.props.title = "Finished"
         controller.rootView = NativeNotice(node: notice, announce: recorder)
         controller.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        waitUntil("Notice update must announce") { announcements.count >= 3 }
         XCTAssertEqual(announcements.count, 3, "Title-only changes announce")
         XCTAssertEqual(announcements.last?.string, "Finished. Details checked.")
         notice.props.urgent = true
         controller.rootView = NativeNotice(node: notice, announce: recorder)
         controller.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        waitUntil("Notice update must announce") { announcements.count >= 4 }
         XCTAssertEqual(announcements.count, 4, "Urgency-only changes announce")
         XCTAssertEqual(announcements.last?.attribute(key, at: 0, effectiveRange: nil) as? Bool, false)
         let remounted = host(NativeNotice(node: notice, announce: recorder))
         remounted.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        waitUntil("Notice update must announce") { announcements.count >= 5 }
         XCTAssertEqual(announcements.count, 5, "A genuinely new mount announces again")
     }
 }

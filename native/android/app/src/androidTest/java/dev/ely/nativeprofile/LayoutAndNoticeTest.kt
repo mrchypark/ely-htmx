@@ -45,7 +45,7 @@ class LayoutAndNoticeTest {
             compose.runOnIdle { alignment.value = align }
             val a = compose.onNodeWithTag("short").getUnclippedBoundsInRoot()
             val b = compose.onNodeWithTag("long").getUnclippedBoundsInRoot()
-            assertTrue(a.width < 300.dp)
+            assertTrue((a.right - a.left) < 300.dp)
             assertEquals(8.dp, b.top - a.bottom)
             when (align) {
                 "start" -> assertEquals(a.left, b.left)
@@ -107,11 +107,11 @@ class LayoutAndNoticeTest {
             compose.runOnIdle { direction.value = layoutDirection }
             val nested = compose.onNodeWithTag("nested").getUnclippedBoundsInRoot()
             val side = compose.onNodeWithTag("side").getUnclippedBoundsInRoot()
-            assertTrue(nested.width.value.isFinite() && nested.height.value.isFinite())
-            assertTrue(side.width.value.isFinite() && side.height.value.isFinite())
-            assertTrue(nested.width > 0.dp)
-            assertTrue(side.width > 0.dp)
-            assertEquals(nested.height.value, side.height.value, 1f)
+            assertTrue((nested.right - nested.left).value.isFinite() && (nested.bottom - nested.top).value.isFinite())
+            assertTrue((side.right - side.left).value.isFinite() && (side.bottom - side.top).value.isFinite())
+            assertTrue((nested.right - nested.left) > 0.dp)
+            assertTrue((side.right - side.left) > 0.dp)
+            assertEquals((nested.bottom - nested.top).value, (side.bottom - side.top).value, 1f)
             if (layoutDirection == LayoutDirection.Ltr) assertTrue(nested.left <= side.left)
             else assertTrue(nested.right >= side.right)
         }

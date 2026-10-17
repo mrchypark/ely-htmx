@@ -336,6 +336,9 @@
   function delegate(event) {
     const origin = event.target instanceof Element ? event.target : event.target?.parentElement;
     if (!origin || event.defaultPrevented) return;
+    // Ignore implementation-editor blur changes; the composite's named hidden
+    // field emits the committed aggregate value. Keep native events untouched.
+    if (event.type === 'change' && !origin.name && matches(origin, '[data-ui-pin-slot],[data-ui-tag-entry]')) return;
     let source = closest(origin, `[data-sdui-events],[data-sdui-on="${event.type}"]`);
     let binding;
     while (source) {

@@ -9,14 +9,21 @@
   const text = (value) => String(value || '').trim();
   const isDisabled = (target) => target.closest(':disabled') !== null;
 
+  const notifyValue = (input) => {
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+
   const syncPin = (component, initial = false) => {
     const slots = [...component.querySelectorAll('[data-ui-pin-slot]')];
     const hidden = hiddenValue(component);
     if (!slots.length || !hidden) return;
+    const previous = hidden.value;
     if (initial) [...hidden.value.replace(/\D/g, '')].forEach((digit, index) => { if (slots[index]) slots[index].value = digit; });
     hidden.value = slots.map((slot) => slot.value).join('');
     const message = slots[0].required && slots.some((slot) => !slot.value) ? 'Enter every PIN digit.' : '';
     slots.forEach((slot, index) => slot.setCustomValidity(index === 0 ? message : ''));
+    if (!initial && hidden.value !== previous) notifyValue(hidden);
   };
 
   const syncTags = (component) => {
@@ -264,7 +271,7 @@
     const action = event.target.closest('[data-ui-action]')?.dataset.uiAction;
     if (action === 'clear') { const input = component.querySelector('[data-slot="input"]'); input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true })); input.focus(); }
     if (action === 'password-toggle') { const input = component.querySelector('[data-slot="input"]'); const shown = input.type === 'text'; input.type = shown ? 'password' : 'text'; event.target.textContent = shown ? 'Show' : 'Hide'; event.target.setAttribute('aria-label', shown ? 'Show password' : 'Hide password'); }
-    if (action === 'remove-tag') { const hidden = hiddenValue(component); hidden.value = hidden.value.split(',').map(text).filter((value) => value && value !== event.target.value).join(','); syncTags(component); component.querySelector('[data-ui-tag-entry]').focus(); }
+    if (action === 'remove-tag') { const hidden = hiddenValue(component); const previous = hidden.value; hidden.value = hidden.value.split(',').map(text).filter((value) => value && value !== event.target.value).join(','); syncTags(component); if (hidden.value !== previous) notifyValue(hidden); component.querySelector('[data-ui-tag-entry]').focus(); }
     if (action === 'add-pair') addKeyValue(component);
     if (action === 'remove-pair') event.target.closest('[data-ui-key-value]')?.remove();
     if(event.target.closest('[data-ui-file-browse]'))component.querySelector('[data-ui-file-input]')?.click();
@@ -312,9 +319,11 @@
       event.preventDefault();
       const value = text(event.target.value);
       const hidden = hiddenValue(component);
+      const previous = hidden.value;
       if (value && !hidden.value.split(',').map(text).includes(value)) hidden.value = [hidden.value, value].filter(Boolean).join(',');
       event.target.value = '';
       syncTags(component);
+      if (hidden.value !== previous) notifyValue(hidden);
     }
     if (event.target.matches('[data-ui-pin-slot]')) {
       const slots = [...component.querySelectorAll('[data-ui-pin-slot]')];
