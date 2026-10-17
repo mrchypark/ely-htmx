@@ -7,11 +7,13 @@ import java.util.UUID
 
 const val MAX_RESPONSE_BYTES = 1_048_576
 const val MAX_SAFE_REVISION = 9_007_199_254_740_991L
-val CAPABILITIES = listOf("region", "form", "stack", "text", "input", "button", "notice", "switch")
+val CAPABILITIES = listOf("region", "form", "stack", "text", "input", "button", "notice", "switch", "checkbox", "select")
 
 class ProtocolException(message: String) : Exception(message)
 
 data class Action(val on: String, val action: String, val target: String)
+data class SelectOption(val value: String, val label: String)
+
 data class Node(
     val id: String,
     val type: String,
@@ -20,6 +22,10 @@ data class Node(
     val events: List<Action>,
 ) {
     fun string(key: String, default: String = "") = (props[key] as? JsonPrimitive)?.contentOrNull ?: default
+    fun options(): List<SelectOption> = (props["options"] as? JsonArray)?.map {
+        val option = it.jsonObject
+        SelectOption(option.getValue("value").jsonPrimitive.content, option.getValue("label").jsonPrimitive.content)
+    }.orEmpty()
     fun boolean(key: String) = (props[key] as? JsonPrimitive)?.booleanOrNull ?: false
 }
 
@@ -87,17 +93,51 @@ object ProfileProtocol {
             Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
                 .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString()
         } catch (_: Exception) { bad("Response is not valid UTF-8") }
-        // Bound parser nesting before constructing any recursive JSON objects.
-        var depth = 0; var quoted = false; var escaped = false
-        text.forEach { c ->
-            if (quoted) {
-                if (escaped) escaped = false else if (c == '\\') escaped = true else if (c == '"') quoted = false
-            } else when (c) {
-                '"' -> quoted = true
-                '{', '[' -> { depth++; if (depth > 100) bad("JSON nesting limit exceeded") }
-                '}', ']' -> depth--
+        // The JSON tree parser keeps only the last occurrence of a key. Scan raw
+        // tokens first so neither literal nor escaped duplicate keys can disappear.
+        // Full JSON grammar remains the parser's responsibility below.
+        val objects = mutableListOf<MutableSet<String>?>()
+        var offset = 0
+        while (offset < text.length) {
+            when (text[offset]) {
+                '{', '[' -> {
+                    objects.add(if (text[offset] == '{') mutableSetOf<String>() else null)
+                    if (objects.size > 100) bad("JSON nesting limit exceeded")
+                    offset++
+                }
+                '}', ']' -> {
+                    if (objects.isEmpty()) bad("Malformed JSON response")
+                    val objectFrame = objects.removeAt(objects.lastIndex)
+                    if ((text[offset] == '}') != (objectFrame != null)) bad("Malformed JSON response")
+                    offset++
+                }
+                '"' -> {
+                    val start = offset++
+                    var closed = false
+                    while (offset < text.length) {
+                        val c = text[offset++]
+                        if (c == '\\') {
+                            if (offset >= text.length) bad("Malformed JSON response")
+                            offset++
+                        } else if (c == '"') {
+                            closed = true
+                            break
+                        }
+                    }
+                    if (!closed) bad("Malformed JSON response")
+                    var next = offset
+                    while (next < text.length && text[next] in " \t\r\n") next++
+                    if (next < text.length && text[next] == ':') {
+                        val keys = objects.lastOrNull() ?: bad("Malformed JSON response")
+                        val key = try { json.parseToJsonElement(text.substring(start, offset)).jsonPrimitive.content }
+                        catch (_: Exception) { bad("Malformed JSON key") }
+                        if (!keys.add(key)) bad("Duplicate JSON key")
+                    }
+                }
+                else -> offset++
             }
         }
+        if (objects.isNotEmpty()) bad("Malformed JSON response")
         val root = try { json.parseToJsonElement(text) as? JsonObject ?: bad("Expected response object") }
         catch (e: ProtocolException) { throw e }
         catch (_: Exception) { bad("Malformed JSON response") }
@@ -161,6 +201,26 @@ object ProfileProtocol {
                     if ((props["multiple"] as? JsonPrimitive)?.booleanOrNull == true) bad("Multiple input is unsupported")
                     if (type == "switch" && listOf("readonly", "required").any { (props[it] as? JsonPrimitive)?.booleanOrNull == true }) bad("Unsupported switch mode")
                 }
+                "checkbox", "select" -> {
+                    requiredString("name"); requiredString("label"); bool("disabled"); optionalString("value")
+                    if (!insideForm || !inputNames.add(props.string("name"))) bad("Unsupported or duplicate field")
+                    val allowed = if (type == "checkbox") setOf("name", "label", "value", "checked", "disabled")
+                        else setOf("name", "label", "value", "disabled", "options")
+                    if (props.keys.any { it !in allowed }) bad("Unsupported $type property")
+                    if (listOf("label", "value").any { props.containsKey(it) && props.string(it, true).toByteArray(Charsets.UTF_8).size > 16_384 }) bad("Oversized $type property")
+                    if (type == "checkbox") bool("checked") else {
+                        val options = props.array("options")
+                        if (options.size !in 1..64) bad("Invalid select options count")
+                        val values = mutableSetOf<String>()
+                        options.forEach { element ->
+                            val option = element as? JsonObject ?: bad("Invalid select option")
+                            if (option.keys != setOf("value", "label")) bad("Unsupported select option property")
+                            val value = option.string("value")
+                            val label = option.string("label")
+                            if (!values.add(value) || listOf(value, label).any { it.toByteArray(Charsets.UTF_8).size > 16_384 }) bad("Invalid select option")
+                        }
+                    }
+                }
                 "button" -> {
                     requiredString("label"); enum("type", setOf("submit")); bool("disabled")
                     enum("variant", setOf("default", "primary", "secondary", "outline", "ghost", "destructive"))
@@ -184,11 +244,12 @@ object ProfileProtocol {
         val edits = root.obj("acknowledgedEdits").mapValues { revision(it.value) }
         if (fields.keys != inputNames || fields.size > 64 || fields.keys.any { !Regex("[A-Za-z][A-Za-z0-9_]{0,63}").matches(it) } ||
             fields.values.any { it.toByteArray(Charsets.UTF_8).size > 16_384 } || errors.keys.any { it !in fields } || edits.keys.any { it !in fields }) bad("Unsupported fields")
-        fun validateSwitches(node: Node) {
-            if (node.type == "switch" && fields[node.string("name")] !in setOf("true", "false")) bad("Invalid switch field")
-            node.children.forEach(::validateSwitches)
+        fun validateSelections(node: Node) {
+            if (node.type in setOf("switch", "checkbox") && fields[node.string("name")] !in setOf("true", "false")) bad("Invalid boolean field")
+            if (node.type == "select" && node.options().none { it.value == fields[node.string("name")] }) bad("Invalid select field")
+            node.children.forEach(::validateSelections)
         }
-        validateSwitches(region)
+        validateSelections(region)
         val status = root.string("status")
         if (status !in setOf("ready", "saved", "invalid", "conflict")) bad("Unsupported response status")
         if ((status == "ready" && edits.isNotEmpty()) || (status != "ready" && edits.keys != fields.keys)) bad("Missing acknowledged edits")

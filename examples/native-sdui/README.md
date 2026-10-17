@@ -126,8 +126,9 @@ belong to the individual native sample projects.
 ## Expanded native controls
 
 Run `go run ./examples/native-sdui -controls` for a multi-field native screen
-(display name, company and a notification toggle). `-port 8095` runs it beside
+(display name, company, a notification toggle, a digest checkbox and a color-theme
+picker). `-port 8095` runs it beside
 the default demo. Both modes bind only to loopback. The optional controls screen
-requires switch capability, validates all three submitted fields and their
+requires switch, checkbox and select capabilities, validates all five submitted fields and their
 revisions, and preserves the same CSRF/session/action/idempotency boundaries.
 The HTML screen remains the original display-name form.

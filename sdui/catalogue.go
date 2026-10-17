@@ -90,7 +90,7 @@ func RegisterCatalogue(r *Registry) error {
 	return nil
 }
 
-// CatalogueRegistry extends the eight backward-compatible core definitions
+// CatalogueRegistry extends the ten backward-compatible core definitions
 // with all catalogue aliases and public basic templates. External URLs require
 // an explicit host policy; local absolute paths and fragments work by default.
 func CatalogueRegistry(options ...RegistryOption) (*Registry, error) {

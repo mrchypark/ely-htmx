@@ -23,3 +23,18 @@ for suffix in ['\n', '\r', '\r\n', '\u2028']:
     invalid['fields']['company' + suffix] = invalid['fields'].pop('company')
     assert list(validator.iter_errors(invalid)), 'Field names must match the complete grammar'
 print('Rejected empty revisions and trailing-line-break field names')
+
+# Nested option records and unsupported modes must not pass the wire schema.
+select = next(n for n in ready['region']['children'][0]['children'][2]['children'] if n['type'] == 'select')
+for mutate in [
+    lambda n: n['props'].update(options=[]),
+    lambda n: n['props']['options'][0].update(value=1),
+    lambda n: n['props']['options'][0].update(disabled=True),
+    lambda n: n['props'].update(multiple=False),
+    lambda n: n.update(children=[copy.deepcopy(select)]),
+]:
+    invalid_node = copy.deepcopy(select)
+    mutate(invalid_node)
+    node_validator = Draft202012Validator({'$ref': '#/$defs/node', '$defs': validator.schema['$defs']})
+    assert list(node_validator.iter_errors(invalid_node)), 'Invalid select must fail schema validation'
+print('Rejected malformed options and unsupported select modes')

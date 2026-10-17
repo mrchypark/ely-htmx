@@ -234,6 +234,41 @@ private struct NativeNodeView: View {
                     Text(error).foregroundStyle(.red).accessibilityIdentifier("error-\(name)")
                 }
             })
+        case "checkbox":
+            let name = node.props.name ?? ""
+            return AnyView(VStack(alignment: .leading, spacing: 6) {
+                Toggle(node.props.label ?? name, isOn: Binding(
+                    get: { model.state.drafts[name] == "true" },
+                    set: { model.edit(field: name, value: $0 ? "true" : "false") }))
+                    .toggleStyle(NativeCheckboxStyle())
+                    .disabled(node.props.disabled == true || !model.state.drafts.keys.contains(name) || model.state.isLoading)
+                    .accessibilityIdentifier(node.id)
+                if let error = model.state.fieldErrors[name] {
+                    Text(error).foregroundStyle(.red).accessibilityIdentifier("error-\(name)")
+                }
+            })
+        case "select":
+            let name = node.props.name ?? ""
+            return AnyView(VStack(alignment: .leading, spacing: 6) {
+                // Menu Picker can show only the selected value visually on iOS.
+                // Keep its native accessible label while adding a visible field title.
+                Text(node.props.label ?? name)
+                    .font(.subheadline.weight(.semibold))
+                    .accessibilityHidden(true)
+                Picker(node.props.label ?? name, selection: Binding(
+                    get: { model.state.drafts[name] ?? "" },
+                    set: { model.edit(field: name, value: $0) })) {
+                    ForEach(node.props.options ?? [], id: \.value) { option in
+                        Text(option.label).tag(option.value)
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(node.props.disabled == true || !model.state.drafts.keys.contains(name) || model.state.isLoading)
+                .accessibilityIdentifier(node.id)
+                if let error = model.state.fieldErrors[name] {
+                    Text(error).foregroundStyle(.red).accessibilityIdentifier("error-\(name)")
+                }
+            })
         case "button":
             let button = Button(action: model.save) {
                 HStack {
@@ -254,6 +289,26 @@ private struct NativeNodeView: View {
             // Validation normally prevents this branch. Never fall back to HTML or a web view.
             return AnyView(Label("This component is not supported.", systemImage: "exclamationmark.triangle"))
         }
+    }
+}
+
+/// SwiftUI has no built-in checkbox style on iOS. Keep Toggle's native binding
+/// and an accessible, keyboard-activatable button with explicit checked state.
+@MainActor
+private struct NativeCheckboxStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        Button { configuration.isOn.toggle() } label: {
+            HStack(spacing: 10) {
+                Image(systemName: configuration.isOn ? "checkmark.square.fill" : "square")
+                    .imageScale(.large).accessibilityHidden(true)
+                configuration.label
+            }
+            .frame(minHeight: 44, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityValue(configuration.isOn ? "Checked" : "Unchecked")
+        .accessibilityHint("Double-tap to change. Changes are saved when you choose Save.")
     }
 }
 

@@ -323,7 +323,7 @@ func TestCatalogueFixtureSourcesAndNoDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(r.Definitions()) != 8 {
+	if len(r.Definitions()) != 10 {
 		t.Fatal("default core surface changed")
 	}
 	if err := sdui.RegisterCatalogue(r); err != nil {

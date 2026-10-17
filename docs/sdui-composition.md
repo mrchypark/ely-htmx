@@ -232,7 +232,7 @@ on the full screen wrapper for the revision-aware action protocol.
 # Compile using all registered catalogue aliases and public basic adapters.
 go run ./cmd/ely validate ./screen.json
 
-# The eight backward-compatible core types only; stdin is supported.
+# The ten backward-compatible core types only; stdin is supported.
 cat ./screen.json | go run ./cmd/ely validate -registry core -
 
 # Generate an editor schema from the selected registry.
@@ -244,8 +244,8 @@ go run ./cmd/ely catalog -type forms/Switch
 ```
 
 `ely sdui validate`, `ely sdui schema` and `ely sdui catalog` are equivalent
-aliases. Flags precede the filename. `-registry core` selects the original
-eight types; the default `catalogue` registry adds the reviewed catalogue and
+aliases. Flags precede the filename. `-registry core` selects the ten core
+types; the default `catalogue` registry adds the reviewed catalogue and
 public basic adapters. Validation exits 0 on a compiled screen, 1 on invalid
 input, missing files or a failed registry/export, and 2 on incorrect usage.
 It never calls a loader, executes an action, renders against unknown data,

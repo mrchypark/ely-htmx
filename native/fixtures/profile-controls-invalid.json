@@ -1,0 +1,177 @@
+{
+  "protocolVersion": "1",
+  "screenID": "profile",
+  "screenRevision": "fixture-controls-revision-1",
+  "sessionID": "fixture-session",
+  "requestID": "00000000-0000-4000-8000-000000000003",
+  "dataVersion": 1,
+  "status": "invalid",
+  "csrfToken": "fixture-csrf",
+  "requiredCapabilities": [
+    "region",
+    "form",
+    "stack",
+    "text",
+    "input",
+    "button",
+    "notice",
+    "switch",
+    "checkbox",
+    "select"
+  ],
+  "region": {
+    "id": "profile-region",
+    "type": "region",
+    "props": {
+      "label": "Profile"
+    },
+    "children": [
+      {
+        "id": "profile-layout",
+        "type": "stack",
+        "props": {
+          "align": "stretch",
+          "direction": "column",
+          "gap": "md"
+        },
+        "children": [
+          {
+            "id": "profile-title",
+            "type": "text",
+            "props": {
+              "text": "Your profile"
+            }
+          },
+          {
+            "id": "demo-notice",
+            "type": "notice",
+            "props": {
+              "text": "Your profile lives in a temporary local session. This is not production authentication or storage.",
+              "title": "Local demo only",
+              "urgent": false
+            }
+          },
+          {
+            "id": "profile-form",
+            "type": "form",
+            "props": {
+              "label": "Edit profile"
+            },
+            "children": [
+              {
+                "id": "display-name",
+                "type": "input",
+                "props": {
+                  "disabled": false,
+                  "label": "Display name",
+                  "multiple": false,
+                  "name": "displayName",
+                  "placeholder": "Ada Lovelace",
+                  "readonly": false,
+                  "required": true,
+                  "type": "text",
+                  "value": "Grace Hopper"
+                }
+              },
+              {
+                "id": "company",
+                "type": "input",
+                "props": {
+                  "disabled": false,
+                  "label": "Company",
+                  "multiple": false,
+                  "name": "company",
+                  "placeholder": "Optional company",
+                  "readonly": false,
+                  "required": false,
+                  "type": "text",
+                  "value": "Example Labs"
+                }
+              },
+              {
+                "id": "notifications",
+                "type": "switch",
+                "props": {
+                  "checked": true,
+                  "disabled": false,
+                  "label": "Enable notifications",
+                  "name": "notifications"
+                }
+              },
+              {
+                "id": "digest-consent",
+                "type": "checkbox",
+                "props": {
+                  "checked": true,
+                  "disabled": false,
+                  "label": "Receive a weekly digest",
+                  "name": "digestConsent"
+                }
+              },
+              {
+                "id": "color-theme",
+                "type": "select",
+                "props": {
+                  "disabled": false,
+                  "label": "Color theme",
+                  "name": "colorTheme",
+                  "options": [
+                    {
+                      "label": "System",
+                      "value": "system"
+                    },
+                    {
+                      "label": "Light",
+                      "value": "light"
+                    },
+                    {
+                      "label": "Dark",
+                      "value": "dark"
+                    }
+                  ],
+                  "value": "dark"
+                }
+              },
+              {
+                "id": "save-profile",
+                "type": "button",
+                "props": {
+                  "disabled": false,
+                  "label": "Save profile",
+                  "size": "default",
+                  "type": "submit",
+                  "variant": "primary"
+                }
+              }
+            ],
+            "events": [
+              {
+                "on": "submit",
+                "action": "save-profile",
+                "target": "profile-region"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "fields": {
+    "colorTheme": "dark",
+    "company": "Example Labs",
+    "digestConsent": "true",
+    "displayName": "Grace Hopper",
+    "notifications": "true"
+  },
+  "acknowledgedEdits": {
+    "colorTheme": 1,
+    "company": 3,
+    "digestConsent": 1,
+    "displayName": 1,
+    "notifications": 2
+  },
+  "errors": {
+    "colorTheme": "Choose System, Light or Dark."
+  },
+  "message": "No changes saved."
+}

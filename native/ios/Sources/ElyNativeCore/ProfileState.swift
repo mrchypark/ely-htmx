@@ -106,6 +106,31 @@ public struct ProfileState: Equatable, Sendable {
             throw ProtocolFailure("The field set changed during a save. Reload the screen before continuing.")
         }
 
+        // A save must not change the meaning or available values of newer local edits.
+        if case .save = pending.kind, let current = envelope {
+            func controls(_ node: NativeNode) -> [String: NativeNode] {
+                var result: [String: NativeNode] = [:]
+                if ["input", "switch", "checkbox", "select"].contains(node.type), let name = node.props.name {
+                    result[name] = node
+                }
+                for child in node.children { result.merge(controls(child)) { first, _ in first } }
+                return result
+            }
+            let old = controls(current.region), new = controls(response.region)
+            guard old.keys.allSatisfy({ name in
+                guard let previous = old[name], let replacement = new[name] else { return false }
+                return previous.id == replacement.id && previous.type == replacement.type
+                    && previous.props.options == replacement.props.options
+                    && previous.props.disabled == replacement.props.disabled
+                    && previous.props.readonly == replacement.props.readonly
+                    && previous.props.required == replacement.props.required
+                    && previous.props.multiple == replacement.props.multiple
+                    && previous.props.type == replacement.props.type
+            }) else {
+                throw ProtocolFailure("The control modes or options changed during a save. Reload the screen before continuing.")
+            }
+        }
+
         switch pending.kind {
         case .load:
             guard response.status == .ready, response.acknowledgedEdits.isEmpty else {

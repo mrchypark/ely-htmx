@@ -35,7 +35,7 @@ func TestExportStatic(t *testing.T) {
 	if err := json.Unmarshal(read("catalogue.json"), &items); err != nil {
 		t.Fatal(err)
 	}
-	if len(items) != 1370 {
+	if len(items) != 1372 {
 		t.Fatalf("catalogue count %d", len(items))
 	}
 	for _, item := range items {

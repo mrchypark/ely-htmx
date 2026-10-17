@@ -184,13 +184,41 @@ private fun RenderNode(
                         .semantics { if (errorText != null) error(errorText) },
                 )
             }
-            "switch" -> Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            "switch", "checkbox" -> Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 val name = node.string("name")
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(node.string("label"), modifier = Modifier.weight(1f))
-                    Switch(checked = state.drafts[name] == "true", onCheckedChange = { onEdit(name, it.toString()) },
+                    val controlModifier = Modifier.testTag(node.id).semantics { contentDescription = node.string("label") }
+                    if (node.type == "checkbox") Checkbox(checked = state.drafts[name] == "true", onCheckedChange = { onEdit(name, it.toString()) },
+                        enabled = !node.boolean("disabled") && state.loadingID == null, modifier = controlModifier)
+                    else Switch(checked = state.drafts[name] == "true", onCheckedChange = { onEdit(name, it.toString()) },
                         enabled = !node.boolean("disabled") && state.loadingID == null,
                         modifier = Modifier.testTag(node.id).semantics { contentDescription = node.string("label") })
+                }
+                state.errors[name]?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { error(it) }) }
+            }
+            "select" -> Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                val name = node.string("name")
+                val options = node.options()
+                val enabled = !node.boolean("disabled") && state.loadingID == null
+                var expanded by remember(node.id, options) { mutableStateOf(false) }
+                LaunchedEffect(enabled) { if (!enabled) expanded = false }
+                Text(node.string("label"))
+                Box {
+                    OutlinedButton(onClick = { expanded = true }, enabled = enabled,
+                        modifier = Modifier.testTag(node.id).semantics { contentDescription = node.string("label") }) {
+                        Text(options.firstOrNull { it.value == state.drafts[name] }?.label.orEmpty())
+                    }
+                    DropdownMenu(expanded = expanded && enabled, onDismissRequest = { expanded = false }) {
+                        options.forEach { option ->
+                            DropdownMenuItem(text = { Text(option.label) }, onClick = {
+                                expanded = false
+                                onEdit(name, option.value)
+                            }, modifier = Modifier.testTag("${node.id}-option-${option.value}").semantics {
+                                selected = option.value == state.drafts[name]
+                            })
+                        }
+                    }
                 }
                 state.errors[name]?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics { error(it) }) }
             }

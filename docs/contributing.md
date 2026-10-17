@@ -116,7 +116,7 @@ verified against actual Go HTTP responses, then decoded by both native clients.
 To intentionally regenerate them after a reviewed contract change:
 
 ```sh
-UPDATE_NATIVE_FIXTURES=1 go test ./examples/native-sdui -run TestNativeFixtures
+UPDATE_NATIVE_FIXTURES=1 go test ./examples/native-sdui -run 'TestNative.*Fixtures'
 ```
 
 A v1 wire change requires updating all three implementations/fixtures together.

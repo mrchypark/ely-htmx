@@ -50,12 +50,22 @@
       "ios": "Toggle",
       "android": "Switch",
       "limits": "Boolean form field encoded as canonical true/false strings; disabled supported; no change network event."
+    },
+    {
+      "type": "checkbox",
+      "ios": "SwiftUI Toggle with checkbox style",
+      "android": "Material3 Checkbox",
+      "limits": "Two-state boolean field using canonical true/false strings. Disabled supported; no indeterminate, readonly, required or change action."
+    },
+    {
+      "type": "select",
+      "ios": "SwiftUI Picker",
+      "android": "Material3 dropdown menu",
+      "limits": "Single choice from 1\u201364 unique nonempty string-valued options. Disabled supported; no placeholder, multiple selection or option-level modes."
     }
   ],
   "notImplemented": [
     "arbitrary form action routes",
-    "checkbox",
-    "select/picker",
     "multiline input",
     "image",
     "divider",
