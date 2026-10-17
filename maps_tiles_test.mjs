@@ -43,7 +43,7 @@ for (const [w, h] of [[0, 600], [800, 0], [-1, 600]]) assert.equal(g.api.tilePla
 assert.throws(() => g.api.tilePlacements([0, 0], 0, 800, 600, 19, 19), /256/);
 for (const extra of [{minZoom: -1}, {maxZoom: 20}, {minZoom: 2, maxZoom: 1}, {minZoom: .5}, {revision: ''}, {attribution: ''}, {urlTemplate: 'javascript:{z}/{x}/{y}'}, {urlTemplate: 'http://outside.test/{z}/{x}/{y}'}, {urlTemplate: 'https://user:pass@outside.test/{z}/{x}/{y}'}, {urlTemplate: '/tiles/{z}/{x}/{bad}'}, {urlTemplate: () => '/tiles'}, {callback: 'alert(1)'}]) assert.throws(() => g.register(extra));
 assert.throws(() => g.register({}, 'https://host.test'));
-for (const urlTemplate of ['https://{z}.tiles.test/{x}/{y}', 'https://tiles.test:{x}/{z}/{y}', '//{x}.tiles.test/{z}/{y}']) assert.throws(() => g.register({urlTemplate}), /tokens/);
+for (const urlTemplate of ['https://{z}.tiles.test/{x}/{y}', 'https://tiles.test:{x}/{z}/{y}', '//{x}.tiles.test/{z}/{y}', '  https://{x}.tiles.test/{z}/{y}', String.raw`https:\\{x}.tiles.test/{z}/{y}`]) assert.throws(() => g.register({urlTemplate}), /tokens/);
 const externalBase = harness(undefined, {baseURI: 'http://outside.test/maps/', origin: 'https://app.test'});
 assert.throws(() => externalBase.register(), /same-origin/);
 externalBase.signal.abort();

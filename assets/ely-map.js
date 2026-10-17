@@ -48,6 +48,7 @@
     const authority = urlTemplate.match(/^(?:[a-zA-Z][a-zA-Z\d+.-]*:)?\/\/([^/?#]*)/)?.[1];
     if (authority && /[{}]/.test(authority)) throw new TypeError('Map tile tokens must be in the path or query');
     const sample = new URL(urlTemplate.replaceAll(/\{[zxy]\}/g, '0'), document.baseURI), origin = document.location.origin;
+    if (new URL(urlTemplate.replaceAll(/\{[zxy]\}/g, '1'), document.baseURI).origin !== sample.origin) throw new TypeError('Map tile tokens must be in the path or query');
     if (sample.username || sample.password || sample.hash || (sample.protocol !== 'https:' && !(sample.protocol === 'http:' && sample.origin === origin))) throw new TypeError('Map tiles require a same-origin or HTTPS URL');
     if (!tileProviders.has(id) && tileProviders.size >= 32) throw new RangeError('At most 32 map tile providers can be registered');
     const provider = Object.freeze({id, revision, minZoom, maxZoom, attribution, urlTemplate, baseURI: document.baseURI, origin});
