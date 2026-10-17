@@ -77,7 +77,7 @@ Providers, sign-in, recovery, profile persistence, session/key revocation, billi
 
 ### Maps checkpoint 591–597
 
-Map fixtures follow the same pinned source, `examples/gallery/pages/maps/{mod,layers,world}.rs`, and saved reference images. The map implementation uses the existing bundled Natural Earth geometry, with Web Mercator projection and repeated worlds. It uses no tile server or added dependency. The source screenshots sometimes captured unloaded land tiles; this renderer consistently draws the bundled land instead of reproducing that loading gap.
+Map fixtures follow the same pinned source, `examples/gallery/pages/maps/{mod,layers,world}.rs`, and saved reference images. The map implementation uses the existing bundled Natural Earth geometry, with Web Mercator projection and repeated worlds. The default uses no tile server or added dependency. [Optional host-registered raster tile providers](docs/map-tiles.md) now add a source-pinned URL-template path without changing this default. The source screenshots sometimes captured unloaded land tiles; this renderer consistently draws the bundled land instead of reproducing that loading gap.
 
 Existing `ID`, `Label`, `Name`, `Value`, `Disabled`, `Mode`, `Points`, `Routes`, and `GeoJSON` props remain supported. Additive props:
 

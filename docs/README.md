@@ -33,3 +33,5 @@ See [component discovery](getting-started.md#discover-components-and-props) befo
 choosing an alias or assuming a component integrates an external service.
 
 - [Naming and compatibility](naming.md): elysdui branding and stable integration names.
+
+- [Host-owned raster map tiles](map-tiles.md): trusted provider IDs, local fixture, resource limits, and source correspondence.

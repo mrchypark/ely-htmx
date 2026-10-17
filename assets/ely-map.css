@@ -27,3 +27,11 @@
 .ely-map__coordinates{font-size:13px;line-height:20px;font-family:inherit;font-variant-numeric:tabular-nums;color:var(--color-ink,inherit);white-space:nowrap}.ely-map__coordinate{position:relative;display:inline-flex;flex-direction:column;gap:12px}.ely-map__coordinate>span:first-child{display:flex;align-items:center;gap:4px}.ely-map__coordinate>small{font-size:11px;color:var(--color-muted,#999)}
 [data-map-copyable] button[data-map-copy]{display:inline-grid;place-items:center;width:20px;height:20px;min-width:0;min-height:0;padding:0;border:0;background:transparent;color:inherit;border-radius:3px;font-size:14px;cursor:pointer}.ely-map__specimens{display:flex;align-items:flex-start;flex-wrap:wrap;gap:32px}.ely-map__copy-status{position:absolute;top:100%;font-size:11px}.ely-map__copy-status:empty{display:none}.ely-map__caption{margin:4px 0 0;color:var(--map-muted);font-size:13px}.ely-map__status{margin:0;color:var(--map-muted)}
 .ely-map [hidden],.ely-map__footer[hidden]{display:none!important}
+
+/* Raster sources sit below SVG overlays and controls. Shared integer edges prevent seams. */
+.ely-map__tiles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.ely-map__tile{position:absolute;overflow:hidden}
+.ely-map__tile img{display:block;width:100%;height:100%;object-fit:fill;max-width:none}
+.ely-map__tile[data-map-tile-state="error"]{display:grid;place-items:center;color:var(--map-muted)}
+.ely-map__tile[data-map-tile-state="error"] span{font-size:20px}
+.ely-map[data-map-tile-provider]:not([data-map-tile-provider=""]) [data-map-land]{display:none}
