@@ -80,7 +80,8 @@ def cleanup():
     state = json.loads(path.read_text())
     if not state.get('owned'):
         return
-    device = str(uuid.UUID(state['udid']))
+    device = state['udid']
+    uuid.UUID(device)  # Validate, but preserve simctl's case-sensitive destination ID.
     run(['xcrun', 'simctl', 'shutdown', device], 'shutdown.log', required=False)
     run(['xcrun', 'simctl', 'delete', device], 'delete.log')
     state['owned'] = False
@@ -104,7 +105,7 @@ def prepare():
     (OUTPUT / 'selection.json').write_text(json.dumps(selection, indent=2) + '\n')
     print(f'Creating {name}: {device_type}, {runtime["identifier"]}', flush=True)
     device = run(['xcrun', 'simctl', 'create', name, device_type, runtime['identifier']], 'create.log').strip()
-    device = str(uuid.UUID(device))
+    uuid.UUID(device)  # xcodebuild destination matching requires simctl's spelling.
     save_state({'udid': device, 'name': name, 'owned': True})
     (OUTPUT / 'device-id.txt').write_text(device + '\n')
     try:

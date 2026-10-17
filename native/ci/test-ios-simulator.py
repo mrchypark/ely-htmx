@@ -13,7 +13,8 @@ sys.dont_write_bytecode = True
 SPEC = importlib.util.spec_from_file_location('simulator', Path(__file__).with_name('ios-simulator.py'))
 sim = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(sim)
-DEVICE = '12345678-1234-1234-1234-123456789abc'
+# Real simctl output is uppercase; xcodebuild rejects lowercased destinations.
+DEVICE = '0A97AFC2-3920-48D8-AA04-79320FA82098'
 RUNTIME = 'com.apple.CoreSimulator.SimRuntime.iOS-26-4'
 
 
@@ -54,6 +55,9 @@ class SimulatorTests(unittest.TestCase):
         with patch.object(sim, 'run', side_effect=self.mock_run) as run:
             sim.prepare()
         self.assertEqual(self.output.read_text(), f'device_id={DEVICE}\n')
+        self.assertEqual((self.root / 'device-id.txt').read_text(), DEVICE + '\n')
+        self.assertIn(['xcrun', 'simctl', 'bootstatus', DEVICE, '-b'],
+                      [call.args[0] for call in run.call_args_list])
         create = next(call.args[0] for call in run.call_args_list if call.args[0][1:3] == ['simctl', 'create'])
         self.assertEqual(create[-2:], [sim.DEVICE_TYPE, RUNTIME])
         self.assertTrue(create[3].startswith('ElyCI-'))
