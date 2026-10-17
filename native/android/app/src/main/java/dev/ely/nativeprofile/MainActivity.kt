@@ -127,26 +127,10 @@ private fun RenderNode(
                     modifier = Modifier.semantics { heading() })
                 node.children.forEach { child(it) }
             }
-            "stack" -> {
-                val gap = when (node.string("gap", "md")) { "none" -> 0.dp; "xs" -> 4.dp; "sm" -> 8.dp; "lg" -> 24.dp; else -> 16.dp }
-                val align = node.string("align", "stretch")
-                if (node.string("direction", "column") == "row") {
-                    Row(Modifier.fillMaxWidth().testTag(node.id), horizontalArrangement = Arrangement.spacedBy(gap),
-                        verticalAlignment = when (align) { "center" -> Alignment.CenterVertically; "end" -> Alignment.Bottom; else -> Alignment.Top }) {
-                        node.children.forEach { nested ->
-                            key(nested.id) { Box(Modifier.weight(1f)) { child(nested) } }
-                        }
-                    }
-                } else {
-                    Column(Modifier.fillMaxWidth().testTag(node.id), verticalArrangement = Arrangement.spacedBy(gap),
-                        horizontalAlignment = when (align) { "center" -> Alignment.CenterHorizontally; "end" -> Alignment.End; else -> Alignment.Start }) {
-                        node.children.forEach { child(it) }
-                    }
-                }
-            }
+            "stack" -> NativeStack(node, child)
             "text" -> Text(node.string("text"), modifier = Modifier.testTag(node.id))
             "notice" -> Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.medium) {
-                Column(Modifier.fillMaxWidth().padding(16.dp).testTag(node.id).semantics {
+                Column(Modifier.fillMaxWidth().padding(16.dp).testTag(node.id).semantics(mergeDescendants = true) {
                     liveRegion = if (node.boolean("urgent")) LiveRegionMode.Assertive else LiveRegionMode.Polite
                 }, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (node.string("title").isNotEmpty()) Text(node.string("title"), style = MaterialTheme.typography.titleMedium)
@@ -252,5 +236,35 @@ private fun NativeSubmitButton(node: Node, busy: Boolean, canSubmit: Boolean, on
         "destructive" -> Button(onClick = onSave, modifier = modifier, enabled = enabled, contentPadding = padding,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error), content = content)
         else -> Button(onClick = onSave, modifier = modifier, enabled = enabled, contentPadding = padding, content = content)
+    }
+}
+
+/** Stretch affects only the cross axis; row children are not equal-width columns. */
+@Composable
+internal fun NativeStack(node: Node, child: @Composable (Node) -> Unit) {
+    val gap = when (node.string("gap", "md")) { "none" -> 0.dp; "xs" -> 4.dp; "sm" -> 8.dp; "lg" -> 24.dp; else -> 16.dp }
+    val align = node.string("align", "stretch")
+    if (node.string("direction", "column") == "row") {
+        val modifier = Modifier.fillMaxWidth().testTag(node.id)
+        Row(if (align == "stretch") modifier.height(IntrinsicSize.Min) else modifier,
+            horizontalArrangement = Arrangement.spacedBy(gap),
+            verticalAlignment = when (align) { "center" -> Alignment.CenterVertically; "end" -> Alignment.Bottom; else -> Alignment.Top }) {
+            node.children.forEach { nested ->
+                key(nested.id) {
+                    Box((if (align == "stretch") Modifier.fillMaxHeight() else Modifier).width(IntrinsicSize.Max),
+                        propagateMinConstraints = true) { child(nested) }
+                }
+            }
+        }
+    } else {
+        Column(Modifier.fillMaxWidth().testTag(node.id), verticalArrangement = Arrangement.spacedBy(gap),
+            horizontalAlignment = when (align) { "center" -> Alignment.CenterHorizontally; "end" -> Alignment.End; else -> Alignment.Start }) {
+            node.children.forEach { nested ->
+                key(nested.id) {
+                    Box(if (align == "stretch") Modifier.fillMaxWidth() else Modifier,
+                        propagateMinConstraints = true) { child(nested) }
+                }
+            }
+        }
     }
 }

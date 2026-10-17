@@ -153,12 +153,6 @@ private struct NativeNodeView: View {
             NativeNodeView(node: child, model: model, focusedNodeID: $focusedNodeID)
         }
     }
-    private var spacing: CGFloat {
-        ["none": 0, "xs": 4, "sm": 8, "md": 16, "lg": 24][node.props.gap ?? "md"] ?? 16
-    }
-    private var horizontalAlignment: HorizontalAlignment {
-        switch node.props.align { case "center": return .center; case "end": return .trailing; default: return .leading }
-    }
     private var controlSize: ControlSize {
         switch node.props.size {
         case "xs": return .mini
@@ -167,10 +161,6 @@ private struct NativeNodeView: View {
         default: return .regular
         }
     }
-    private var verticalAlignment: VerticalAlignment {
-        switch node.props.align { case "start": return .top; case "end": return .bottom; default: return .center }
-    }
-
     // Type erasure bounds SwiftUI's recursive generic view type. This does not interpret code.
     private var rendered: AnyView {
         switch node.type {
@@ -183,22 +173,13 @@ private struct NativeNodeView: View {
                 children
             }.frame(maxWidth: .infinity, alignment: .leading))
         case "stack":
-            if node.props.direction == "row" {
-                return AnyView(HStack(alignment: verticalAlignment, spacing: spacing) { children }
-                    .frame(maxWidth: .infinity, alignment: .leading))
-            }
-            return AnyView(VStack(alignment: horizontalAlignment, spacing: spacing) { children }
-                .frame(maxWidth: .infinity, alignment: .leading))
+            return AnyView(NativeStack(node: node) { child in
+                NativeNodeView(node: child, model: model, focusedNodeID: $focusedNodeID)
+            })
         case "text":
             return AnyView(Text(node.props.text ?? "").fixedSize(horizontal: false, vertical: true))
         case "notice":
-            return AnyView(VStack(alignment: .leading, spacing: 6) {
-                if let title = node.props.title { Text(title).font(.headline) }
-                Text(node.props.text ?? "")
-            }
-                .padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                .background((node.props.urgent == true ? Color.orange : Color.blue).opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
-                .accessibilityElement(children: .combine))
+            return AnyView(NativeNotice(node: node))
         case "input":
             let name = node.props.name ?? "displayName"
             let error = model.state.fieldErrors[name]

@@ -152,3 +152,8 @@ base URL. `ControlsScreenTest` covers real Compose Checkbox and DropdownMenu
 interaction, disabled selections, edits during saves, exact retries, and the
 live Go save/reload lifecycle. These instrumented checks require an emulator;
 JVM decoder/reducer tests do not establish on-device behavior.
+
+`LayoutAndNoticeTest` measures Compose stack bounds (including cross-axis stretch,
+row widths and alignment) and verifies merged notice text with polite/assertive
+live-region semantics across replacement. It runs with the existing instrumented
+suite; actual TalkBack announcement delivery still requires manual validation.
