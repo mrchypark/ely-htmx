@@ -14,9 +14,155 @@
   const linePath = coordinates => { let previous; return coordinates.map(([lon, lat], index) => { let [x, y] = project(lat, lon); x *= 100; y *= 100; if (previous !== undefined) x += Math.round((previous - x) / 100) * 100; previous = x; return `${index ? 'L' : 'M'}${x} ${y}`; }).join(' '); };
   const polygonPath = rings => rings.map(ring => `${linePath(ring)} Z`).join(' ');
   const pathFor = geometry => geometry?.type === 'Polygon' ? polygonPath(geometry.coordinates) : geometry?.type === 'MultiPolygon' ? geometry.coordinates.map(polygonPath).join(' ') : geometry?.type === 'LineString' ? linePath(geometry.coordinates) : geometry?.type === 'MultiLineString' ? geometry.coordinates.map(linePath).join(' ') : '';
+  // Port of gpui's maps/geo.rs::tiles at da3fdcaf39f2fa85ce1dd9cad07c3c81cf1dd721.
+  // Round each shared edge, rather than rounding a tile's width independently.
+  const tilePlacements = (center, zoom, width, height, minZoom, maxZoom) => {
+    if (![...center, zoom, width, height].every(Number.isFinite) || width <= 0 || height <= 0) return [];
+    const z = clamp(Math.round(zoom), minZoom, maxZoom), count = 2 ** z;
+    const side = 256 * 2 ** (zoom - z), [cx, cy] = project(...center);
+    const left = width / 2 - cx * 256 * 2 ** zoom, top = height / 2 - cy * 256 * 2 ** zoom;
+    const west = Math.floor(-left / side), east = Math.ceil((width - left) / side) - 1;
+    const north = Math.max(0, Math.floor(-top / side)), south = Math.min(count - 1, Math.ceil((height - top) / side) - 1);
+    // A hostile viewport/source range must not allocate millions of placements.
+    if ((east - west + 1) * Math.max(0, south - north + 1) > 256) throw new RangeError('Map tile coverage exceeds 256 placements');
+    // Rust rounds half away from zero, whereas Math.round rounds negative ties up.
+    const edge = value => Math.sign(value) * Math.round(Math.abs(value));
+    const laid = [];
+    for (let column = west; column <= east; column++) for (let row = north; row <= south; row++) {
+      const x = edge(left + column * side), y = edge(top + row * side);
+      laid.push({z, tileX: ((column % count) + count) % count, tileY: row, column, x, y, w: edge(left + (column + 1) * side) - x, h: edge(top + (row + 1) * side) - y});
+    }
+    return laid;
+  };
   // DOM starts here; geometry above is also exercised by the deterministic Node tests.
   const ns = 'http://www.w3.org/2000/svg';
   const svg = (name, attrs = {}) => { const node = document.createElementNS(ns, name); Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value)); return node; };
+  // Only trusted host JavaScript can register providers. Screens select an ID.
+  const tileProviders = new Map();
+  const registerTileProvider = (id, options) => {
+    if (typeof id !== 'string' || !/^[a-zA-Z][\w.-]{0,63}$/.test(id)) throw new TypeError('Invalid map tile provider ID');
+    if (!options || Object.keys(options).some(key => !['revision', 'minZoom', 'maxZoom', 'attribution', 'urlTemplate'].includes(key))) throw new TypeError('Invalid map tile provider options');
+    const {revision, minZoom, maxZoom, attribution, urlTemplate} = options;
+    if (typeof revision !== 'string' || !revision.trim() || revision.length > 128 || typeof attribution !== 'string' || !attribution.trim() || attribution.length > 1024 || !Number.isInteger(minZoom) || !Number.isInteger(maxZoom) || minZoom < 0 || maxZoom > 19 || minZoom > maxZoom) throw new TypeError('Invalid map tile provider metadata');
+    if (typeof urlTemplate !== 'string' || urlTemplate.length > 2048 || !['{z}', '{x}', '{y}'].every(token => urlTemplate.includes(token)) || /[{}]/.test(urlTemplate.replaceAll(/\{[zxy]\}/g, '0'))) throw new TypeError('Invalid map tile URL template');
+    const authority = urlTemplate.match(/^(?:[a-zA-Z][a-zA-Z\d+.-]*:)?\/\/([^/?#]*)/)?.[1];
+    if (authority && /[{}]/.test(authority)) throw new TypeError('Map tile tokens must be in the path or query');
+    const sample = new URL(urlTemplate.replaceAll(/\{[zxy]\}/g, '0'), document.baseURI), origin = document.location.origin;
+    if (new URL(urlTemplate.replaceAll(/\{[zxy]\}/g, '1'), document.baseURI).origin !== sample.origin) throw new TypeError('Map tile tokens must be in the path or query');
+    if (sample.username || sample.password || sample.hash || (sample.protocol !== 'https:' && !(sample.protocol === 'http:' && sample.origin === origin))) throw new TypeError('Map tiles require a same-origin or HTTPS URL');
+    if (!tileProviders.has(id) && tileProviders.size >= 32) throw new RangeError('At most 32 map tile providers can be registered');
+    const provider = Object.freeze({id, revision, minZoom, maxZoom, attribution, urlTemplate, baseURI: document.baseURI, origin});
+    const notify = () => document.dispatchEvent(new CustomEvent('ely:map-provider', {detail: {id}}));
+    tileProviders.set(id, provider); notify();
+    // An old disposer cannot remove a newer registration with the same ID/revision.
+    return () => { if (tileProviders.get(id) === provider) { tileProviders.delete(id); notify(); } };
+  };
+  const abortable = (promise, signal) => new Promise((resolve, reject) => {
+    const finish = (fn, value) => { signal.removeEventListener('abort', cancel); fn(value); };
+    const cancel = () => finish(reject, new Error('Map tile load cancelled'));
+    // Always observe the supplied promise, even when cancellation came first.
+    Promise.resolve(promise).then(value => finish(resolve, value), error => finish(reject, error));
+    if (signal.aborted) cancel();
+    else signal.addEventListener('abort', cancel, {once: true});
+  });
+  const mountTileLayer = (root, layer, attribution, signal) => {
+    let provider, providerID, generation = 0, active = 0, alive = true, lastView;
+    let cache = new Map(), placements = new Map();
+    const originalAttribution = attribution?.textContent || '', status = root.querySelector('[data-map-tile-status]');
+    const report = message => { if (status) { status.textContent = message; status.hidden = !message; } };
+    const owned = entry => alive && root.isConnected && entry.generation === generation && cache.get(entry.key) === entry;
+    const release = entry => { entry.controller?.abort(); clearTimeout(entry.timer); if (entry.url) URL.revokeObjectURL(entry.url); entry.url = null; entry.bytes = 0; entry.pixels = 0; };
+    // Retained encoded bytes and decoded pixels are bounded independently of count.
+    const reserve = (entry, field, value, limit) => {
+      entry[field] = value;
+      let total = [...cache.values()].reduce((sum, item) => sum + (item[field] || 0), 0);
+      for (const [key, item] of cache) { if (total <= limit) break; if (!placements.has(key)) { total -= item[field] || 0; release(item); cache.delete(key); } }
+      if (total > limit) throw new Error('Map tile memory budget exceeded');
+    };
+    const reset = () => { generation++; cache.forEach(release); cache = new Map(); placements = new Map(); layer.replaceChildren(); active = 0; };
+    const paint = entry => {
+      if (!owned(entry)) return;
+      for (const slot of placements.get(entry.key) || []) {
+        slot.dataset.mapTileState = entry.state; slot.replaceChildren();
+        if (entry.state === 'ready') { const image = document.createElement('img'); image.alt = ''; image.draggable = false; image.src = entry.url; slot.append(image); }
+        else if (entry.state === 'error') { const mark = document.createElement('span'); mark.textContent = '×'; mark.setAttribute('aria-label', 'Map tile unavailable'); slot.append(mark); }
+      }
+    };
+    const summary = () => {
+      if (!alive || !root.isConnected) return;
+      const entries = [...placements.keys()].map(key => cache.get(key));
+      root.dataset.mapTilesState = entries.some(entry => entry.state === 'error') ? 'error' : entries.some(entry => entry.state !== 'ready') ? 'pending' : 'ready';
+      layer.setAttribute('aria-busy', String(entries.some(entry => entry.state === 'pending' || entry.state === 'queued')));
+      report(entries.some(entry => entry.state === 'error') ? 'Some map tiles are unavailable.' : '');
+    };
+    const pump = () => {
+      if (!alive || !root.isConnected) return;
+      for (const entry of cache.values()) {
+        if (active >= 8) break;
+        if (entry.state !== 'queued' || !placements.has(entry.key)) continue;
+        entry.state = 'pending'; entry.controller = new AbortController(); active++;
+        entry.timer = setTimeout(() => entry.controller.abort(), 15000); paint(entry);
+        const current = provider;
+        Promise.resolve().then(async () => {
+          if (!owned(entry)) return;
+          const resolved = new URL(current.urlTemplate.replaceAll('{z}', entry.z).replaceAll('{x}', entry.tileX).replaceAll('{y}', entry.tileY), current.baseURI);
+          if (resolved.username || resolved.password || resolved.hash || (resolved.protocol !== 'https:' && !(resolved.protocol === 'http:' && resolved.origin === current.origin))) throw new TypeError('Invalid map tile URL');
+          const url = resolved.href;
+          const response = await abortable(fetch(url, {signal: entry.controller.signal, credentials: 'same-origin', referrerPolicy: 'no-referrer'}), entry.controller.signal);
+          if (!response.ok) throw new Error('Map tile unavailable');
+          const type = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
+          if (!['image/png', 'image/jpeg', 'image/webp', 'image/avif'].includes(type) || Number(response.headers.get('content-length')) > 4 * 1024 * 1024) throw new Error('Invalid raster tile');
+          const reader = response.body.getReader(), chunks = []; let size = 0;
+          try {
+            while (true) { const {done, value} = await abortable(reader.read(), entry.controller.signal); if (done) break; size += value.byteLength; if (size > 4 * 1024 * 1024) { await abortable(reader.cancel(), entry.controller.signal); throw new Error('Raster tile exceeds 4 MiB'); } chunks.push(value); }
+          } finally { reader.releaseLock(); }
+          const blob = new Blob(chunks, {type});
+          if (!owned(entry)) return;
+          reserve(entry, 'bytes', blob.size, 32 * 1024 * 1024);
+          entry.url = URL.createObjectURL(blob);
+          const image = new Image(); image.src = entry.url; await abortable(image.decode(), entry.controller.signal);
+          if (!owned(entry)) return;
+          if (image.naturalWidth > 1024 || image.naturalHeight > 1024 || !image.naturalWidth || !image.naturalHeight) throw new Error('Invalid raster tile dimensions');
+          reserve(entry, 'pixels', image.naturalWidth * image.naturalHeight, 16 * 1024 * 1024);
+          entry.state = 'ready'; paint(entry);
+        }).catch(() => { if (owned(entry)) { release(entry); entry.state = 'error'; paint(entry); } }).finally(() => {
+          clearTimeout(entry.timer);
+          // Stale completions do not alter the new provider's concurrency budget.
+          if (entry.generation === generation && alive) { active--; summary(); pump(); }
+        });
+      }
+    };
+    const update = (center, zoom, width, height) => {
+      if (!alive || !root.isConnected) return;
+      lastView = [center, zoom, width, height];
+      const id = root.dataset.mapTileProvider || '', next = tileProviders.get(id);
+      if (provider !== next || providerID !== id) { reset(); provider = next; providerID = id; }
+      layer.hidden = !id;
+      if (attribution) { attribution.textContent = id ? provider?.attribution || '' : originalAttribution; attribution.hidden = !attribution.textContent; }
+      if (!id) { delete root.dataset.mapTilesState; report(''); return; }
+      if (!provider) { root.dataset.mapTilesState = 'unknown-provider'; report('Map tile provider is unavailable.'); layer.setAttribute('aria-busy', 'false'); return; }
+      let laid;
+      try { laid = tilePlacements(center, zoom, width, height, provider.minZoom, provider.maxZoom); }
+      catch { reset(); root.dataset.mapTilesState = 'coverage-limit'; report('Map tile coverage exceeds the supported limit.'); layer.setAttribute('aria-busy', 'false'); return; }
+      placements = new Map(); layer.replaceChildren();
+      for (const tile of laid) {
+        const key = `${provider.id}:${provider.revision}:${tile.z}/${tile.tileX}/${tile.tileY}`;
+        const slot = document.createElement('div'); slot.className = 'ely-map__tile'; slot.dataset.mapTile = `${tile.z}/${tile.tileX}/${tile.tileY}`; slot.dataset.mapTileColumn = String(tile.column);
+        Object.assign(slot.style, {left: `${tile.x}px`, top: `${tile.y}px`, width: `${tile.w}px`, height: `${tile.h}px`});
+        layer.append(slot); if (!placements.has(key)) placements.set(key, []); placements.get(key).push(slot);
+        let entry = cache.get(key);
+        if (!entry) { entry = {...tile, key, generation, state: 'queued'}; cache.set(key, entry); }
+        // Insertion order is LRU; repeated world copies still refer to one entry.
+        cache.delete(key); cache.set(key, entry);
+      }
+      for (const [key, entry] of cache) if (!placements.has(key) && (entry.state === 'pending' || entry.state === 'queued' || cache.size > 128)) { release(entry); cache.delete(key); }
+      for (const key of placements.keys()) paint(cache.get(key));
+      summary(); pump();
+    };
+    document.addEventListener('ely:map-provider', event => { if (event.detail?.id === root.dataset.mapTileProvider && lastView) update(...lastView); }, {signal});
+    signal.addEventListener('abort', () => { alive = false; reset(); report(''); if (attribution) { attribution.textContent = originalAttribution; attribution.hidden = !originalAttribution; } delete root.dataset.mapTilesState; }, {once: true});
+    return {update};
+  };
   const number = (value, fallback = 0) => value !== '' && value != null && Number.isFinite(Number(value)) ? Number(value) : fallback;
   const mounts = new WeakMap(), copies = new WeakMap();
   const ownerOf = root => root.closest('[data-ely-family]') || root;
@@ -27,6 +173,7 @@
     if (mounts.has(root)) return;
     const controller = new AbortController(), {signal} = controller, q = selector => root.querySelector(selector);
     const canvas = q('[data-map-canvas]'), viewport = q('[data-map-viewport]'), markers = q('[data-map-markers]'), popup = q('[data-map-popup]'), output = q('.ely-map__footer [data-map-coordinate]'), input = q('[data-map-value]'), legend = q('[data-map-legend]'), status = q('[data-map-status]');
+    const tileLayer = q('[data-map-tiles]'), tileRenderer = tileLayer ? mountTileLayer(root, tileLayer, q('[data-map-attribution]'), signal) : null;
     const mode = root.dataset.mapMode || 'markers', markerPoints = () => [...markers.querySelectorAll('[data-map-point]')], disabled = () => root.dataset.mapDisabled === 'true' || ownerOf(root).dataset.elyDisabled === 'true';
     const initialCenter = root.dataset.mapLatitude !== '' && root.dataset.mapLatitude != null ? [clamp(number(root.dataset.mapLatitude), -MAX_LAT, MAX_LAT), number(root.dataset.mapLongitude)] : parseCoordinate(input?.value) || [0, 0];
     const initialZoom = clamp(number(root.dataset.mapInitialZoom, 1), 0, 19); let center = initialCenter.slice(), zoom = initialZoom, width, height, scale, offset, drag, popupTrigger, resize, cancelled = false;
@@ -36,13 +183,13 @@
     mounts.set(root, {cleanup}); clearGenerated(); root.dataset.mapReady = 'pending';
     const listen = (target, type, handler, options = {}) => target?.addEventListener(type, handler, {...options, signal});
     root.style.maxWidth = `${Math.max(1, number(root.dataset.mapWidth, 720))}px`; canvas.style.height = `${Math.max(1, number(root.dataset.mapHeight, 360))}px`;
-    const measure = () => { width = canvas.clientWidth || number(root.dataset.mapWidth, 720); height = canvas.clientHeight || number(root.dataset.mapHeight, 360); q('[data-map-svg]').setAttribute('viewBox', `0 0 ${width} ${height}`); };
+    const measure = () => { width = canvas.clientWidth; height = canvas.clientHeight; q('[data-map-svg]').setAttribute('viewBox', `0 0 ${width} ${height}`); };
     const at = (lat, lon) => { const [x, y] = project(lat, lon), [cx, cy] = project(...center), side = 256 * 2 ** zoom; return [((x - cx + .5 + 1) % 1 - .5) * side + width / 2, (y - cy) * side + height / 2]; };
     const place = (marker, lat, lon) => { const [x, y] = at(lat, lon); marker.style.left = `${x}px`; marker.style.top = `${y}px`; marker.hidden = x < 0 || x > width || y < 0 || y > height; marker.tabIndex = marker.hidden ? -1 : 0; };
     const updateClusters = () => { if (mode !== 'clusters') return; const groups = new Map(); markerPoints().forEach(marker => { const key = clusterKey(marker.dataset.lat, marker.dataset.lon, zoom); groups.set(key, [...(groups.get(key) || []), marker]); }); groups.forEach(group => { if (group.length < 2) return; const first = group[0], mean = group.map(marker => project(marker.dataset.lat, marker.dataset.lon)).reduce((sum, point) => [sum[0] + point[0] / group.length, sum[1] + point[1] / group.length], [0, 0]); group.slice(1).forEach(marker => { marker.hidden = true; marker.tabIndex = -1; }); first._mapMembers = group; first.dataset.cluster = group.length; const count = document.createElement('b'); count.dataset.mapCount = ''; count.textContent = group.length; first.append(count); first.setAttribute('aria-label', `${group.length} locations`); place(first, ...unproject(...mean)); }); };
     const updateHeat = () => { if (mode !== 'heatmap') return; const layer = q('[data-map-heat]'), side = 256 * 2 ** zoom, points = markerPoints().flatMap(marker => { const [x, y] = at(marker.dataset.lat, marker.dataset.lon); return [-1, 0, 1].map(copy => [x + copy * side, y, number(marker.dataset.value, 1)]); }), heat = heatDensity(points, width, height); layer.replaceChildren(); layer.setAttribute('transform', `translate(${-offset[0] / scale} ${-offset[1] / scale}) scale(${1 / scale})`); heat.values.forEach((value, index) => { if (value > .001) layer.append(svg('rect', {x: index % heat.columns * heat.cell, y: Math.floor(index / heat.columns) * heat.cell, width: heat.cell, height: heat.cell, opacity: value * .8, 'data-map-generated': '', 'data-map-heat-spot': value})); }); };
     const updateCoordinate = notify => { if (mode !== 'location') return; const value = coordinate(...center); if (input) { input.value = value; if (notify) input.dispatchEvent(new Event('input', {bubbles: true})); } if (output) output.textContent = written(...center, root.dataset.mapFormat || 'decimal'); if (notify) { dispatch(root, 'ely:change', {name: input?.name || 'location', value, latitude: center[0], longitude: center[1]}); dispatch(root, 'ely:action', {action: root.dataset.mapPickAction || 'pick-location', value, latitude: center[0], longitude: center[1]}); } };
-    const apply = (notify = false) => { measure(); const [cx, cy] = project(...center), side = 256 * 2 ** zoom; scale = side / 100; offset = [width / 2 - cx * side, height / 2 - cy * side]; viewport.setAttribute('transform', `translate(${offset[0]} ${offset[1]}) scale(${scale})`); root.dataset.mapZoom = String(zoom); root.dataset.mapCenter = coordinate(...center); restoreMarkers(); markerPoints().forEach(marker => place(marker, marker.dataset.lat, marker.dataset.lon)); updateClusters(); root.querySelectorAll('[data-map-geojson-point]').forEach(point => point.setAttribute('r', 4 / scale)); if (['world', 'choropleth', 'heatmap'].includes(mode)) markerPoints().forEach(marker => marker.hidden = true); updateHeat(); updateCoordinate(notify); q('[data-map-zoom="in"]').disabled = disabled() || zoom >= 19; q('[data-map-zoom="out"]').disabled = disabled() || zoom <= 0; if (popupTrigger && !popup.hidden) { popup.style.left = `${clamp(parseFloat(popupTrigger.style.left), 8, Math.max(8, width - 248))}px`; popup.style.top = `${clamp(parseFloat(popupTrigger.style.top) + 8, 8, Math.max(8, height - 100))}px`; } if (notify) dispatch(root, 'ely:action', {action: root.dataset.mapViewportAction || 'change-viewport', viewport: {latitude: center[0], longitude: center[1], zoom}, value: coordinate(...center)}); };
+    const apply = (notify = false) => { measure(); tileRenderer?.update(center, zoom, width, height); const [cx, cy] = project(...center), side = 256 * 2 ** zoom; scale = side / 100; offset = [width / 2 - cx * side, height / 2 - cy * side]; viewport.setAttribute('transform', `translate(${offset[0]} ${offset[1]}) scale(${scale})`); root.dataset.mapZoom = String(zoom); root.dataset.mapCenter = coordinate(...center); restoreMarkers(); markerPoints().forEach(marker => place(marker, marker.dataset.lat, marker.dataset.lon)); updateClusters(); root.querySelectorAll('[data-map-geojson-point]').forEach(point => point.setAttribute('r', 4 / scale)); if (['world', 'choropleth', 'heatmap'].includes(mode)) markerPoints().forEach(marker => marker.hidden = true); updateHeat(); updateCoordinate(notify); q('[data-map-zoom="in"]').disabled = disabled() || zoom >= 19; q('[data-map-zoom="out"]').disabled = disabled() || zoom <= 0; if (popupTrigger && !popup.hidden) { popup.style.left = `${clamp(parseFloat(popupTrigger.style.left), 8, Math.max(8, width - 248))}px`; popup.style.top = `${clamp(parseFloat(popupTrigger.style.top) + 8, 8, Math.max(8, height - 100))}px`; } if (notify) dispatch(root, 'ely:action', {action: root.dataset.mapViewportAction || 'change-viewport', viewport: {latitude: center[0], longitude: center[1], zoom}, value: coordinate(...center)}); };
     const zoomTo = (next, x = width / 2, y = height / 2) => { if (disabled()) return; const before = zoom; next = clamp(next, 0, 19); center = zoomAbout(center, zoom, next, x, y, width, height); zoom = next; if (mode === 'clusters' && before !== zoom && markers.contains(document.activeElement)) canvas.focus(); apply(true); };
     const closePopup = () => { const held = popupTrigger; popup.hidden = true; popupTrigger = null; held?.focus(); dispatch(root, 'ely:action', {action: 'close-map-popup', key: held?.dataset.key || held?.dataset.mapLabel || ''}); };
     const showPopup = marker => { popupTrigger = marker; popup.hidden = false; q('[data-map-popup-label]').textContent = marker.dataset.mapLabel || marker.dataset.key || 'Location'; q('[data-map-popup-value]').textContent = marker.dataset.value; q('[data-map-popup-coordinate]').textContent = written(number(marker.dataset.lat), number(marker.dataset.lon), 'dms'); q('[data-map-popup-members]').hidden = true; apply(); q('[data-map-close]').focus(); dispatch(root, 'ely:action', {action: root.dataset.mapMarkerAction || 'select-marker', key: marker.dataset.key || marker.dataset.mapLabel, value: marker.dataset.value, latitude: number(marker.dataset.lat), longitude: number(marker.dataset.lon)}); };
@@ -50,6 +197,7 @@
     const valueByKey = new Map(markerPoints().map(marker => [String(marker.dataset.key || marker.dataset.mapLabel || marker.getAttribute('aria-label')).toLowerCase(), number(marker.dataset.value)]));
     const span = [...valueByKey.values()], least = span.length ? Math.min(...span) : 0, most = span.length ? Math.max(...span) : 0;
     const appendGeoJSON = (features, land = false) => { const layer = q(land ? '[data-map-land]' : '[data-map-geojson-layer]'); for (const feature of features) { const geometry = feature.geometry || {}, props = feature.properties || {}, key = String(props.region || props.iso_a2 || feature.id || props.name || '').toLowerCase(), value = valueByKey.get(key), colored = !land && ['world', 'choropleth'].includes(mode); for (const shift of [-200, -100, 0, 100, 200]) { if (['Point', 'MultiPoint'].includes(geometry.type)) { const places = geometry.type === 'Point' ? [geometry.coordinates] : geometry.coordinates; places.forEach(([lon, lat]) => { const [x, y] = project(lat, lon); layer.append(svg('circle', {cx: x * 100 + shift, cy: y * 100, r: 4 / scale, 'data-map-geojson-point': '', 'data-map-generated': ''})); }); continue; } const path = svg('path', {d: pathFor(geometry), transform: `translate(${shift} 0)`, 'fill-rule': 'evenodd', 'data-map-generated': ''}); if (colored) { path.dataset.mapChoropleth = value === undefined ? 'empty' : 'value'; path.style.setProperty('--ely-map-share', String(value === undefined ? 0 : most > least ? .15 + .85 * (value - least) / (most - least) : 1)); } else if (!land) path.dataset.mapGeojsonFeature = geometry.type; layer.append(path); } } };
+    mounts.get(root).refreshTiles = () => tileRenderer?.update(center, zoom, width, height);
     const source = q('template[data-map-geojson]'), inline = source?.content.textContent.trim();
     apply();
     Promise.resolve().then(async () => { const land = await localFeatures(signal); if (cancelled || !root.isConnected) return; if (mode === 'world' || mode === 'choropleth' && !inline) appendGeoJSON(land); else { appendGeoJSON(land, true); if (inline) { const data = JSON.parse(inline); appendGeoJSON(data.type === 'FeatureCollection' ? data.features : [data]); } } if (['world', 'choropleth'].includes(mode)) { legend.hidden = false; q('[data-map-legend-low]').textContent = least.toLocaleString('en-US'); q('[data-map-legend-high]').textContent = most.toLocaleString('en-US'); } root.dataset.mapReady = 'true'; }).catch(error => { if (cancelled || error.name === 'AbortError') return; root.dataset.mapReady = 'error'; status.hidden = false; status.textContent = 'Map geometry is unavailable.'; });
@@ -69,6 +217,7 @@
   };
   const rootsIn = (scope, selector) => [...(scope?.matches?.(selector) ? [scope] : []), ...(scope || document).querySelectorAll(selector)];
   const start = (scope = document) => { rootsIn(scope, '[data-ui-component="map-view"]').forEach(init); rootsIn(scope, '[data-map-copyable]').forEach(initCopy); };
+  globalThis.ElyMap = Object.freeze({registerTileProvider});
   start(); document.addEventListener('htmx:after:swap', event => start(event.target));
-  new MutationObserver(records => { records.forEach(record => { record.addedNodes.forEach(node => { if (node.nodeType === Node.ELEMENT_NODE) start(node); }); record.removedNodes.forEach(node => { if (node.nodeType !== Node.ELEMENT_NODE) return; const maps = rootsIn(node, '[data-ui-component="map-view"]'), copyRoots = rootsIn(node, '[data-map-copyable]'); queueMicrotask(() => { maps.forEach(root => { if (!root.isConnected) mounts.get(root)?.cleanup(); }); copyRoots.forEach(root => { if (!root.isConnected) { copies.get(root)?.abort(); copies.delete(root); } }); }); }); }); }).observe(document.documentElement, {childList: true, subtree: true});
+  new MutationObserver(records => { records.forEach(record => { if (record.type === 'attributes') { mounts.get(record.target)?.refreshTiles(); return; } record.addedNodes.forEach(node => { if (node.nodeType === Node.ELEMENT_NODE) start(node); }); record.removedNodes.forEach(node => { if (node.nodeType !== Node.ELEMENT_NODE) return; const maps = rootsIn(node, '[data-ui-component="map-view"]'), copyRoots = rootsIn(node, '[data-map-copyable]'); queueMicrotask(() => { maps.forEach(root => { if (!root.isConnected) mounts.get(root)?.cleanup(); }); copyRoots.forEach(root => { if (!root.isConnected) { copies.get(root)?.abort(); copies.delete(root); } }); }); }); }); }).observe(document.documentElement, {childList: true, subtree: true, attributes: true, attributeFilter: ['data-map-tile-provider']});
 })();
