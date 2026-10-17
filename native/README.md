@@ -39,9 +39,9 @@ implied.
 - [Server example and security boundaries](../examples/native-sdui/README.md)
 - [Shared real-server fixtures](fixtures/)
 
-The eight supported types are region, form, stack, text, input, button, notice
-and switch. The renderer supports multiple declared text/boolean fields, with
-ordinary text inputs, native toggles and form-submit buttons. Run the [expanded
+The ten supported types are region, form, stack, text, input, button, notice,
+switch, checkbox and select. The renderer supports multiple declared text/boolean fields, with
+ordinary text inputs, native toggles, checkboxes, single-choice pickers and form-submit buttons. Run the [expanded
 controls demo](../examples/native-sdui/README.md#expanded-native-controls) with
 `go run ./examples/native-sdui -controls`; the default demo preserves
 the legacy single-field profile.

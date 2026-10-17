@@ -2,7 +2,7 @@ import Foundation
 
 public enum NativeProtocol {
     public static let version = "1"
-    public static let capabilities = ["region", "form", "stack", "text", "input", "button", "notice", "switch"]
+    public static let capabilities = ["region", "form", "stack", "text", "input", "button", "notice", "switch", "checkbox", "select"]
     public static let maximumResponseBytes = 1_048_576
     public static let maximumNodes = 1_000
     public static let maximumDepth = 32
@@ -14,7 +14,29 @@ public struct ProtocolFailure: Error, LocalizedError, Equatable, Sendable {
     public var errorDescription: String? { message }
 }
 
+/// Option records are closed: unknown members cannot silently alter selection semantics.
+public struct SelectOption: Codable, Equatable, Sendable {
+    public var value: String
+    public var label: String
+    public init(value: String, label: String) { self.value = value; self.label = label }
+    private struct Key: CodingKey {
+        var stringValue: String
+        var intValue: Int? { nil }
+        init?(stringValue: String) { self.stringValue = stringValue }
+        init?(intValue: Int) { return nil }
+    }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: Key.self)
+        guard Set(c.allKeys.map(\.stringValue)) == Set(["value", "label"]) else {
+            throw ProtocolFailure("A select option must contain only value and label.")
+        }
+        value = try c.decode(String.self, forKey: Key(stringValue: "value")!)
+        label = try c.decode(String.self, forKey: Key(stringValue: "label")!)
+    }
+}
+
 public struct NodeProperties: Codable, Equatable, Sendable {
+    public var options: [SelectOption]?
     public var checked: Bool?
     public var label: String?
     public var text: String?
@@ -128,6 +150,15 @@ public enum EnvelopeDecoder {
             count += 1
             guard count <= NativeProtocol.maximumNodes, depth <= NativeProtocol.maximumDepth else {
                 throw ProtocolFailure("The screen exceeds the supported size or depth.")
+            }
+            if let type = node["type"] as? String, ["checkbox", "select"].contains(type) {
+                let allowed: Set<String> = type == "checkbox"
+                    ? ["name", "label", "checked", "disabled", "value"]
+                    : ["name", "label", "value", "disabled", "options"]
+                guard let props = node["props"] as? [String: Any],
+                      Set(props.keys).isSubset(of: allowed), !props.values.contains(where: { $0 is NSNull }) else {
+                    throw ProtocolFailure("Unsupported selection control properties.")
+                }
             }
             if let rawChildren = node["children"] {
                 guard let children = rawChildren as? [[String: Any]] else {
@@ -247,14 +278,37 @@ public enum EnvelopeDecoder {
                       ["none", "xs", "sm", "md", "lg"].contains(node.props.gap ?? "md") else {
                     throw ProtocolFailure("The screen requests unsupported stack properties.")
                 }
-            case "input", "switch":
+            case "input", "switch", "checkbox", "select":
                 guard form == "profile-form", let name = node.props.name, envelope.fields[name] != nil,
                       node.props.label != nil, (node.props.type ?? "text") == "text",
                       node.props.multiple != true, inputs.insert(name).inserted else {
                     throw ProtocolFailure("The form contains an unsupported or duplicate field.")
                 }
-                if node.type == "switch", (node.props.readonly == true || node.props.required == true || !["true", "false"].contains(envelope.fields[name] ?? "")) {
-                    throw ProtocolFailure("A switch field must contain true or false.")
+                if ["switch", "checkbox"].contains(node.type), (node.props.readonly == true || node.props.required == true || !["true", "false"].contains(envelope.fields[name] ?? "")) {
+                    throw ProtocolFailure("A boolean field must contain true or false.")
+                }
+                if ["checkbox", "select"].contains(node.type) {
+                    guard node.props.required == nil, node.props.readonly == nil, node.props.multiple == nil,
+                          node.props.placeholder == nil, node.props.type == nil,
+                          node.props.text == nil, node.props.title == nil, node.props.urgent == nil,
+                          node.props.direction == nil, node.props.align == nil, node.props.gap == nil,
+                          node.props.variant == nil, node.props.size == nil,
+                          node.props.label?.isEmpty == false,
+                          (node.props.label?.utf8.count ?? 0) <= 16_384,
+                          (node.props.value?.utf8.count ?? 0) <= 16_384 else {
+                        throw ProtocolFailure("Unsupported selection control properties.")
+                    }
+                    if node.type == "checkbox" {
+                        guard node.props.options == nil else { throw ProtocolFailure("Checkbox options are unsupported.") }
+                    } else {
+                        guard node.props.checked == nil, let options = node.props.options,
+                              (1...64).contains(options.count),
+                              options.allSatisfy({ !$0.value.isEmpty && !$0.label.isEmpty && $0.value.utf8.count <= 16_384 && $0.label.utf8.count <= 16_384 }),
+                              Set(options.map(\.value)).count == options.count,
+                              options.contains(where: { $0.value == envelope.fields[name] }) else {
+                            throw ProtocolFailure("A select requires unique bounded options and a matching field value.")
+                        }
+                    }
                 }
             case "button":
                 submitButtons += 1

@@ -135,5 +135,20 @@ A built test APK alone does not establish that these on-device checks passed.
   already have succeeded; the reload confirmation explains this.
 
 This renderer intentionally implements only the profile v1 protocol documented
-in `../PROTOCOL.md`, including text inputs and form-submit buttons. It does not
+in `../PROTOCOL.md`, including text inputs, switches, checkboxes, single-selection dropdowns, and
+form-submit buttons. Checkbox and switch values are canonical `true`/`false`
+strings; selection values must match one of 1–64 declared options. Envelope
+fields are authoritative over presentation defaults. Changes to control modes
+or option sets during a save require explicit reload so retained edits cannot
+be reinterpreted. It does not
 interpret HTML, scripts, expressions, asset URLs, bindings, or arbitrary actions.
+
+
+The optional controls demo uses five independent fields. Start it on port 8095
+using `go run ./examples/native-sdui -controls -port 8095` from the repository
+root, then
+run protocol integration tests with `ELY_NATIVE_CONTROLS_BASE_URL` set to its
+base URL. `ControlsScreenTest` covers real Compose Checkbox and DropdownMenu
+interaction, disabled selections, edits during saves, exact retries, and the
+live Go save/reload lifecycle. These instrumented checks require an emulator;
+JVM decoder/reducer tests do not establish on-device behavior.

@@ -309,6 +309,12 @@ func DefaultRegistry() (*Registry, error) {
 	enum := func(target, def string, values ...string) Property {
 		return Property{Type: String, Target: target, Default: def, Enum: values}
 	}
+	// Options use the same reviewed HTML template targets; native projection
+	// restores lower-camel wire names after normalization.
+	selectionOptions := Property{Type: Array, Target: "Options", Required: true, MaxItems: 64,
+		Items: &Property{Type: Object, Properties: map[string]Property{
+			"value": str("Value", true), "label": str("Label", true),
+		}}}
 	definitions := []Definition{
 		{Name: "stack", Container: Stack, Properties: map[string]Property{"gap": enum("Gap", "md", "none", "xs", "sm", "md", "lg"), "direction": enum("Direction", "column", "column", "row"), "align": enum("Align", "stretch", "start", "center", "end", "stretch")}},
 		{Name: "region", Container: Region, Properties: map[string]Property{"label": str("Label", false)}},
@@ -317,6 +323,8 @@ func DefaultRegistry() (*Registry, error) {
 		{Name: "notice", Template: "alert", Properties: map[string]Property{"text": str("Content", true), "title": str("Title", false), "urgent": boolean("Urgent")}},
 		{Name: "input", Template: "input", Events: []string{"change"}, Properties: map[string]Property{"name": str("Name", true), "value": str("Value", false), "label": str("AriaLabel", true), "placeholder": str("Placeholder", false), "type": enum("Type", "text", "text", "email", "search", "tel", "number", "password", "date", "file", "hidden"), "required": boolean("Required"), "disabled": boolean("Disabled"), "readonly": boolean("Readonly"), "multiple": boolean("Multiple")}},
 		{Name: "button", Template: "button", Events: []string{"click"}, Properties: map[string]Property{"label": str("Label", true), "type": enum("Type", "button", "button", "submit", "reset"), "variant": enum("Variant", "default", "default", "primary", "secondary", "outline", "ghost", "destructive"), "size": enum("Size", "default", "default", "xs", "sm", "lg"), "name": str("Name", false), "value": str("Value", false), "disabled": boolean("Disabled")}},
+		{Name: "checkbox", Template: "checkbox", Events: []string{"change"}, Properties: map[string]Property{"name": str("Name", true), "label": str("AriaLabel", true), "value": str("Value", false), "checked": boolean("Checked"), "disabled": boolean("Disabled")}},
+		{Name: "select", Template: "select", Events: []string{"change"}, Properties: map[string]Property{"name": str("Name", true), "label": str("AriaLabel", true), "value": str("Value", false), "disabled": boolean("Disabled"), "options": selectionOptions}},
 		{Name: "switch", Chapter: "forms", Component: "Switch", Events: []string{"change", "ely:change"}, Properties: map[string]Property{"label": str("Label", true), "name": str("Name", true), "value": str("Value", false), "checked": boolean("Checked"), "disabled": boolean("Disabled")}},
 	}
 	for _, definition := range definitions {

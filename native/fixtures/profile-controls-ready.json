@@ -15,7 +15,9 @@
     "input",
     "button",
     "notice",
-    "switch"
+    "switch",
+    "checkbox",
+    "select"
   ],
   "region": {
     "id": "profile-region",
@@ -97,6 +99,40 @@
                 }
               },
               {
+                "id": "digest-consent",
+                "type": "checkbox",
+                "props": {
+                  "checked": false,
+                  "disabled": false,
+                  "label": "Receive a weekly digest",
+                  "name": "digestConsent"
+                }
+              },
+              {
+                "id": "color-theme",
+                "type": "select",
+                "props": {
+                  "disabled": false,
+                  "label": "Color theme",
+                  "name": "colorTheme",
+                  "options": [
+                    {
+                      "label": "System",
+                      "value": "system"
+                    },
+                    {
+                      "label": "Light",
+                      "value": "light"
+                    },
+                    {
+                      "label": "Dark",
+                      "value": "dark"
+                    }
+                  ],
+                  "value": "system"
+                }
+              },
+              {
                 "id": "save-profile",
                 "type": "button",
                 "props": {
@@ -121,7 +157,9 @@
     ]
   },
   "fields": {
+    "colorTheme": "system",
     "company": "",
+    "digestConsent": "false",
     "displayName": "Ada",
     "notifications": "false"
   },

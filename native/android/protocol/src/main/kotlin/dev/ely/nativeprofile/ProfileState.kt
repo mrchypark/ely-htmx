@@ -1,5 +1,7 @@
 package dev.ely.nativeprofile
 
+import kotlinx.serialization.json.JsonObject
+
 /** An immutable reducer. All transitions are made on the UI thread by the app. */
 data class PendingSave(val request: SaveRequest, val body: String, val csrfToken: String, val inFlight: Boolean)
 
@@ -87,6 +89,16 @@ data class ProfileState(
         if (reply.status == "saved" && reply.dataVersion <= active.request.dataVersion) return hardFailed(reply.requestID, "The save response did not advance the server version.")
         if (reply.status == "ready") return hardFailed(reply.requestID, "The server returned an unexpected save response.")
         if (reply.acknowledgedEdits != active.request.editRevisions) return hardFailed(reply.requestID, "The server did not acknowledge the submitted edits.")
+        // A retained edit must never be reinterpreted under a different control mode
+        // or an option set that no longer represents it. Keep the previous screen.
+        fun controls(node: Node): Map<String, Triple<String, String, JsonObject>> {
+            val own = if (node.type in setOf("input", "switch", "checkbox", "select")) {
+                val modes = node.props.filterKeys { it in setOf("type", "readonly", "disabled", "required", "multiple", "indeterminate", "options") }
+                mapOf(node.string("name") to Triple(node.id, node.type, JsonObject(modes)))
+            } else emptyMap()
+            return own + node.children.flatMap { controls(it).entries }.associate { it.toPair() }
+        }
+        if (controls(current.region) != controls(reply.region)) return hardFailed(reply.requestID, "The field controls changed during a save. Reload before continuing.")
         val adoptedDrafts = if (reply.status == "saved") drafts.mapValues { (field, draft) ->
             if (editRevisions[field] == reply.acknowledgedEdits[field]) reply.fields.getValue(field) else draft
         } else drafts

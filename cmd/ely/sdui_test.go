@@ -58,7 +58,7 @@ func TestSDUISchemaAndCatalog(t *testing.T) {
 	if err := json.Unmarshal(stdout.Bytes(), &catalog); err != nil {
 		t.Fatal(err)
 	}
-	if len(catalog["definitions"].([]any)) != 8 {
+	if len(catalog["definitions"].([]any)) != 10 {
 		t.Fatal("wrong core catalogue")
 	}
 	stdout.Reset()

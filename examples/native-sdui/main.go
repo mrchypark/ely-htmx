@@ -52,6 +52,8 @@ type profile struct {
 	DisplayName   string
 	Company       string
 	Notifications bool
+	DigestConsent bool
+	ColorTheme    string
 	DataVersion   uint64
 }
 
@@ -257,7 +259,7 @@ func (s *server) bootstrap(w http.ResponseWriter, r *http.Request) (*http.Reques
 		return r, errors.New("demo session capacity reached; wait for expiry or restart the demo")
 	}
 	s.sessions[secret] = &session{
-		ID: id, CSRF: csrf, Expires: now.Add(sessionTTL), Profile: profile{DisplayName: "Ada"},
+		ID: id, CSRF: csrf, Expires: now.Add(sessionTTL), Profile: profile{DisplayName: "Ada", ColorTheme: "system"},
 		Replays: make(map[string]cachedResponse), WebReplays: make(map[string]webReplay),
 	}
 	s.mu.Unlock()
@@ -457,7 +459,7 @@ func (s *server) nativeSave(w http.ResponseWriter, r *http.Request) {
 	}
 	expected := []string{"displayName"}
 	if s.controls {
-		expected = append(expected, "company", "notifications")
+		expected = append(expected, "company", "notifications", "digestConsent", "colorTheme")
 	}
 	if len(action.Fields) != len(expected) || len(action.EditRevisions) != len(expected) {
 		writeError(w, 400, "invalid_fields", "Send exactly the declared form fields and their edit revisions.")
@@ -533,6 +535,15 @@ func (s *server) applyNative(secret string, csrf []string, action sdui.NativeAct
 				problems["notifications"] = "Choose enabled or disabled."
 			}
 			candidate.Company, candidate.Notifications = company, enabled == "true"
+			consent := action.Fields["digestConsent"]
+			if consent != "true" && consent != "false" {
+				problems["digestConsent"] = "Choose whether to receive the digest."
+			}
+			theme := action.Fields["colorTheme"]
+			if theme != "system" && theme != "light" && theme != "dark" {
+				problems["colorTheme"] = "Choose System, Light or Dark."
+			}
+			candidate.DigestConsent, candidate.ColorTheme = consent == "true", theme
 		}
 		if len(problems) > 0 {
 			status, state, message = 422, "invalid", "No changes saved."
@@ -594,7 +605,9 @@ func (s *server) envelopeLocked(value *session, requestID, status, message strin
 		data["company"], data["notifications"] = current.Company, current.Notifications
 		fields["company"] = current.Company
 		fields["notifications"] = fmt.Sprint(current.Notifications)
-		required = append(required, "switch")
+		data["digestConsent"], data["colorTheme"] = current.DigestConsent, current.ColorTheme
+		fields["digestConsent"], fields["colorTheme"] = fmt.Sprint(current.DigestConsent), current.ColorTheme
+		required = append(required, "switch", "checkbox", "select")
 	}
 	region, err := plan.ResolveNative(profileRegion, sdui.RenderContext{Data: data}, capabilities)
 	if err != nil {

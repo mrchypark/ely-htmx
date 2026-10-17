@@ -83,6 +83,42 @@
                 }
               },
               {
+                "id": "digest-consent",
+                "type": "checkbox",
+                "props": {
+                  "name": "digestConsent",
+                  "label": "Receive a weekly digest"
+                },
+                "bindings": {
+                  "checked": "/@data/digestConsent"
+                }
+              },
+              {
+                "id": "color-theme",
+                "type": "select",
+                "props": {
+                  "name": "colorTheme",
+                  "label": "Color theme",
+                  "options": [
+                    {
+                      "value": "system",
+                      "label": "System"
+                    },
+                    {
+                      "value": "light",
+                      "label": "Light"
+                    },
+                    {
+                      "value": "dark",
+                      "label": "Dark"
+                    }
+                  ]
+                },
+                "bindings": {
+                  "value": "/@data/colorTheme"
+                }
+              },
+              {
                 "id": "save-profile",
                 "type": "button",
                 "props": {

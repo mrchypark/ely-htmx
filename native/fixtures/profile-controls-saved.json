@@ -15,7 +15,9 @@
     "input",
     "button",
     "notice",
-    "switch"
+    "switch",
+    "checkbox",
+    "select"
   ],
   "region": {
     "id": "profile-region",
@@ -97,6 +99,40 @@
                 }
               },
               {
+                "id": "digest-consent",
+                "type": "checkbox",
+                "props": {
+                  "checked": true,
+                  "disabled": false,
+                  "label": "Receive a weekly digest",
+                  "name": "digestConsent"
+                }
+              },
+              {
+                "id": "color-theme",
+                "type": "select",
+                "props": {
+                  "disabled": false,
+                  "label": "Color theme",
+                  "name": "colorTheme",
+                  "options": [
+                    {
+                      "label": "System",
+                      "value": "system"
+                    },
+                    {
+                      "label": "Light",
+                      "value": "light"
+                    },
+                    {
+                      "label": "Dark",
+                      "value": "dark"
+                    }
+                  ],
+                  "value": "dark"
+                }
+              },
+              {
                 "id": "save-profile",
                 "type": "button",
                 "props": {
@@ -121,12 +157,16 @@
     ]
   },
   "fields": {
+    "colorTheme": "dark",
     "company": "Example Labs",
+    "digestConsent": "true",
     "displayName": "Grace Hopper",
     "notifications": "true"
   },
   "acknowledgedEdits": {
+    "colorTheme": 1,
     "company": 3,
+    "digestConsent": 1,
     "displayName": 1,
     "notifications": 2
   },

@@ -73,7 +73,7 @@ type NativeActionRequest struct {
 // NativeCapabilities returns a fresh copy of the deliberately small native v1
 // component set. Native input is ordinary text; the web catalogue is unchanged.
 func NativeCapabilities() []string {
-	return []string{"region", "form", "stack", "text", "input", "button", "notice", "switch"}
+	return []string{"region", "form", "stack", "text", "input", "button", "notice", "switch", "checkbox", "select"}
 }
 
 // DecodeNativeAction rejects duplicate keys (including casing aliases), unknown
@@ -266,6 +266,33 @@ func (p *Plan) resolveNativeNode(node *compiledNode, scope renderScope, budget *
 				return err
 			}
 			props[key] = normalized
+		}
+		if node.definition.Name == "checkbox" || node.definition.Name == "select" {
+			if props["label"] == "" {
+				return fmt.Errorf("%w: selection control label is empty", ErrUnsupportedNative)
+			}
+		}
+		if node.definition.Name == "select" {
+			options, ok := props["options"].([]any)
+			if !ok || len(options) == 0 || len(options) > 64 {
+				return fmt.Errorf("%w: select requires 1–64 options", ErrUnsupportedNative)
+			}
+			seen := map[string]bool{}
+			wire := make([]any, 0, len(options))
+			for _, option := range options {
+				item, ok := option.(map[string]any)
+				value, valueOK := item["Value"].(string)
+				label, labelOK := item["Label"].(string)
+				if !ok || len(item) != 2 || !valueOK || !labelOK || value == "" || label == "" || seen[value] {
+					return fmt.Errorf("%w: invalid or duplicate select option", ErrUnsupportedNative)
+				}
+				seen[value] = true
+				wire = append(wire, map[string]any{"value": value, "label": label})
+			}
+			if value, supplied := props["value"]; supplied && !seen[value.(string)] {
+				return fmt.Errorf("%w: select value is not an option", ErrUnsupportedNative)
+			}
+			props["options"] = wire
 		}
 		if node.definition.Name == "input" && (props["type"] != "text" || props["multiple"] == true) {
 			return fmt.Errorf("%w: input mode", ErrUnsupportedNative)

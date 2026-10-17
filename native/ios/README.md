@@ -3,8 +3,8 @@
 This is an actual iOS application target with a SwiftUI screen renderer, not a
 WebView. It consumes the shared [profile protocol](../PROTOCOL.md) and the Go
 example's resolved tree: the original seven-type profile, or the expanded
-[eight-type controls demo](../../examples/native-sdui/README.md#expanded-native-controls)
-with switch support. Minimum iOS version: 17.0. The Swift
+[ten-type controls demo](../../examples/native-sdui/README.md#expanded-native-controls)
+with switch, checkbox, and select support. Minimum iOS version: 17.0. The Swift
 package requires Swift 5.9 or newer; Xcode 15 or newer supplies the iOS SDK.
 
 ## Run on an iOS Simulator
@@ -124,7 +124,7 @@ Manual device/simulator checks complement automation:
 - `ElyNativeCore` contains Codable models, pre-render validation, a value-type
   reconciliation state machine, and Foundation URLSession transport.
 - `ElyNativeUI` maps `region`, `form`, `stack`, `text`, `input`, `button`, and
-  `notice` to native views. Structural containers use SwiftUI stacks; an input
+  `notice`, `switch`, `checkbox`, and `select` to native views. Structural containers use SwiftUI stacks; an input
   uses a native UITextField through `UIViewRepresentable` to observe marked-text
   composition reliably. Buttons, labels, notices and navigation are SwiftUI.
 - Stable server IDs identify views; neither dataVersion nor screenRevision is a
@@ -141,10 +141,29 @@ Manual device/simulator checks complement automation:
   cookies and local drafts are not a durable offline data store. CSRF is sent in
   its own header. Neither sessionID nor CSRF replaces cookie authentication.
 - There is no general evaluator, HTML fallback, remote URL action, remote image,
-  switch component, catalogue-wide renderer, production auth, or offline queue.
+  catalogue-wide renderer, production auth, or offline queue.
   Unsupported/malformed responses show a native error and explicit reload path
   while retaining existing drafts.
 
 Foundation tests can run on Linux. Linux does not compile the iOS-only renderer
 or prove simulator/device behavior; use the Xcode build and UI-test steps above
 for those checks.
+
+The selection controls use a SwiftUI Toggle with a custom checkbox style and a
+SwiftUI menu Picker. The checkbox exposes a label and checked state to
+accessibility; the picker uses labeled options. Both bind to local string drafts.
+The decoder rejects malformed, duplicate, oversized, or unknown option members,
+unsupported selection props, and field values outside the declared choices.
+A save response cannot change a control's mode or options: the old screen and
+newer drafts remain intact until explicit reload. The expanded UI test exercises
+selection and persistence for all three boolean/selection controls.
+
+Two additional simulator UI scenarios verify disabled checkbox/picker controls and
+newer selections made while a save is pending, followed by exact retry and a
+reload proving the original values persisted in Go. These tests opt into a
+DEBUG-only transport wrapper using both `--selection-ui-test` and the whitelisted
+`ELY_SELECTION_UI_SCENARIO` value (`disabled` or `interrupted-save`). The wrapper
+uses real HTTP with isolated ephemeral cookie storage; it either marks selection
+controls disabled on responses or drops the first completed save response after
+15 seconds. Retry still goes through the real Go authentication, CSRF, and replay
+checks. No fixture response is embedded, and Release omits the wrapper entirely.
