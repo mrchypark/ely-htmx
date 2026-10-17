@@ -103,6 +103,9 @@ func Build() (Manifest, []TestFixture, error) {
 		if err != nil {
 			return manifest, nil, fmt.Errorf("%s: %w", key, err)
 		}
+		if err := applyMapCoordinateTypes(&c); err != nil {
+			return manifest, nil, fmt.Errorf("%s: %w", key, err)
+		}
 		manifest.Contracts = append(manifest.Contracts, c)
 		seen := map[string]int{}
 		for i, f := range inputs[key] {

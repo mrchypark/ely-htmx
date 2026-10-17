@@ -107,6 +107,16 @@ by the runtime's value-depth limit. Unobserved output-only scalar fields are
 conservatively exposed as escaped strings, rather than arbitrary JSON values.
 Required fields are never inferred merely from their presence in examples.
 
+Map-view coordinate fields have an explicit numeric annotation independent of
+fixture values: `center.latitude`, `center.longitude`, and latitude/longitude
+inside `points` and `routes[].points`. This applies to `basic/map-view` and every
+qualified map-view renderer and alias. Decimal and integer JSON numbers are
+accepted and normalized to finite float64 values; strings and non-finite values
+are rejected. Callers using quoted coordinates in formerly string-inferred fields
+must migrate those values to JSON numbers. Coordinate-display text and GeoJSON
+retain their separate schemas.
+This does not add geographic range validation or change the browser map engine.
+
 Per-component contracts matter. `forms/TextArea.rows` is an integer, while
 `tables/DataTable.rows` is an array of row objects. `Items`, `Groups`, `Columns`,
 `Status`, `Variables`, `Value`, and other similarly named fields also differ
