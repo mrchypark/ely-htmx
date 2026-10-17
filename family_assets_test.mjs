@@ -106,6 +106,29 @@ if (process.argv.includes('--runtime')) {
   swapped.isConnected = false;
   observer();
   assert.equal(swapped.handlers.get('click').size, 0, 'removed component handlers are cleaned up');
+  // A returned disposer can outlive replacement bindings (for example an
+  // effect cleanup). It must not erase the current owner's cleanup registration.
+  const rebound = new ElementDouble('rebound', 'foundation');
+  let oldCalls = 0, currentCalls = 0, newCalls = 0;
+  const oldCleanup = api.mount(rebound, {onAction: () => { oldCalls++; }});
+  const currentCleanup = api.mount(rebound, {onAction: () => { currentCalls++; }});
+  const actionEvent = () => ({type: 'ely:action', target: rebound, detail: {action: 'save'}});
+  oldCleanup(); oldCleanup();
+  rebound.dispatchEvent(actionEvent());
+  assert.equal(oldCalls, 0, 'replacing bindings removes old callbacks');
+  assert.equal(currentCalls, 1, 'stale disposer leaves current callback active');
+  rebound.isConnected = false;
+  observer();
+  assert.equal(rebound.handlers.get('ely:action').size, 0, 'detach cleans the current binding after stale disposal');
+  rebound.isConnected = true;
+  const newCleanup = api.mount(rebound, {onAction: () => { newCalls++; }});
+  currentCleanup(); currentCleanup();
+  rebound.dispatchEvent(actionEvent());
+  assert.equal(currentCalls, 1, 'detach/remount does not retain previous callback');
+  assert.equal(newCalls, 1, 'one host callback after remount');
+  newCleanup(); newCleanup();
+  rebound.dispatchEvent(actionEvent());
+  assert.equal(newCalls, 1, 'current cleanup is idempotent');
   console.log('Actual ESM caching, initial mount, HTMX lifecycle, action and cleanup checks passed');
 } else {
   const all = moduleGraph('ely-api-all.js');

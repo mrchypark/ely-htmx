@@ -41,6 +41,8 @@ Alias components preserve their native control semantics without requiring fixtu
 
 `CronEditor` accepts optional `Presets` (`Label`, `Value`) and an ISO `Now` reference. It validates five-field numeric expressions and month/weekday names, describes the rule, and shows the next three runs in UTC, searching up to five years ahead. Empty input shows the field guide. Invalid rules do not produce run dates.
 
+`TagInput` add/remove commits and `PinInput` digit edits/pastes emit bubbling `input` and `change` events from their named hidden value field. The common host adapter forwards the change as `ely:change`. Initialization, repeated swaps, and unchanged values do not emit these commit notifications. The host adapter and SDUI action dispatcher ignore native `change` events from the unnamed implementation editors, avoiding duplicate requests on blur; those native events still bubble for custom listeners.
+
 `SignaturePad` submits its named value as a PNG data URL after drawing, or as plain text through the keyboard fallback. Completing a stroke, typing, and clearing dispatch a change for that same field name. The keyboard fallback opens when native validation requires it. `Disabled` blocks both input paths.
 
 `CodeInput` is a single-line code field; set `Multiline` for a textarea. `JsonInput` uses a textarea and native validity to reject invalid JSON while retaining the input for correction.

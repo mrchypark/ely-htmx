@@ -866,3 +866,23 @@ test('default savings gates require at least 64 bytes and 5 percent', async () =
     assert.equal(h.calls[0].options.body instanceof FormDataDouble, !compress, `${size}/${savings}`);
   }
 });
+
+test('composite editor blur does not duplicate named aggregate change actions', () => {
+  const h = harness();
+  const root = h.element('div', {'data-sdui-on': 'change', 'data-sdui-action': 'save', 'data-sdui-target': 'region'});
+  const value = h.element('input', {type: 'hidden', name: 'tags', value: 'alpha,beta'});
+  const tag = h.element('input', {'data-ui-tag-entry': ''});
+  const pin = h.element('input', {'data-ui-pin-slot': ''});
+  root.append(value, tag, pin); h.screen.append(root);
+  let nativeChanges = 0;
+  root.addEventListener('change', () => nativeChanges++);
+  h.fire(value, 'change'); h.fire(tag, 'change'); h.fire(pin, 'change');
+  assert.equal(h.calls.length, 1, 'only aggregate field reaches host action');
+  assert.equal(h.calls[0].options.body.get('tags'), 'alpha,beta');
+  assert.equal(nativeChanges, 3, 'native editor events remain available to custom consumers');
+  const ordinary = h.element('input'); root.append(ordinary); h.fire(ordinary, 'change');
+  assert.equal(h.calls.length, 2, 'ordinary unnamed controls retain existing behavior');
+  tag.setAttribute('name', 'custom-editor'); tag.value = 'caller-owned'; h.fire(tag, 'change');
+  assert.equal(h.calls.length, 3, 'explicit named custom editors remain successful controls');
+  assert.equal(h.calls[2].options.body.get('custom-editor'), 'caller-owned');
+});
