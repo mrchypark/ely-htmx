@@ -34,6 +34,86 @@
     }
     return laid;
   };
+  // GeoJSON contract: maps/geojson.rs at da3fdcaf39f2fa85ce1dd9cad07c3c81cf1dd721.
+  // Browser safety envelope (whole input, never truncate): 1 MiB UTF-8, 64 JSON
+  // levels, 100000 JSON values, 4096 features/geometries, 20000 positions.
+  const readGeoJSON = text => {
+    const fail = message => { throw new Error(`Invalid GeoJSON: ${message}`); };
+    if (typeof text !== 'string' || text.length > 1048576) fail('input exceeds 1 MiB');
+    let bytes = 0;
+    for (const char of text) { const cp = char.codePointAt(0); bytes += cp < 128 ? 1 : cp < 2048 ? 2 : cp < 65536 ? 3 : 4; }
+    if (bytes > 1048576) fail('input exceeds 1 MiB');
+    // Keep numeric lexemes until feature IDs have been extracted. JSON.parse
+    // alone silently rounds IDs such as 9007199254740993 in older browsers.
+    class Numeric { constructor(raw) { this.raw = raw; this.value = Number(raw); if (!Number.isFinite(this.value)) fail('non-finite number'); } }
+    let cursor = 0, nodes = 0, geometries = 0, points = 0;
+    const whitespace = () => { while (/[\x20\t\r\n]/.test(text[cursor] || '\0')) cursor++; };
+    const string = () => { const start = cursor++; while (cursor < text.length) { const char = text[cursor++]; if (char === '\\') cursor++; else if (char === '"') { try { const decoded = JSON.parse(text.slice(start, cursor)); for (const unit of decoded) { const cp = unit.codePointAt(0); if (cp >= 0xd800 && cp <= 0xdfff) fail('unpaired Unicode surrogate'); } return decoded; } catch { fail('invalid JSON string'); } } } fail('unterminated JSON string'); };
+    const value = depth => {
+      if (depth > 64) fail('JSON depth exceeds 64');
+      if (++nodes > 100000) fail('JSON values exceed 100000');
+      whitespace(); const char = text[cursor];
+      if (char === '"') return string();
+      if (char === '[' || char === '{') {
+        const array = char === '[', result = array ? [] : Object.create(null), end = array ? ']' : '}'; cursor++; whitespace();
+        if (text[cursor] === end) { cursor++; return result; }
+        while (true) {
+          whitespace(); let key;
+          if (!array) { if (text[cursor] !== '"') fail('expected object key'); key = string(); whitespace(); if (text[cursor++] !== ':') fail('expected colon'); }
+          const item = value(depth + 1); if (array) result.push(item); else result[key] = item;
+          whitespace(); const delimiter = text[cursor++]; if (delimiter === end) return result; if (delimiter !== ',') fail('expected JSON delimiter');
+        }
+      }
+      for (const [token, decoded] of [['null', null], ['true', true], ['false', false]]) if (text.startsWith(token, cursor)) { cursor += token.length; return decoded; }
+      const match = text.slice(cursor).match(/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/);
+      if (!match) fail('not JSON'); cursor += match[0].length; return new Numeric(match[0]);
+    };
+    const json = value(1); whitespace(); if (cursor !== text.length) fail('trailing JSON data');
+    const object = item => item !== null && typeof item === 'object' && !Array.isArray(item) && !(item instanceof Numeric);
+    const kind = item => { if (!object(item) || typeof item.type !== 'string') fail('object without a type'); return item.type; };
+    const list = (item, each) => { if (!Array.isArray(item)) fail('coordinates must be a list'); return item.map(each); };
+    const position = item => {
+      if (++points > 20000) fail('positions exceed 20000');
+      if (!Array.isArray(item) || !(item[0] instanceof Numeric) || !(item[1] instanceof Numeric)) fail('position needs longitude and latitude numbers');
+      const lon = item[0].value, lat = item[1].value;
+      if (Math.abs(lon) > 180 || Math.abs(lat) > 90) fail('position past the globe');
+      return [lon, lat];
+    };
+    const line = item => { const result = list(item, position); if (result.length < 2) fail('line needs two positions'); return result; };
+    const ring = item => { const result = list(item, position); if (result.length < 4) fail('ring needs four or more positions'); if (result[0][0] !== result.at(-1)[0] || result[0][1] !== result.at(-1)[1]) fail('ring does not close'); return result; };
+    const geometry = item => {
+      if (++geometries > 4096) fail('geometries exceed 4096');
+      const type = kind(item), coordinates = item.coordinates;
+      switch (type) {
+        case 'Point': return {type, coordinates: position(coordinates)};
+        case 'MultiPoint': return {type, coordinates: list(coordinates, position)};
+        case 'LineString': return {type, coordinates: line(coordinates)};
+        case 'MultiLineString': return {type, coordinates: list(coordinates, line)};
+        case 'Polygon': return {type, coordinates: list(coordinates, ring)};
+        case 'MultiPolygon': return {type, coordinates: list(coordinates, polygon => list(polygon, ring))};
+        case 'GeometryCollection': if (!Array.isArray(item.geometries)) fail('collection needs geometries'); return {type, geometries: item.geometries.map(geometry)};
+        default: fail('unknown geometry type');
+      }
+    };
+    const plain = item => item instanceof Numeric ? item.value : Array.isArray(item) ? item.map(plain) : object(item) ? Object.fromEntries(Object.entries(item).map(([key, val]) => [key, plain(val)])) : item;
+    const feature = item => {
+      if (kind(item) !== 'Feature') fail('expected a Feature');
+      let id = item.id ?? null;
+      if (id instanceof Numeric) {
+        // Rust serde_json integer range. Floats/exponents (and -0) have a Rust
+        // formatting contract we do not emulate: callers must use string IDs.
+        if (!/^-?(?:0|[1-9]\d*)$/.test(id.raw) || id.raw === '-0') fail('numeric IDs must be integer literals; use a string ID for floats/exponents');
+        const exact = BigInt(id.raw); if (exact < -9223372036854775808n || exact > 18446744073709551615n) fail('numeric ID exceeds 64-bit integer range; use a string ID');
+        id = id.raw;
+      } else if (id !== null && typeof id !== 'string') fail('id must be text or a number');
+      if (!Object.hasOwn(item, 'geometry')) fail('Feature without geometry');
+      if (item.properties != null && !object(item.properties)) fail('properties must be an object');
+      return {type: 'Feature', id, properties: plain(item.properties ?? {}), geometry: item.geometry === null ? null : geometry(item.geometry)};
+    };
+    if (kind(json) === 'FeatureCollection') { if (!Array.isArray(json.features)) fail('collection needs features'); if (json.features.length > 4096) fail('features exceed 4096'); return json.features.map(feature); }
+    return kind(json) === 'Feature' ? [feature(json)] : [{type: 'Feature', id: null, properties: {}, geometry: geometry(json)}];
+  };
+  const geometryParts = geometry => !geometry ? [] : geometry.type === 'GeometryCollection' ? geometry.geometries.flatMap(geometryParts) : [geometry];
   // DOM starts here; geometry above is also exercised by the deterministic Node tests.
   const ns = 'http://www.w3.org/2000/svg';
   const svg = (name, attrs = {}) => { const node = document.createElementNS(ns, name); Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value)); return node; };
@@ -180,7 +260,7 @@
     const clearGenerated = () => root.querySelectorAll('[data-map-generated]').forEach(node => node.remove());
     const restoreMarkers = () => markerPoints().forEach(marker => { marker.hidden = false; delete marker.dataset.cluster; delete marker._mapMembers; marker.querySelector('[data-map-count]')?.remove(); marker.setAttribute('aria-label', marker.dataset.mapLabel || marker.dataset.key || 'Location'); });
     const cleanup = () => { if (mounts.get(root)?.cleanup !== cleanup) return; cancelled = true; controller.abort(); resize?.disconnect(); clearGenerated(); restoreMarkers(); popup.hidden = true; mounts.delete(root); delete root.dataset.mapReady; };
-    mounts.set(root, {cleanup}); clearGenerated(); root.dataset.mapReady = 'pending';
+    mounts.set(root, {cleanup}); clearGenerated(); root.dataset.mapReady = 'pending'; status.hidden = true; status.textContent = '';
     const listen = (target, type, handler, options = {}) => target?.addEventListener(type, handler, {...options, signal});
     root.style.maxWidth = `${Math.max(1, number(root.dataset.mapWidth, 720))}px`; canvas.style.height = `${Math.max(1, number(root.dataset.mapHeight, 360))}px`;
     const measure = () => { width = canvas.clientWidth; height = canvas.clientHeight; q('[data-map-svg]').setAttribute('viewBox', `0 0 ${width} ${height}`); };
@@ -196,11 +276,33 @@
     const fitCluster = marker => { const points = marker._mapMembers.map(item => project(item.dataset.lat, item.dataset.lon)), xs = points.map(point => point[0]), ys = points.map(point => point[1]), minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys); center = unproject((minX + maxX) / 2, (minY + maxY) / 2); const next = Math.min(Math.log2(Math.max(1, width - 64) / (256 * (maxX - minX || Number.EPSILON))), Math.log2(Math.max(1, height - 64) / (256 * (maxY - minY || Number.EPSILON)))); zoom = clamp(Math.max(zoom, next), 0, 19); canvas.focus(); apply(true); };
     const valueByKey = new Map(markerPoints().map(marker => [String(marker.dataset.key || marker.dataset.mapLabel || marker.getAttribute('aria-label')).toLowerCase(), number(marker.dataset.value)]));
     const span = [...valueByKey.values()], least = span.length ? Math.min(...span) : 0, most = span.length ? Math.max(...span) : 0;
-    const appendGeoJSON = (features, land = false) => { const layer = q(land ? '[data-map-land]' : '[data-map-geojson-layer]'); for (const feature of features) { const geometry = feature.geometry || {}, props = feature.properties || {}, key = String(props.region || props.iso_a2 || feature.id || props.name || '').toLowerCase(), value = valueByKey.get(key), colored = !land && ['world', 'choropleth'].includes(mode); for (const shift of [-200, -100, 0, 100, 200]) { if (['Point', 'MultiPoint'].includes(geometry.type)) { const places = geometry.type === 'Point' ? [geometry.coordinates] : geometry.coordinates; places.forEach(([lon, lat]) => { const [x, y] = project(lat, lon); layer.append(svg('circle', {cx: x * 100 + shift, cy: y * 100, r: 4 / scale, 'data-map-geojson-point': '', 'data-map-generated': ''})); }); continue; } const path = svg('path', {d: pathFor(geometry), transform: `translate(${shift} 0)`, 'fill-rule': 'evenodd', 'data-map-generated': ''}); if (colored) { path.dataset.mapChoropleth = value === undefined ? 'empty' : 'value'; path.style.setProperty('--ely-map-share', String(value === undefined ? 0 : most > least ? .15 + .85 * (value - least) / (most - least) : 1)); } else if (!land) path.dataset.mapGeojsonFeature = geometry.type; layer.append(path); } } };
+    const appendGeoJSON = (features, land = false) => {
+      const layer = q(land ? '[data-map-land]' : '[data-map-geojson-layer]');
+      for (const feature of features) {
+        const props = feature.properties || {};
+        // Property objects are untrusted data, never invoke their coercion hooks.
+        const key = String([props.region, props.iso_a2, feature.id, props.name].find(value => typeof value === 'string' && value !== '' || typeof value === 'number') ?? '').toLowerCase();
+        const value = valueByKey.get(key), colored = !land && ['world', 'choropleth'].includes(mode);
+        for (const geometry of geometryParts(feature.geometry)) for (const shift of [-200, -100, 0, 100, 200]) {
+          if (['Point', 'MultiPoint'].includes(geometry.type)) {
+            const places = geometry.type === 'Point' ? [geometry.coordinates] : geometry.coordinates;
+            places.forEach(([lon, lat]) => { const [x, y] = project(lat, lon); layer.append(svg('circle', {cx: x * 100 + shift, cy: y * 100, r: 4 / scale, 'data-map-geojson-point': '', 'data-map-generated': ''})); });
+            continue;
+          }
+          const d = pathFor(geometry); if (!d.trim()) continue;
+          const path = svg('path', {d, transform: `translate(${shift} 0)`, 'fill-rule': 'evenodd', 'data-map-generated': ''});
+          if (colored) {
+            path.dataset.mapChoropleth = value === undefined ? 'empty' : 'value';
+            path.style.setProperty('--ely-map-share', String(value === undefined ? 0 : most > least ? .15 + .85 * (value - least) / (most - least) : 1));
+          } else if (!land) path.dataset.mapGeojsonFeature = geometry.type;
+          layer.append(path);
+        }
+      }
+    };
     mounts.get(root).refreshTiles = () => tileRenderer?.update(center, zoom, width, height);
-    const source = q('template[data-map-geojson]'), inline = source?.content.textContent.trim();
+    const source = q('template[data-map-geojson]'), inline = source?.content.textContent;
     apply();
-    Promise.resolve().then(async () => { const land = await localFeatures(signal); if (cancelled || !root.isConnected) return; if (mode === 'world' || mode === 'choropleth' && !inline) appendGeoJSON(land); else { appendGeoJSON(land, true); if (inline) { const data = JSON.parse(inline); appendGeoJSON(data.type === 'FeatureCollection' ? data.features : [data]); } } if (['world', 'choropleth'].includes(mode)) { legend.hidden = false; q('[data-map-legend-low]').textContent = least.toLocaleString('en-US'); q('[data-map-legend-high]').textContent = most.toLocaleString('en-US'); } root.dataset.mapReady = 'true'; }).catch(error => { if (cancelled || error.name === 'AbortError') return; root.dataset.mapReady = 'error'; status.hidden = false; status.textContent = 'Map geometry is unavailable.'; });
+    Promise.resolve().then(async () => { const features = source ? readGeoJSON(inline) : null; const land = await localFeatures(signal); if (cancelled || !root.isConnected) return; if (['world', 'choropleth'].includes(mode) && !source) appendGeoJSON(land); else { appendGeoJSON(land, true); if (features) appendGeoJSON(features); } if (['world', 'choropleth'].includes(mode)) { legend.hidden = false; q('[data-map-legend-low]').textContent = least.toLocaleString('en-US'); q('[data-map-legend-high]').textContent = most.toLocaleString('en-US'); } root.dataset.mapReady = 'true'; }).catch(error => { if (cancelled || error.name === 'AbortError') return; root.dataset.mapReady = 'error'; status.hidden = false; status.textContent = error.message.startsWith('Invalid GeoJSON:') ? error.message : 'Map geometry is unavailable.'; });
     root.querySelectorAll('[data-map-route]').forEach(route => { const points = [...route.querySelectorAll('[data-map-point]')].map(stop => [number(stop.dataset.lon), number(stop.dataset.lat)]); if (points.length > 1) for (const shift of [-200, -100, 0, 100, 200]) q('[data-map-routes]').append(svg('path', {d: linePath(points), transform: `translate(${shift} 0)`, 'data-map-generated': ''})); });
     listen(markers, 'click', event => { const marker = event.target.closest('[data-map-point]'); if (!marker || marker.hidden || disabled()) return; if (marker._mapMembers) fitCluster(marker); else showPopup(marker); });
     listen(q('[data-map-close]'), 'click', () => { if (!disabled()) closePopup(); });
