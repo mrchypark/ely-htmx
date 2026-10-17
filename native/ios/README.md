@@ -167,3 +167,51 @@ uses real HTTP with isolated ephemeral cookie storage; it either marks selection
 controls disabled on responses or drops the first completed save response after
 15 seconds. Retry still goes through the real Go authentication, CSRF, and replay
 checks. No fixture response is embedded, and Release omits the wrapper entirely.
+
+### CI simulator bootstrap
+
+The native workflow creates a dedicated `ElyCI-<unique ID>` simulator instead of
+booting the first device precreated in the runner image. The hardware is explicitly
+`iPhone-17-Pro` (override only with `ELY_IOS_DEVICE_TYPE`); the runtime is the newest
+available iOS runtime that reports support for that device type. For older
+`simctl` JSON, an available device registered to that runtime supplies compatibility
+evidence only. Its data is never reused. Missing compatibility fails the gate;
+there is no automatic hardware fallback, runtime installation, or OS downgrade.
+The application's minimum supported iOS version is unchanged.
+
+`native/ci/prepare-ios-simulator.sh` invokes the Python orchestrator using Apple's
+[Xcode command-line tools](https://developer.apple.com/documentation/xcode/xcode-command-line-tool-reference).
+It records runner/Xcode/SDK metadata, installed-tool help, the complete preboot
+inventory, selected runtime/type, and the newly created device ID before boot.
+`simctl bootstatus <ID> -b` must complete successfully before `device_id` is published
+to the UI-test step. There is one boot attempt and no test retry or assertion change.
+
+Every subprocess has a deadline: boot gets 300 seconds, other commands get 15
+seconds each. Timeout kills the command's process group and records exit 124 with
+elapsed time in `commands.jsonl`. The 10-minute workflow step is an outer guard,
+leaving room for metadata, failure diagnostics, and cleanup. Boot failures capture
+postboot inventory, targeted simulator migration/location logs, and host
+CoreSimulator logs, each bounded separately. Partial stdout/stderr is preserved
+in `ios-launch-diagnostics` even if a diagnostic command fails or times out.
+
+The ownership record allows cleanup after startup failure and an `always()` step
+after the UI stage. Cleanup shuts down and deletes only the newly created UUID;
+it never erases image-provided simulators or changes host services/security settings.
+A successful deletion clears ownership, making repeated cleanup a no-op. Failed
+deletion retains the record for the workflow cleanup step. If creation itself
+hangs or returns no valid UUID, the prewritten selection name and create logs
+remain available, but no unverified device is deleted. Hosted runners are disposable.
+
+This change addresses an observed infrastructure failure, not an established
+CoreLocation root cause: [run 39017118391](https://github.com/mrchypark/elysdui/actions/runs/39017118391/job/117351428901)
+passed core tests and the simulator build, then stayed in
+`com.apple.locationd.migrator (CoreLocationMigrator.migrator)` until the old
+five-minute gate timed out. UI tests never started and no result bundle existed.
+A fresh device removes inherited device data from the experiment; first boot can
+still run migration. Only exact-revision macOS CI can establish whether it resolves
+the stall and whether all four UI tests pass. Offline tests validate deterministic
+selection, readiness gating, failure handling, time limits, and owned-only cleanup:
+
+```sh
+python3 native/ci/test-ios-simulator.py
+```
