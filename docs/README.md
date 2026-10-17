@@ -35,3 +35,5 @@ choosing an alias or assuming a component integrates an external service.
 - [Naming and compatibility](naming.md): elysdui branding and stable integration names.
 
 - [Host-owned raster map tiles](map-tiles.md): trusted provider IDs, local fixture, resource limits, and source correspondence.
+
+- [Native maps and canvas design](native-map-canvas-design.md): proposed geographic editing architecture, SDK boundaries, compatibility and acceptance plan; not implemented.
